@@ -1,0 +1,127 @@
+CHARUSAT ONLINE EDUCATION - KNOWLEDGE BASE (REFERENCE DATA)
+
+Charotar University of Science and Technology (CHARUSAT) offers UGC-entitled online degree programmes designed for learners who require flexible, technology-enabled higher education. The online education ecosystem focuses on self-paced learning supported by a Learning Management System (LMS), live faculty interaction, digital learning resources, assignments, assessments, and student support services.
+
+ONLINE PROGRAMMES
+
+Bachelor of Computer Applications (Online BCA)
+The Online BCA programme is a three-year undergraduate degree intended to provide a strong foundation in computer science, software development, programming, databases, web technologies, networking, and modern IT practices. The curriculum emphasizes practical learning, project-based education, problem solving, teamwork, and communication skills.
+
+Eligibility:
+Candidates who have passed 10+2 (or equivalent) in any stream with English as a subject are eligible according to university regulations.
+
+Duration:
+3 Years
+
+Credits:
+145
+
+Annual Tuition Fee:
+INR 50,000
+
+------------------------------------------------------------
+
+Bachelor of Business Administration (Online BBA)
+
+The Online BBA programme is designed to build knowledge in business management, marketing, finance, human resources, entrepreneurship, organizational behaviour, communication, and leadership. The programme prepares students for managerial careers as well as higher education opportunities.
+
+Eligibility:
+10+2 (or equivalent) with English as per university admission regulations.
+
+------------------------------------------------------------
+
+Master of Business Administration (Online MBA)
+
+The Online MBA programme is designed for graduates, working professionals, entrepreneurs, homemakers, and learners who require flexibility without interrupting their careers. The curriculum focuses on managerial decision making, business analytics, accounting, economics, organizational behaviour, communication, leadership, and strategic management.
+
+Eligibility:
+Bachelor's Degree (or equivalent) with English as per university regulations.
+
+Duration:
+2 Years
+
+Credits:
+100
+
+Annual Tuition Fee:
+INR 75,000
+
+------------------------------------------------------------
+
+Master of Computer Applications (Online MCA)
+
+The Online MCA programme provides advanced education in software engineering, programming, databases, networking, cybersecurity, cloud computing, and modern computing technologies. The programme supports learners who cannot attend regular on-campus education due to professional or personal commitments.
+
+Eligibility:
+Bachelor's Degree (or equivalent) with English according to university regulations.
+
+Duration:
+2 Years
+
+Credits:
+108
+
+Annual Tuition Fee:
+INR 75,000
+
+------------------------------------------------------------
+
+ONLINE LEARNING FEATURES
+
+• UGC-entitled Online Degrees
+• Flexible learning from any location
+• Learning Management System (LMS)
+• Self-paced recorded video lectures
+• Live online faculty interaction
+• Digital study materials
+• E-books
+• Assignments
+• Quizzes
+• Continuous assessment
+• Placement assistance
+• Academic mentoring
+• Student support services
+• Choice Based Credit System
+• Access to MOOCs such as Coursera and NPTEL
+• Certification opportunities including AWS, RHCE and EC-Council
+
+LEARNING MODEL
+
+Teaching is delivered through a combination of recorded lectures, digital reading material, assignments, quizzes, and scheduled live online sessions. Students can access learning resources through the Learning Management System using authenticated credentials. Learning is designed to support both full-time students and working professionals.
+
+ASSESSMENT
+
+Assessment may include assignments, quizzes, internal evaluations, and university examinations according to programme regulations. Students are expected to complete academic requirements as prescribed by the university.
+
+ADMISSION PROCESS
+
+Applicants submit an online application through the university admission portal. Required academic documents and identity documents are uploaded for verification. Eligible applications are reviewed by the admission team before confirmation of admission.
+
+GENERAL ELIGIBILITY DOCUMENTS
+
+• Identity Proof
+• Address Proof
+• Class 10 Marksheet
+• Class 12 Marksheet (UG programmes)
+• Graduation Marksheet and Degree Certificate (PG programmes)
+• Passport Size Photograph
+• Signature
+• Additional documents as required by university regulations
+
+STUDENT SUPPORT
+
+Students receive academic guidance through programme coordinators, faculty members, discussion forums, live sessions, LMS messaging, email communication, and technical support services.
+
+UNIVERSITY HIGHLIGHTS
+
+• NAAC A+ Accreditation
+• UGC Entitled Online Degrees
+• Ranked among top universities in India
+• Technology-enabled learning ecosystem
+• Industry-oriented curriculum
+• Placement assistance
+• Flexible education for working professionals
+• Research-driven academic environment
+• Continuous digital learning support
+
+This document is intended as reference knowledge text for chatbot ingestion and RAG indexing.

@@ -1,0 +1,78 @@
+from __future__ import annotations
+
+from typing import List, Tuple
+
+from langchain_core.documents import Document
+from rich.panel import Panel
+from rich.prompt import Prompt
+
+from app.config import ensure_directories
+from app.embeddings import EmbeddingStore
+from app.ingestion import KnowledgeBaseIngester
+from app.llm import LLMClient
+from app.rag_chain import RAGChain
+from app.retriever import RAGRetriever
+from app.utils import console, print_error, print_info, print_section, print_warning, Timer
+
+
+class ChatbotApp:
+    def __init__(self) -> None:
+        ensure_directories()
+        self.ingester = KnowledgeBaseIngester()
+        self.embedding_store = EmbeddingStore()
+        self.vector_store = self._initialize_vector_store()
+        self.retriever = RAGRetriever(self.vector_store)
+        self.llm_client = LLMClient()
+        self.rag_chain = RAGChain(self.retriever, self.llm_client)
+
+    def _initialize_vector_store(self):
+        try:
+            return self.embedding_store.load_vector_store()
+        except Exception:
+            documents = self.ingester.load_documents()
+            chunks = self.ingester.split_documents(documents)
+            self.ingester.reset_vector_store()
+            return self.embedding_store.build_vector_store(chunks)
+
+    def run(self) -> None:
+        print_section("CHARUSAT Online Course Assistant")
+        console.print(Panel("Ask questions about the university knowledge base. Type 'exit' to quit."))
+
+        while True:
+            try:
+                question = Prompt.ask("\nAsk Question")
+            except KeyboardInterrupt:
+                print_warning("Goodbye!")
+                break
+
+            if question.strip().lower() in {"exit", "quit"}:
+                print_warning("Goodbye!")
+                break
+
+            with Timer() as timer:
+                response_text, retrieved = self.rag_chain.answer(question)
+
+            self._display_result(question, response_text, retrieved, timer.elapsed_seconds)
+
+    def _display_result(self, question: str, response_text: str, retrieved: List[Tuple[Document, float]], elapsed_seconds: float) -> None:
+        console.print(Panel(f"[bold]Question[/bold]\n{question}", expand=False))
+
+        sources = sorted({doc.metadata.get("source", "unknown") for doc, _ in retrieved})
+        chunk_ids = sorted({doc.metadata.get("chunk_id", "n/a") for doc, _ in retrieved})
+        scores = [round(score, 4) for _, score in retrieved]
+
+        console.print("[bold]Retrieved Files[/bold]")
+        for source in sources:
+            console.print(f"- {source}")
+
+        console.print("[bold]Chunk IDs[/bold]")
+        console.print(f"- {', '.join(str(item) for item in chunk_ids)}")
+
+        console.print("[bold]Similarity Score[/bold]")
+        console.print(f"- {', '.join(str(item) for item in scores)}")
+
+        console.print("[bold]LLM Response[/bold]")
+        console.print(response_text)
+
+        console.print(f"[bold]Execution Time[/bold]: {elapsed_seconds:.2f}s")
+        console.print("-" * 50)

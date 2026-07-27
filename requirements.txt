@@ -1,0 +1,78 @@
+# ==========================
+# Backend
+# ==========================
+fastapi
+uvicorn[standard]
+
+# ==========================
+# Environment Variables
+# ==========================
+python-dotenv
+
+# ==========================
+# LangChain
+# ==========================
+langchain
+langchain-core
+langchain-community
+langchain-google-genai
+
+# ==========================
+# Google Gemini
+# ==========================
+google-generativeai
+
+# ==========================
+# Vector Database
+# ==========================
+chromadb
+
+# ==========================
+# Embedding Models
+# ==========================
+sentence-transformers
+
+# ==========================
+# PDF & Document Processing
+# ==========================
+pypdf
+pymupdf
+
+# ==========================
+# Tokenization
+# ==========================
+tiktoken
+
+# ==========================
+# File Upload
+# ==========================
+python-multipart
+
+# ==========================
+# Data Processing
+# ==========================
+numpy
+pandas
+
+# ==========================
+# Web Scraping
+# ==========================
+requests
+beautifulsoup4
+lxml
+
+# ==========================
+# Utilities
+# ==========================
+tqdm
+
+# ==========================
+# API & Validation
+# ==========================
+pydantic
+
+# ==========================
+# Development
+# ==========================
+ipykernel
+jupyter
