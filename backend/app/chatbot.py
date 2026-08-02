@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import List, Tuple
 
 from langchain_core.documents import Document
@@ -12,7 +13,7 @@ from app.ingestion import KnowledgeBaseIngester
 from app.llm import LLMClient
 from app.rag_chain import RAGChain
 from app.retriever import RAGRetriever
-from app.utils import console, print_section, print_warning, Timer
+from app.utils import console, print_info, print_section, print_warning, Timer
 
 
 class ChatbotApp:
@@ -26,13 +27,14 @@ class ChatbotApp:
         self.rag_chain = RAGChain(self.retriever, self.llm_client)
 
     def _initialize_vector_store(self):
-        self.ingester.refresh_sources()
-        if self.ingester.should_rebuild_vector_store():
+        scraped_files = self.ingester.refresh_sources()
+        if self.ingester.should_rebuild_vector_store() or scraped_files:
             documents = self.ingester.load_documents()
             chunks = self.ingester.split_documents(documents)
             self.ingester.reset_vector_store()
             vector_store = self.embedding_store.build_vector_store(chunks)
             self.ingester.write_source_manifest()
+            self._print_rebuild_summary(scraped_files, documents, chunks)
             return vector_store
 
         try:
@@ -43,7 +45,21 @@ class ChatbotApp:
             self.ingester.reset_vector_store()
             vector_store = self.embedding_store.build_vector_store(chunks)
             self.ingester.write_source_manifest()
+            self._print_rebuild_summary(scraped_files, documents, chunks)
             return vector_store
+
+    def _print_rebuild_summary(self, scraped_files: List[Path], documents: List[Document], chunks: List[Document]) -> None:
+        pages_crawled = len(scraped_files)
+        markdown_files = len(documents)
+        chunks_generated = len(chunks)
+
+        print_info("=" * 50)
+        print_info(f"Pages Crawled: {pages_crawled}")
+        print_info(f"Markdown Files Created: {markdown_files}")
+        print_info(f"Chunks Generated: {chunks_generated}")
+        print_info(f"Embeddings Generated: {chunks_generated}")
+        print_info("ChromaDB Rebuilt Successfully")
+        print_info("=" * 50)
 
     def run(self) -> None:
         print_section("CHARUSAT Online Course Assistant")
