@@ -14,6 +14,8 @@ FALLBACK_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 1000
 CHUNK_OVERLAP = 200
 TOP_K = 5
+SCRAPE_START_URL = "https://charusat.online"
+SCRAPE_MAX_PAGES = 50
 
 load_dotenv(BASE_DIR / ".env")
 

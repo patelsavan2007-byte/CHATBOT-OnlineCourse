@@ -16,6 +16,7 @@ langchain
 langchain-core
 langchain-community
 langchain-google-genai
+langchain-text-splitters
 
 # ==========================
 # Google Gemini
@@ -60,6 +61,7 @@ pandas
 requests
 beautifulsoup4
 lxml
+crawl4ai
 
 # ==========================
 # Utilities

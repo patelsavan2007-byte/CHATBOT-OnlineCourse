@@ -1,0 +1,32 @@
+Completed Work Summary
+======================
+
+Project: CHARUSAT Online Course Assistant
+
+What was implemented:
+- Built a production-ready backend for a RAG-based chatbot.
+- Added a web scraping pipeline for CHARUSAT content from charusat.online.
+- Implemented HTML cleaning and Markdown extraction for scraped pages.
+- Added support to save cleaned content into the knowledge base.
+- Updated the ingestion pipeline to automatically index all .md and .txt files.
+- Added logic to rebuild the Chroma vector database whenever source documents change.
+- Preserved the chatbot as a terminal-based application.
+- Added source tracking and retrieval metadata display in the chat interface.
+- Added regression tests for the scraper functionality.
+
+Key files involved:
+- backend/app/scraper.py
+- backend/app/ingestion.py
+- backend/app/chatbot.py
+- backend/app/embeddings.py
+- backend/app/llm.py
+- backend/app/config.py
+- tests/test_scraper.py
+
+Verification completed:
+- Scraper regression tests passed.
+- Backend startup and chatbot initialization verified.
+- Interactive chatbot run returned retrieved sources, chunk IDs, similarity scores, and a grounded answer.
+
+Status:
+- The project is working and the terminal-based RAG chatbot is functional.

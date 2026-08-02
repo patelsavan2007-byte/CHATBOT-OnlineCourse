@@ -12,7 +12,7 @@ from app.ingestion import KnowledgeBaseIngester
 from app.llm import LLMClient
 from app.rag_chain import RAGChain
 from app.retriever import RAGRetriever
-from app.utils import console, print_error, print_info, print_section, print_warning, Timer
+from app.utils import console, print_section, print_warning, Timer
 
 
 class ChatbotApp:
@@ -26,13 +26,24 @@ class ChatbotApp:
         self.rag_chain = RAGChain(self.retriever, self.llm_client)
 
     def _initialize_vector_store(self):
+        self.ingester.refresh_sources()
+        if self.ingester.should_rebuild_vector_store():
+            documents = self.ingester.load_documents()
+            chunks = self.ingester.split_documents(documents)
+            self.ingester.reset_vector_store()
+            vector_store = self.embedding_store.build_vector_store(chunks)
+            self.ingester.write_source_manifest()
+            return vector_store
+
         try:
             return self.embedding_store.load_vector_store()
         except Exception:
             documents = self.ingester.load_documents()
             chunks = self.ingester.split_documents(documents)
             self.ingester.reset_vector_store()
-            return self.embedding_store.build_vector_store(chunks)
+            vector_store = self.embedding_store.build_vector_store(chunks)
+            self.ingester.write_source_manifest()
+            return vector_store
 
     def run(self) -> None:
         print_section("CHARUSAT Online Course Assistant")
@@ -61,18 +72,18 @@ class ChatbotApp:
         chunk_ids = sorted({doc.metadata.get("chunk_id", "n/a") for doc, _ in retrieved})
         scores = [round(score, 4) for _, score in retrieved]
 
-        console.print("[bold]Retrieved Files[/bold]")
+        console.print("[bold]Retrieved Source Files[/bold]")
         for source in sources:
             console.print(f"- {source}")
 
-        console.print("[bold]Chunk IDs[/bold]")
+        console.print("[bold]Retrieved Chunk IDs[/bold]")
         console.print(f"- {', '.join(str(item) for item in chunk_ids)}")
 
-        console.print("[bold]Similarity Score[/bold]")
+        console.print("[bold]Similarity Scores[/bold]")
         console.print(f"- {', '.join(str(item) for item in scores)}")
 
-        console.print("[bold]LLM Response[/bold]")
+        console.print("[bold]Final Answer[/bold]")
         console.print(response_text)
 
-        console.print(f"[bold]Execution Time[/bold]: {elapsed_seconds:.2f}s")
+        console.print(f"[bold]Response Time[/bold]: {elapsed_seconds:.2f}s")
         console.print("-" * 50)
