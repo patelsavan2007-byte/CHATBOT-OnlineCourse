@@ -16,12 +16,13 @@ langchain
 langchain-core
 langchain-community
 langchain-google-genai
+langchain-chroma
 langchain-text-splitters
 
 # ==========================
 # Google Gemini
 # ==========================
-google-generativeai
+google-genai
 
 # ==========================
 # Vector Database
@@ -32,6 +33,7 @@ chromadb
 # Embedding Models
 # ==========================
 sentence-transformers
+langchain-huggingface
 
 # ==========================
 # PDF & Document Processing

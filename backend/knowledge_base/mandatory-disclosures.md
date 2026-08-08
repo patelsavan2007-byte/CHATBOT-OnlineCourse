@@ -1,7 +1,7 @@
 Title: Mandatory Disclosures - Charusat
 URL: https://charusat.online/mandatory-disclosures.html
 Category: Mandatory Disclosures.Html
-Last Scraped: 2026-08-02T09:50:33.023517+00:00
+Last Scraped: 2026-08-07T14:32:34.727637+00:00
 
 # Mandatory Disclosures
 

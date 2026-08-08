@@ -1,12 +1,12 @@
 Title: BCA - Charusat
 URL: https://charusat.online/programs/bca.html
 Category: Programs
-Last Scraped: 2026-08-02T08:54:46.314316+00:00
+Last Scraped: 2026-08-07T14:32:39.331763+00:00
 
 # Online BCA
 
 ## Course overview
-fee
+
 The online BCA programme is aligned with CMPICA's mission to create a learning environment that fosters creativity, innovation, and critical thinking among students. The programme is designed to provide a world-class education in computer science and applications, with a focus on developing skilled professionals who can make valuable contributions to the industry and society.
 
 The programme provides opportunities for students to engage in practical and project-based learning, which helps them develop teamwork skills, leadership skills, and communication skills.

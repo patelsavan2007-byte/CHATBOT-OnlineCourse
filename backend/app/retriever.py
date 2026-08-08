@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 import re
-from typing import Dict, List, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple
 
+from langchain_chroma import Chroma
 from langchain_core.documents import Document
-from langchain_community.vectorstores import Chroma
 
-from app.config import TOP_K
+from app import config
+from app.deduplicate import apply_diversity_cap, deduplicate_results
+from app.source_authority import source_authority_bonus
 from app.utils import logger, print_info
 
 
@@ -17,26 +19,9 @@ PROGRAM_KEYWORDS: Dict[str, str] = {
     r"\b(?:online\s+)?mca\b": "online_mca",
 }
 
-# Attribute keywords used for keyword-based score boosting
-ATTRIBUTE_KEYWORDS: Set[str] = {
-    "fee", "fees", "annual fee", "total fee", "tuition", "cost", "price",
-    "duration", "years", "year",
-    "credits", "credit", "total credits",
-    "eligibility", "eligible", "criteria", "requirement",
-    "admission", "admission process",
-    "examination", "exam",
-    "syllabus", "curriculum", "semester", "subjects",
-    "annual", "total",
-}
-
-# How much to boost scores of chunks that match query keywords
-KEYWORD_BOOST_FACTOR = 0.25
-
-# Extra boost when a chunk contains a keyword near a concrete value (number/currency)
-VALUE_PROXIMITY_BONUS = 0.15
-
 
 def _detect_program(query: str) -> str:
+    """Detect the online programme mentioned in the query, if any."""
     query_lower = query.lower()
     for pattern, program_name in PROGRAM_KEYWORDS.items():
         if re.search(pattern, query_lower):
@@ -45,124 +30,211 @@ def _detect_program(query: str) -> str:
 
 
 def _detect_query_keywords(query: str) -> List[str]:
-    """Detect attribute keywords present in the user query."""
+    """Detect attribute keywords present in the user query.
+
+    Uses the configurable ATTRIBUTE_KEYWORDS set so the vocabulary can be
+    extended without touching retrieval code.
+    """
     query_lower = query.lower()
     matched = []
-    # Check multi-word keywords first, then single-word
-    for kw in sorted(ATTRIBUTE_KEYWORDS, key=len, reverse=True):
-        if kw in query_lower:
-            matched.append(kw)
+    for keyword in sorted(config.ATTRIBUTE_KEYWORDS, key=len, reverse=True):
+        if keyword in query_lower:
+            matched.append(keyword)
     return matched
 
 
-def _has_value_near_keyword(content: str, keywords: List[str]) -> bool:
-    """Check if a keyword appears near a concrete value (number, currency, year count)."""
+def _has_value_near_keyword(content: str, keyword: str) -> bool:
+    """Return True if *keyword* appears near a concrete value (number/currency)."""
     content_lower = content.lower()
-    for kw in keywords:
-        # Find all positions of the keyword
-        start = 0
-        while True:
-            idx = content_lower.find(kw, start)
-            if idx == -1:
-                break
-            # Check a window around the keyword for numbers/values
-            window_start = max(0, idx - 80)
-            window_end = min(len(content_lower), idx + len(kw) + 80)
-            window = content_lower[window_start:window_end]
-            # Look for numbers, currency symbols, or year patterns
-            if re.search(r"[\d₹$]|inr|\d+[,.]?\d*", window):
-                return True
-            start = idx + 1
-    return False
+    start = 0
+    while True:
+        idx = content_lower.find(keyword, start)
+        if idx == -1:
+            return False
+        window_start = max(0, idx - 80)
+        window_end = min(len(content_lower), idx + len(keyword) + 80)
+        window = content_lower[window_start:window_end]
+        if re.search(r"[\d₹$]|inr", window, re.IGNORECASE):
+            return True
+        start = idx + 1
 
 
-def _boost_results(
-    results: List[Tuple[Document, float]],
-    query_keywords: List[str],
-) -> List[Tuple[Document, float]]:
-    """Re-rank results by boosting chunks that contain query keywords."""
-    if not query_keywords:
-        return results
+def _score_chunk(
+    doc: Document,
+    base_score: float,
+    program_name: str,
+    keywords: List[str],
+) -> Tuple[float, float, float, float]:
+    """Compute the final bounded score for a candidate chunk.
 
-    boosted: List[Tuple[Document, float]] = []
-    for doc, score in results:
-        content_lower = doc.page_content.lower()
-        # Count how many query keywords appear in this chunk
-        matches = sum(1 for kw in query_keywords if kw in content_lower)
-        if matches > 0:
-            # Base boost proportional to keyword matches
-            boost = KEYWORD_BOOST_FACTOR * matches
-            # Extra boost if the chunk has a concrete value near the keyword
-            if _has_value_near_keyword(doc.page_content, query_keywords):
-                boost += VALUE_PROXIMITY_BONUS
-                logger.info(
-                    "Value-proximity bonus applied to chunk from %s",
-                    doc.metadata.get("source", "unknown"),
-                )
-            new_score = min(score + boost, 1.0)
-            logger.info(
-                "Boosted chunk (score %.3f -> %.3f, %d keyword matches): %s",
-                score, new_score, matches,
-                doc.metadata.get("source", "unknown"),
-            )
-            boosted.append((doc, new_score))
-        else:
-            boosted.append((doc, score))
+    Semantic relevance remains the primary signal. Keyword matches, value
+    proximity and source authority contribute small, individually capped
+    bonuses so they can refine ordering without flattening scores onto the
+    same maximum. Returns ``(final, keyword_bonus, proximity_bonus, authority_bonus)``.
+    """
+    content_lower = doc.page_content.lower()
+    matched = [kw for kw in keywords if kw in content_lower]
 
-    # Re-sort by score descending (higher = more relevant)
-    boosted.sort(key=lambda x: x[1], reverse=True)
-    return boosted
+    keyword_bonus = 0.0
+    if matched:
+        keyword_bonus = min(len(matched) * config.KEYWORD_BOOST_FACTOR, config.KEYWORD_BOOST_MAX)
+
+    proximity_bonus = 0.0
+    if matched:
+        proximity_hits = sum(1 for kw in matched if _has_value_near_keyword(doc.page_content, kw))
+        if proximity_hits:
+            proximity_bonus = min(proximity_hits * config.VALUE_PROXIMITY_BONUS, config.VALUE_PROXIMITY_MAX)
+
+    authority_bonus = 0.0
+    if config.SOURCE_AUTHORITY_ENABLED:
+        authority_bonus = source_authority_bonus(doc.metadata, program_name)
+
+    final = min(
+        base_score + keyword_bonus + proximity_bonus + authority_bonus,
+        config.SCORE_CAP,
+    )
+    return final, keyword_bonus, proximity_bonus, authority_bonus
 
 
 class RAGRetriever:
+    """Retrieve, rank, de-duplicate and diversify evidence chunks.
+
+    The pipeline is deliberately general:
+
+    1. a wide candidate pool is fetched from the vector store (programme-scoped
+       when a programme is detected);
+    2. every candidate receives a small, bounded set of bonuses on top of its
+       semantic score (keyword match, value proximity, source authority);
+    3. near-duplicates are removed and per-(source, page) diversity is capped;
+    4. the final top-K is returned to the answer generator.
+    """
+
     def __init__(self, vector_store: Chroma) -> None:
         self.vector_store = vector_store
+        self.last_query: str = ""
+        self.last_program: str = ""
+        self.last_keywords: List[str] = []
+        self.last_pool: List[Tuple[Document, float]] = []
+        self._policy_sources_cache: Optional[Set[str]] = None
 
-    def retrieve(self, query: str) -> List[Tuple[Document, float]]:
-        program_name = _detect_program(query)
-        filter_args = {"program_name": program_name} if program_name else None
-        results: List[Tuple[Document, float]] = []
+    # ------------------------------------------------------------------
+    # Policy source discovery
+    # ------------------------------------------------------------------
 
-        if filter_args:
+    def _policy_sources(self) -> Set[str]:
+        """Distinct source filenames that carry general university policy info.
+
+        Website policy pages (terms/privacy/disclosures/admission data) are
+        indexed without a ``program_name``. They are discovered once from the
+        collection so programme-scoped queries can still find them, and new
+        policy files are picked up automatically without hardcoding filenames.
+        """
+        if self._policy_sources_cache is not None:
+            return self._policy_sources_cache
+
+        sources: Set[str] = set()
+        try:
+            data = self.vector_store.get(where={"program_name": ""}, include=["metadatas"])
+        except Exception as exc:
+            logger.warning("Policy source discovery failed: %s", exc)
+            self._policy_sources_cache = sources
+            return sources
+
+        for meta in data.get("metadatas", []) or []:
+            source = str(meta.get("source", ""))
+            if any(pattern in source for pattern in config.GENERAL_POLICY_SOURCE_PATTERNS):
+                sources.add(source)
+
+        self._policy_sources_cache = sources
+        if sources:
+            logger.info("Discovered %d policy source(s): %s", len(sources), sorted(sources))
+        return sources
+
+    # ------------------------------------------------------------------
+    # Candidate retrieval
+    # ------------------------------------------------------------------
+
+    def _candidate_search(self, query: str, program_name: str) -> List[Tuple[Document, float]]:
+        if program_name:
+            conditions: List[Dict[str, object]] = [
+                {"program_name": program_name},
+                {"program_name": "general"},
+            ]
+            policy_sources = self._policy_sources()
+            if policy_sources:
+                conditions.append({"source": {"$in": sorted(policy_sources)}})
+            filter_args: Dict[str, object] = {"$or": conditions}
             try:
-                results = self.vector_store.similarity_search_with_relevance_scores(query, k=TOP_K, filter=filter_args)
+                results = self.vector_store.similarity_search_with_relevance_scores(
+                    query, k=config.CANDIDATE_POOL_SIZE, filter=filter_args
+                )
+                if results:
+                    return results
             except Exception as exc:
-                logger.warning("Filtered search failed (%s): %s. Trying unfiltered search.", filter_args, exc)
-                results = []
-
-            if results:
-                print_info(f"Retrieved chunks: {len(results)} (filtered for {program_name})")
-                logger.info("Retrieved filtered chunks: %s", len(results))
-                for document, score in results:
-                    logger.info("Chunk score %.3f from %s", score, document.metadata.get("source", "unknown"))
-
-                query_keywords = _detect_query_keywords(query)
-                if query_keywords:
-                    results = _boost_results(results, query_keywords)
-                    print_info(f"Applied keyword boosting for: {', '.join(query_keywords)}")
-
-                return results
+                logger.warning("Filtered candidate search failed (%s): %s", filter_args, exc)
 
         try:
-            results = self.vector_store.similarity_search_with_relevance_scores(query, k=TOP_K)
+            return self.vector_store.similarity_search_with_relevance_scores(
+                query, k=config.CANDIDATE_POOL_SIZE
+            )
         except Exception as exc:
-            logger.error("Similarity search failed: %s. Falling back to simple similarity search.", exc)
+            logger.error("Similarity search failed: %s", exc)
             try:
-                docs = self.vector_store.similarity_search(query, k=TOP_K)
-                results = [(d, 0.5) for d in docs]
+                docs = self.vector_store.similarity_search(query, k=config.CANDIDATE_POOL_SIZE)
+                return [(doc, 0.5) for doc in docs]
             except Exception as exc2:
                 logger.error("Unfiltered search failed: %s", exc2)
-                results = []
+                return []
 
-        print_info(f"Retrieved chunks: {len(results)}")
-        logger.info("Retrieved chunks: %s", len(results))
-        for document, score in results:
-            logger.info("Chunk score %.3f from %s", score, document.metadata.get("source", "unknown"))
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
-        query_keywords = _detect_query_keywords(query)
-        if query_keywords:
-            results = _boost_results(results, query_keywords)
-            print_info(f"Applied keyword boosting for: {', '.join(query_keywords)}")
+    def retrieve(self, query: str) -> List[Tuple[Document, float]]:
+        self.last_query = query
+        self.last_program = _detect_program(query)
+        self.last_keywords = _detect_query_keywords(query)
+        program_name = self.last_program
 
-        return results
+        if program_name:
+            print_info(f"Programme detected: {program_name}")
+        if self.last_keywords:
+            print_info(f"Attribute keywords detected: {', '.join(self.last_keywords)}")
 
+        pool = self._candidate_search(query, program_name)
+        if not pool:
+            logger.warning("No candidates retrieved for query: %s", query)
+            return []
+
+        print_info(f"Retrieved candidate pool: {len(pool)} chunk(s)")
+
+        scored: List[Tuple[Document, float]] = []
+        for doc, base_score in pool:
+            final, kw, prox, auth = _score_chunk(doc, base_score, program_name, self.last_keywords)
+            scored.append((doc, final))
+            logger.info(
+                "Chunk %s | base %.3f +kw %.3f +prox %.3f +auth %.3f = %.3f",
+                doc.metadata.get("source", "unknown"),
+                base_score, kw, prox, auth, final,
+            )
+
+        scored.sort(key=lambda item: item[1], reverse=True)
+
+        # Keep the full scored pool for conflict detection so disagreements
+        # between different pages are never lost to the diversity cap.
+        self.last_pool = scored
+
+        kept, _removed_dup = deduplicate_results(scored)
+        kept, _removed_div = apply_diversity_cap(kept)
+        final = kept[: config.TOP_K]
+
+        print_info(f"Final selection: {len(final)} chunk(s)")
+        for doc, score in final:
+            logger.info(
+                "Selected %.3f from %s (page %s, %s)",
+                score,
+                doc.metadata.get("source", "unknown"),
+                doc.metadata.get("page", "n/a"),
+                doc.metadata.get("content_type", "n/a"),
+            )
+        return final

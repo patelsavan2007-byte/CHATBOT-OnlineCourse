@@ -27,26 +27,30 @@ class ChatbotApp:
         self.rag_chain = RAGChain(self.retriever, self.llm_client)
 
     def _initialize_vector_store(self):
-        scraped_files = self.ingester.refresh_sources()
-        if self.ingester.should_rebuild_vector_store() or scraped_files:
-            documents = self.ingester.load_documents()
-            chunks = self.ingester.split_documents(documents)
-            self.ingester.reset_vector_store()
-            vector_store = self.embedding_store.build_vector_store(chunks)
-            self.ingester.write_source_manifest()
-            self._print_rebuild_summary(scraped_files, documents, chunks)
-            return vector_store
+        """Load the existing vector store.
+
+        Ingestion (scraping + PDF processing) is handled separately
+        by rebuild_vectordb.py and ingest_pdfs.py.
+        """
+        if not self.embedding_store.persist_directory or not Path(self.embedding_store.persist_directory).exists():
+            print_warning("Vector store not found. Please run 'python rebuild_vectordb.py' first.")
+            raise SystemExit(1)
 
         try:
-            return self.embedding_store.load_vector_store()
-        except Exception:
-            documents = self.ingester.load_documents()
-            chunks = self.ingester.split_documents(documents)
-            self.ingester.reset_vector_store()
-            vector_store = self.embedding_store.build_vector_store(chunks)
-            self.ingester.write_source_manifest()
-            self._print_rebuild_summary(scraped_files, documents, chunks)
+            vector_store = self.embedding_store.load_vector_store()
+            # Quick sanity check: ensure the collection has documents
+            count = vector_store._collection.count()
+            if count == 0:
+                print_warning("Vector store is empty. Please run 'python rebuild_vectordb.py' first.")
+                raise SystemExit(1)
+            print_info(f"Loaded vector store with {count} documents.")
             return vector_store
+        except SystemExit:
+            raise
+        except Exception as exc:
+            print_warning(f"Failed to load vector store: {exc}")
+            print_warning("Please run 'python rebuild_vectordb.py' to create the vector database.")
+            raise SystemExit(1)
 
     def _print_rebuild_summary(self, scraped_files: List[Path], documents: List[Document], chunks: List[Document]) -> None:
         pages_crawled = len(scraped_files)
@@ -79,9 +83,22 @@ class ChatbotApp:
             with Timer() as timer:
                 response_text, retrieved = self.rag_chain.answer(question)
 
-            self._display_result(question, response_text, retrieved, timer.elapsed_seconds)
+            self._display_result(
+                question,
+                response_text,
+                retrieved,
+                timer.elapsed_seconds,
+                status=self.rag_chain.last_status,
+            )
 
-    def _display_result(self, question: str, response_text: str, retrieved: List[Tuple[Document, float]], elapsed_seconds: float) -> None:
+    def _display_result(
+        self,
+        question: str,
+        response_text: str,
+        retrieved: List[Tuple[Document, float]],
+        elapsed_seconds: float,
+        status: str = "llm",
+    ) -> None:
         console.print(Panel(f"[bold]Question[/bold]\n{question}", expand=False))
 
         sources = sorted({doc.metadata.get("source", "unknown") for doc, _ in retrieved})
@@ -100,6 +117,8 @@ class ChatbotApp:
 
         console.print("[bold]Final Answer[/bold]")
         console.print(response_text)
+        if status != "llm":
+            console.print(f"[bold]Answer Source[/bold]: local fallback ({status})")
 
         console.print(f"[bold]Response Time[/bold]: {elapsed_seconds:.2f}s")
         console.print("-" * 50)

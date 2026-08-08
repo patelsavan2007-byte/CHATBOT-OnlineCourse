@@ -1,0 +1,184 @@
+================================================================================
+CHARUSAT ONLINE COURSE ASSISTANT - BACKEND RAG IMPROVEMENTS SUMMARY
+================================================================================
+Date: 2026-08-08
+Project: CHARUSAT Online Course Assistant (Backend RAG Pipeline Enhancement)
+
+--------------------------------------------------------------------------------
+1. SUMMARY OF CHANGES MADE
+--------------------------------------------------------------------------------
+
+A. TASK 1 - PDF INGESTION PIPELINE
+   - Created a dedicated, modular PDF ingestion module (`backend/app/pdf_ingestion.py`).
+   - Created dedicated storage directory `backend/knowledge_base/pdfs/`.
+   - Processed `PPR_Online MBA.pdf` with page-by-page text & table extraction.
+   - Added metadata to every chunk:
+       * source          : "pdfs/PPR_Online MBA.pdf"
+       * filename        : "PPR_Online MBA.pdf"
+       * page            : Page number (1-indexed)
+       * document_type   : "pdf"
+       * content_type    : "text" | "table" | "image"
+       * program_name    : "online_mba"
+   - Added `add_documents()` to `EmbeddingStore` (`backend/app/embeddings.py`) to add PDF
+     chunks incrementally into ChromaDB without overwriting existing website documents.
+   - Created standalone CLI script `backend/ingest_pdfs.py` to separate ingestion/indexing
+     from chatbot startup.
+
+B. TASK 2 - TABLE-AWARE RETRIEVAL
+   - Implemented PyMuPDF table detection and conversion into clean Markdown tables.
+   - Configured `PDF_TABLE_CHUNK_SIZE = 1200` to preserve complete table rows and structure.
+   - Marked table chunks with `content_type = "table"`.
+   - Preserved exact table values for fees, semester credit breakdowns, and specializations
+     without hallucination or manual invention.
+
+C. TASK 3 - TEST RETRIEVAL SUITE
+   - Built `backend/test_pdf_retrieval.py` covering all 7 target MBA questions.
+   - Displays retrieved sources, page numbers, similarity scores, retrieved chunks,
+     and final LLM answers with timing metrics.
+
+D. TASK 4 - INCONSISTENCY HANDLING
+   - Updated `backend/app/prompt.py` with an explicit Inconsistency Detection Rule.
+   - Updated `backend/app/rag_chain.py` to pass page numbers and content types into context.
+   - System automatically detects conflicting values (e.g. 102 vs 100 total credits in
+     `PPR_Online MBA.pdf`), reports both figures, cites respective pages (Page 4 & 10 vs Page 12),
+     and explicitly notes document inconsistency.
+
+E. TASK 5 - MULTIMODAL PREPARATION
+   - Architecture prepared with extensible `content_type` field ("text", "table", "image").
+   - PDF ingestion decoupled into modular methods to allow adding a vision/multimodal
+     retrieval layer in the future without rewriting existing code.
+
+F. TASK 6 - CHATBOT STARTUP DECOUPLING & DEPENDENCY FIXES
+   - Updated `backend/app/chatbot.py` to load the existing ChromaDB vector store instantly
+     on startup rather than re-crawling/re-building database every launch.
+   - Added `langchain-huggingface` to `requirements.txt` and `requirements-updated.txt`.
+   - Fixed PyMuPDF deprecation warning (`import pymupdf as fitz`).
+   - Fixed Windows console UTF-8 output encoding for special characters (₹, en-dash, bullets).
+
+--------------------------------------------------------------------------------
+2. EXACT FILES CREATED AND MODIFIED
+--------------------------------------------------------------------------------
+
+[NEW FILES]
+- backend/app/pdf_ingestion.py         : PDF extraction module (text + table parsing)
+- backend/ingest_pdfs.py               : Standalone PDF ingestion CLI script
+- backend/test_pdf_retrieval.py        : Test script for MBA PDF retrieval & inconsistency
+- backend/knowledge_base/pdfs/         : Storage directory for PDF files
+
+[MODIFIED FILES]
+- backend/app/config.py               : Added PDF_DIR, PDF_CHUNK_SIZE (800), PDF_TABLE_CHUNK_SIZE (1200)
+- backend/app/embeddings.py           : Added add_documents() method for incremental database updates
+- backend/app/retriever.py            : Added specialization keywords for query score boosting
+- backend/app/prompt.py               : Added page citation formatting and inconsistency detection rule
+- backend/app/rag_chain.py            : Included page & content_type metadata in context header
+- backend/app/chatbot.py              : Decoupled startup from ingestion (loads existing store)
+- requirements.txt                    : Added langchain-huggingface dependency
+- requirements-updated.txt            : Added langchain-huggingface dependency
+
+--------------------------------------------------------------------------------
+3. EXECUTION OUTPUT RESULTS
+--------------------------------------------------------------------------------
+
+A. PDF INGESTION OUTPUT (`python ingest_pdfs.py`)
+--------------------------------------------------
+CHARUSAT PDF Ingestion Pipeline
+PDF directory: C:\AProjects\CHATB\CHATBOT-OnlineCourse\backend\knowledge_base\pdfs
+Loading embedding model: BAAI/bge-small-en-v1.5
+Loading existing Chroma vector database...
+Processing PDF: PPR_Online MBA.pdf
+  Extracted 18 segments from PPR_Online MBA.pdf
+PDF chunks created: 54
+Removed 54 existing chunks for 'PPR_Online MBA.pdf'.
+Adding 54 documents to existing vector store...
+Documents added and persisted successfully.
+
+==================================================
+PDF Chunks Added: 54
+PDF Ingestion Complete
+==================================================
+
+B. MBA TEST RETRIEVAL SUITE (`python test_pdf_retrieval.py`)
+-------------------------------------------------------------
+Total Tests Run : 8
+Passed          : 8 / 8 (100%)
+Failed          : 0 / 8
+
+[TEST 1] What is the total MBA programme fee?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 8, Type: pdf/table, Score: 1.0000
+  Final Answer: The total MBA Programme Fee for the entire programme is 1,50,000 INR
+                (75,000 INR for 1st Year and 75,000 INR for 2nd Year). Additionally, total
+                Course Examination Fee is 14000 INR (3500 INR/semester).
+  Source: pdfs/PPR_Online MBA.pdf, Page: 8
+  Status: [PASSED]
+
+[TEST 2] What is the MBA fee for the first year?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 8, Type: pdf/table, Score: 1.0000
+  Final Answer: The MBA Programme Fee for the 1st Year is 75,000 INR (plus 7000 INR exam fee).
+  Source: pdfs/PPR_Online MBA.pdf, Page: 8
+  Status: [PASSED]
+
+[TEST 3] What is the examination fee?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 8, Type: pdf/table, Score: 1.0000
+  Final Answer: Examination fee is 3500 INR / semester (14,000 INR total for 4 semesters).
+  Source: pdfs/PPR_Online MBA.pdf, Page: 8
+  Status: [PASSED]
+
+[TEST 4] What are the MBA specializations?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 5, Type: pdf/text, Score: 1.0000
+  Final Answer: 1. Marketing Management
+                2. Finance
+                3. Human Resource Management
+  Source: pdfs/PPR_Online MBA.pdf, Page: 5
+  Status: [PASSED]
+
+[TEST 5] What are the credits in each semester?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 4, Type: pdf/table, Score: 1.0000
+  Final Answer: Semester 1: 28 credits
+                Semester 2: 26 credits
+                Semester 3: 28 credits
+                Semester 4: 20 credits
+  Source: pdfs/PPR_Online MBA.pdf, Page: 4
+  Status: [PASSED]
+
+[TEST 6] What is the MBA eligibility?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 3, Type: pdf/text, Score: 0.9609
+  Final Answer: Candidate should have passed Bachelor's degree (or equivalent) examination
+                (any stream) with English as a subject.
+  Source: pdfs/PPR_Online MBA.pdf, Page: 3
+  Status: [PASSED]
+
+[TEST 7] What is the duration of the MBA programme?
+  Retrieved Chunk 1: Source: pdfs/PPR_Online MBA.pdf, Page: 3, Type: pdf/text, Score: 1.0000
+  Final Answer: 2 years (Minimum 2 - Maximum 4 years).
+  Source: pdfs/PPR_Online MBA.pdf, Page: 3
+  Status: [PASSED]
+
+[TEST 8 - TASK 4 INCONSISTENCY TEST] Total MBA credits inquiry
+  Question: What is the total number of credits in the MBA programme?
+  Retrieved Chunks: Page 4 (102 credits), Page 10 (102 credits), Page 12 (100 credits)
+  Final Answer:
+      The retrieved context contains conflicting values for total credits in MBA programme:
+      - 102 credits: "Any student of the MBA programme who earns 102 credits..." (Page 4 & 10)
+      - 100 credits: "Total Number of Credits 100" (Page 12)
+      Note: The source document pdfs/PPR_Online MBA.pdf contains an inconsistency regarding
+      the total credit count (102 credits on Page 4 vs. 100 credits on Page 12).
+  Source: pdfs/PPR_Online MBA.pdf, Page: 4, Page: 12
+  Status: [PASSED] Both values (102 and 100) identified with explicit inconsistency note.
+
+C. EXISTING WEBSITE RETRIEVAL TEST (`python test_retrieval.py`)
+----------------------------------------------------------------
+- Online BCA Eligibility   : Passed (retrieved programs/online_bca.md)
+- Online BBA Duration/Fee  : Passed (retrieved programs/online_bba.md)
+- Online MBA Curriculum    : Passed (retrieved programs/online_mba.md)
+- Online MCA Admission     : Passed (retrieved programs/online_mca.md)
+Result: SUCCESS - All existing website queries continue to work perfectly.
+
+D. CLI CHATBOT STARTUP (`python main.py`)
+-----------------------------------------
+- Starts instantly without re-crawling or rebuilding database.
+- Loads existing ChromaDB vector database with 291 documents (237 website chunks + 54 PDF chunks).
+- Successfully answers queries with sources and page numbers.
+
+================================================================================
+END OF SUMMARY REPORT
+================================================================================

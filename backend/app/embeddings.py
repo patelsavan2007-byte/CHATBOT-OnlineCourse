@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from langchain_community.vectorstores import Chroma
+from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from app.config import EMBEDDING_MODEL, FALLBACK_EMBEDDING_MODEL, VECTOR_DB_DIR
@@ -41,3 +41,18 @@ class EmbeddingStore:
         print_info("Loading existing Chroma vector database...")
         logger.info("Loading existing Chroma vector database")
         return Chroma(persist_directory=self.persist_directory, embedding_function=self.embedding_model)
+
+    def add_documents(self, documents: list[Any], vector_store: Chroma | None = None) -> Chroma:
+        """Add documents to an existing vector store without rebuilding.
+
+        This allows PDF chunks to be added alongside website chunks
+        without destroying the existing data.
+        """
+        store = vector_store or self.load_vector_store()
+        print_info(f"Adding {len(documents)} documents to existing vector store...")
+        logger.info("Adding %d documents to existing vector store", len(documents))
+        store.add_documents(documents)
+        store.persist()
+        print_info("Documents added and persisted successfully.")
+        logger.info("Documents added and persisted successfully")
+        return store

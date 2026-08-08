@@ -1,0 +1,218 @@
+==============================================================================
+CHANGES MADE TO THE CHATBOT-ONLINECOURSE PROJECT
+Project root: C:\AProjects\CHATB\CHATBOT-OnlineCourse
+Generated: 2026-08-08
+==============================================================================
+
+This file summarises every change made to the RAG chatbot pipeline across the
+current work session. All changes are general (no per-question/per-program
+hardcoding) and are validated by the test suite described at the end.
+
+
+------------------------------------------------------------------------------
+1. GEMINI SDK MIGRATION (google-generativeai -> google.genai)
+------------------------------------------------------------------------------
+The deprecated `google.generativeai` SDK was replaced by the modern
+`google.genai` package (version 2.14.0 installed).
+
+Files changed:
+  - backend/requirements.txt
+  - requirements.txt
+  - requirements-updated.txt
+    Added: google-genai, langchain-chroma
+    Removed: google-generativeai
+
+  - backend/app/embeddings.py
+    `from langchain_community.vectorstores import Chroma`
+    changed to `from langchain_chroma import Chroma`.
+
+Key SDK findings (from direct API probes):
+  - models.list() works and lists models/gemini-3.6-flash,
+    models/gemini-3.5-flash, models/gemini-2.5-flash, models/gemini-2.5-pro.
+  - gemini-2.5-flash rejects generation with 404 "no longer available to new
+    users".
+  - gemini-3.6-flash is free-tier quota limited (20 requests/day/model).
+  - gemini-3.5-flash / 3.6-flash / 2.5-pro are THINKING models: response.text
+    returns None (even with ThinkingConfig(include_thoughts=False)); the text
+    lives in response.candidates[0].content.parts. Handled by _extract_text.
+  - IMPORTANT BUG FOUND & FIXED: generate_content() in google-genai 2.14.0
+    does NOT accept a `timeout=` keyword argument - it raises TypeError
+    instantly. Because the error string contains the word "timeout", the old
+    classifier mislabelled it as LLMTimeoutError and retried every model with
+    a 2s/4s backoff on every question (~26s wasted per question). Fixed by:
+      * Setting the timeout at client level via
+        genai_types.HttpOptions(timeout=..., retryOptions=
+        genai_types.HttpRetryOptions(attempts=1)).
+      * Removing the unsupported timeout kwarg from generate_content().
+      * Tightening _classify_error so only real timeout phrases
+        ("deadline exceeded", "timed out", "read timeout", ...) and HTTP
+        408/504/529 map to LLMTimeoutError.
+
+
+------------------------------------------------------------------------------
+2. backend/app/llm.py - REWRITTEN
+------------------------------------------------------------------------------
+- Uses genai.Client + genai_types (google.genai).
+- LLMStatus constants: llm, fallback, quota, timeout, generation_error,
+  api_error, empty.
+- Typed errors: RetrievalError, LLMGenerationError, APIQuotaError,
+  LLMTimeoutError, APIAccessError(unavailable flag).
+- Model discovery via models.list() filtered on the generateContent action;
+  falls back to config.PREFERRED_MODELS. Models that 404 are removed from the
+  working set lazily.
+- _generate_once: per-attempt retry with exponential backoff driven by config
+  (LLM_MAX_RETRIES, LLM_RETRY_DELAY, LLM_BACKOFF_FACTOR).
+- _quota_exhausted flag caches quota failures so a quota-limited day does not
+  hammer the API on every question.
+- CIRCUIT BREAKER (added when the API network was found unreachable): after a
+  full failure sweep across all models, _cooldown_until = now +
+  LLM_COOLDOWN_SECONDS. During cooldown, generate() returns the fallback
+  immediately with the last status. Only one question per window pays the
+  slow sweep cost.
+- _classify_error maps HTTP codes and message substrings to typed errors.
+- _extract_text handles thinking models by reading candidates[0].content.parts.
+- Deterministic _fallback_generate using conflict.extract_claims,
+  focus_attributes and format_conflict_notice (single/set/text semantics per
+  ATTRIBUTE_TAXONOMY). It never performs arithmetic the source does not state
+  and never dumps raw chunk text.
+- generate() returns a (text, status) tuple.
+
+
+------------------------------------------------------------------------------
+3. backend/app/retriever.py - REWRITTEN
+------------------------------------------------------------------------------
+- Programme detection (_detect_program) and query keyword detection
+  (_detect_query_keywords) driven by config.ATTRIBUTE_KEYWORDS.
+- _has_value_near_keyword and _score_chunk produce a bounded relevance score:
+  keyword boost (capped by KEYWORD_BOOST_MAX), value-proximity bonus (capped
+  by VALUE_PROXIMITY_MAX), source-authority bonus (config.SOURCE_AUTHORITY_TIERS)
+  and a global SCORE_CAP (<= 1.0).
+- Candidate search uses a chromadb $or filter: query programme name, the
+  "general" label, and discovered policy sources via $in; falls back to an
+  unfiltered query if filtering returns nothing.
+  IMPORTANT FINDING: chromadb 1.5.9 does NOT support {"source": {"$contains": ...}}
+  (returns 0 results). Policy sources are therefore enumerated once via
+  get(where={"program_name": ""}) and matched against
+  config.GENERAL_POLICY_SOURCE_PATTERNS, then queried with $in. Cached in
+  _policy_sources_cache.
+- The full scored pool is kept in last_pool so conflict detection can inspect
+  more than the final top-K.
+- Results deduplicated (higher-scoring representative kept) and capped for
+  diversity (max 2 chunks per source/page) before final TOP_K.
+- Exposes last_query, last_program, last_keywords, last_pool.
+- Stepwise score logging for diagnosis.
+
+
+------------------------------------------------------------------------------
+4. backend/app/rag_chain.py - REWRITTEN
+------------------------------------------------------------------------------
+- answer(): retrieve -> detect conflicts over retriever.last_pool (full
+  diverse pool, not just top-K) -> build context -> generate.
+- _build_context: each chunk gets a structured header (Source / Page / Chunk ID
+  / Content Type / Document Type / Programme / Score) followed by content
+  trimmed to CONTEXT_CHUNK_MAX_CHARS; total context bounded by
+  CONTEXT_TOTAL_MAX_CHARS. A conflict notice is prepended when conflicts exist.
+- Exposes last_status and last_conflicts.
+- answer() returns (text, retrieved) - compatible with the CLI chatbot.
+
+
+------------------------------------------------------------------------------
+5. backend/app/prompt.py - UPDATED
+------------------------------------------------------------------------------
+- Numeric safety rules: distinguishes SOURCE-STATED vs MODEL-CALCULATED
+  numbers; forbids deriving the semester fee by dividing the yearly fee.
+- Claim-level conflict rules: a conflict is only a same attribute+aspect pair
+  with disagreeing values; annual vs total fee are complementary, not a
+  conflict.
+
+
+------------------------------------------------------------------------------
+6. backend/app/config.py - UPDATED
+------------------------------------------------------------------------------
+New/changed settings:
+  - PREFERRED_MODELS: [gemini-3.6-flash, gemini-3.5-flash, gemini-2.5-flash,
+    gemini-2.5-pro]
+  - LLM_MAX_RETRIES = 3, LLM_RETRY_DELAY = 2.0, LLM_BACKOFF_FACTOR = 2.0,
+    LLM_TIMEOUT = 60, LLM_TEMPERATURE = 0.2
+  - LLM_COOLDOWN_SECONDS = 60 (circuit breaker, see llm.py)
+  - CANDIDATE_POOL_SIZE / TOP_K
+  - Scoring caps: KEYWORD_BOOST_MAX, VALUE_PROXIMITY_MAX, SCORE_CAP
+  - SOURCE_AUTHORITY_TIERS (PPR PDFs > programme site pages > general policies)
+  - DEDUP_* thresholds, CONFLICT_* thresholds
+  - ATTRIBUTE_TAXONOMY + ATTRIBUTE_KEYWORDS (per-attribute label/semantics and
+    keywords)
+  - CONTEXT_CHUNK_MAX_CHARS, CONTEXT_TOTAL_MAX_CHARS
+  - GENERAL_POLICY_SOURCE_PATTERNS (terms-conditions, privacy-policy,
+    *-admission-data, ciqa, mandatory-disclosures, feedback, home,
+    programs/contact)
+
+
+------------------------------------------------------------------------------
+7. NEW MODULES
+------------------------------------------------------------------------------
+  - backend/app/conflict.py        - claim extraction from text/table chunks and
+                                     conflict detection (102 vs 100 credits case).
+  - backend/app/deduplicate.py     - near-duplicate detection (token Jaccard) and
+                                     diversity capping.
+  - backend/app/source_authority.py- authority tier assignment for sources.
+  - backend/app/pdf_ingestion.py   - PDF text/table processing for the PPR PDFs.
+  - backend/ingest_pdfs.py         - CLI to ingest PPR PDFs into the vector store.
+
+  KB additions (scraped + ingested):
+  - backend/knowledge_base/terms-conditions.md, privacy-policy.md, feedback.md,
+    bba-admission-data.md, bca-admission-data.md, programs/contact.md,
+    programs/online_bba.md, programs/online_mba.md, programs/online_mca.md,
+    plus the PPR PDFs (PPR_Online MBA/BCA/BBA/MCA.pdf, Fees Refund Policy.pdf)
+    copied to backend/knowledge_base/pdfs/.
+
+
+------------------------------------------------------------------------------
+8. BUG FIXES
+------------------------------------------------------------------------------
+- google-genai timeout TypeError (see section 1) - biggest performance fix.
+- retriever._policy_sources collided with a method name -> _policy_sources_cache.
+- Conflict table rows like "| | Total Credits | 102 |" have the label in a
+  later column -> parser now takes the first non-empty cell as the row label.
+- extract_numbers stripped "." which left a leading dot on "Rs." amounts
+  (.150000 -> 0.15) -> now uses re.sub(r"[^\d.]", "", match).strip(".") with a
+  clean != "." guard.
+- source_authority matching is now case-insensitive.
+- deduplicate_results now sorts score-descending first so the higher-scoring
+  representative is always kept regardless of input order.
+
+
+------------------------------------------------------------------------------
+9. TESTS (backend/) - ADDED / REWRITTEN
+------------------------------------------------------------------------------
+  - test_unit.py           31 unit tests (dedup, conflict, source authority,
+                           config sanity). ALL PASS.
+  - test_retrieval.py      retrieval-only checks (programme filtering, refund
+                           policy sources, diversity cap). ALL PASS.
+  - test_pdf_retrieval.py  19 tests across MBA/BCA/BBA/MCA/refund + the 102 vs
+                           100 credits inconsistency test. ALL PASS.
+  - test_chatbot_qa.py     end-to-end Q&A showing LLM status.
+  - test_gemini_integration.py  status validity + repeated-call stability.
+
+  Tests are designed to tolerate API failure: when the Gemini API is down or
+  quota-limited they assert the fallback/status path rather than live success.
+
+TEST RESULTS (2026-08-08):
+  - test_unit.py:              31 passed, 0 failed
+  - test_retrieval.py:         SUCCESS (all checks passed)
+  - test_pdf_retrieval.py:     19/19 passed
+  - test_chatbot_qa.py:        passed (LLM status surfaced)
+  - test_gemini_integration.py passed
+  - CLI end-to-end:            444-document vector store loaded, retrieval
+                               returned 5 chunks, answer + conflict notice
+                               generated.
+
+------------------------------------------------------------------------------
+10. CURRENT KNOWN STATE
+------------------------------------------------------------------------------
+The Gemini API is currently unreachable from this machine (SSL/read timeouts
+on every call, including models.list()). The chatbot therefore answers via the
+deterministic local fallback with LLM status "timeout". This is by design: the
+circuit breaker limits the slow API sweep to one question per cooldown window.
+Once the network is back, live generation resumes automatically; free-tier
+quota exhaustion on gemini-3.6-flash is handled by the quota cache.
+==============================================================================
