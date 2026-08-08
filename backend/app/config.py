@@ -31,6 +31,14 @@ def get_api_key() -> Optional[str]:
     return None
 
 
+def get_groq_api_key() -> Optional[str]:
+    """Return the configured GROQ_API_KEY from .env if present."""
+    key = os.getenv("GROQ_API_KEY") or os.getenv("groq_API_KEY")
+    if key and key.strip() and not key.startswith("#"):
+        return key.strip()
+    return None
+
+
 def ensure_directories() -> None:
     KNOWLEDGE_BASE_DIR.mkdir(parents=True, exist_ok=True)
     VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
@@ -256,3 +264,7 @@ PREFERRED_MODELS: List[str] = [
     "models/gemini-2.5-flash",
     "models/gemini-2.5-pro",
 ]
+
+# Groq fallback tier settings.
+GROQ_MODEL = "llama-3.3-70b-versatile"
+GROQ_TIMEOUT = 10.0  # seconds

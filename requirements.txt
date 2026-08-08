@@ -20,9 +20,11 @@ langchain-chroma
 langchain-text-splitters
 
 # ==========================
-# Google Gemini
+# LLM Providers
 # ==========================
 google-genai
+groq
+
 
 # ==========================
 # Vector Database

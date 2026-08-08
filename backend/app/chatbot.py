@@ -10,7 +10,7 @@ from rich.prompt import Prompt
 from app.config import ensure_directories
 from app.embeddings import EmbeddingStore
 from app.ingestion import KnowledgeBaseIngester
-from app.llm import LLMClient
+from app.llm import LLMClient, LLMStatus
 from app.rag_chain import RAGChain
 from app.retriever import RAGRetriever
 from app.utils import console, print_info, print_section, print_warning, Timer
@@ -117,7 +117,13 @@ class ChatbotApp:
 
         console.print("[bold]Final Answer[/bold]")
         console.print(response_text)
-        if status != "llm":
+        if status in (LLMStatus.GEMINI, LLMStatus.LLM, "gemini", "llm"):
+            console.print("[bold]Answer Source[/bold]: gemini")
+        elif status in (LLMStatus.GROQ, "groq"):
+            console.print("[bold]Answer Source[/bold]: groq")
+        elif status == LLMStatus.FALLBACK:
+            console.print("[bold]Answer Source[/bold]: local fallback")
+        else:
             console.print(f"[bold]Answer Source[/bold]: local fallback ({status})")
 
         console.print(f"[bold]Response Time[/bold]: {elapsed_seconds:.2f}s")

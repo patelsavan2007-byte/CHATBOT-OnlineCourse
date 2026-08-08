@@ -22,6 +22,8 @@ from app.prompt import build_prompt
 
 VALID_STATUSES = {
     LLMStatus.LLM,
+    LLMStatus.GEMINI,
+    LLMStatus.GROQ,
     LLMStatus.FALLBACK,
     LLMStatus.QUOTA,
     LLMStatus.TIMEOUT,
