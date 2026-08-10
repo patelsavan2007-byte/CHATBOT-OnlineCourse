@@ -1,108 +1,112 @@
 # CHARUSAT Online Course Chatbot — Deployment Guide
 
-Shareable frontend for the CHARUSAT Online Course Assistant chatbot.  
-Deploy the **frontend to Vercel** and keep the **backend running locally** (or on a cloud VM).
+**Goal:** One public URL for your project guide. No laptop running. No ngrok.
+
+**Architecture:** Render (backend) + Vercel (frontend) → guide opens Vercel URL.
 
 ---
 
 ## Prerequisites
 
-| Tool    | Version  | Install                                   |
-|---------|----------|--------------------------------------------|
-| Node.js | ≥ 18     | https://nodejs.org                         |
-| Python  | ≥ 3.10   | Already installed (for backend & smoke test) |
-| ngrok   | latest   | https://ngrok.com/download (free account)  |
+| Tool | Purpose | Get it |
+|------|---------|--------|
+| GitHub account | Host the repo | Already set up |
+| Render account | Host the backend | https://render.com (free) |
+| Vercel account | Host the frontend | https://vercel.com (free) |
 
 ---
 
-## 1. Quick Local Preview
+## Step 1 — Deploy Backend on Render
 
-```bash
-# From the project root
-cd deployment
+1. Go to **https://dashboard.render.com** → click **New +** → **Web Service**
+2. Click **Connect a GitHub repository** → select `patelsavan2007-byte/CHATBOT-OnlineCourse`
+3. Fill in these settings:
 
-# Install dependencies
-npm install
+   | Setting | Value |
+   |---------|-------|
+   | **Name** | `charusat-chatbot-api` |
+   | **Branch** | `deploy` |
+   | **Root Directory** | `backend` |
+   | **Runtime** | `Python 3` |
+   | **Build Command** | `chmod +x build.sh && ./build.sh` |
+   | **Start Command** | `gunicorn api:app --workers 1 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120` |
+   | **Plan** | `Free` |
 
-# Copy env and point to local backend
-cp .env.example .env
-# (edit .env if needed — default is http://localhost:8000)
+4. Scroll down to **Environment Variables** → click **Add Environment Variable** for each:
 
-# Start dev server
-npm run dev
-```
+   | Key | Value |
+   |-----|-------|
+   | `GOOGLE_API_KEY` | your actual Google Gemini API key |
+   | `GROQ_API_KEY` | your actual Groq API key |
 
-Open **http://localhost:5173** — the chatbot UI should load.  
-Make sure the backend is running (`uvicorn api:app --reload --port 8000` in the `backend/` directory).
+5. Click **Create Web Service**
 
----
+> **Build time:** The first deploy takes 5–10 minutes. Render installs all dependencies and builds the ChromaDB vector database from the knowledge base files. You'll see logs in the Render dashboard.
 
-## 2. Make Backend Accessible (ngrok)
-
-Your stakeholder needs to reach the backend from the internet.  
-The simplest way is **ngrok**:
-
-```bash
-# In a new terminal
-ngrok http 8000
-```
-
-ngrok will print a public URL like `https://abc123.ngrok-free.app`.  
-Copy that URL and set it in `deployment/.env`:
-
-```env
-VITE_API_URL=https://abc123.ngrok-free.app
-```
-
-> **Note:** Free ngrok URLs change every time you restart ngrok.  
-> For a stable subdomain, sign up for a free ngrok account and use `ngrok http --domain=your-name.ngrok-free.app 8000`.
+6. Once deployed, you'll see a URL like: `https://charusat-chatbot-api.onrender.com`
+   - Copy this URL — you'll need it in Step 2.
+   - Test it: open `https://charusat-chatbot-api.onrender.com/health` in your browser. You should see `{"status":"ok","vector_store_documents":...}`
 
 ---
 
-## 3. Deploy Frontend to Vercel
+## Step 2 — Deploy Frontend on Vercel
 
-### Option A: Vercel CLI (one command)
+1. Go to **https://vercel.com/new**
+2. Click **Import Git Repository** → select `patelsavan2007-byte/CHATBOT-OnlineCourse`
+3. Fill in these settings:
 
-```bash
-cd deployment
-npx -y vercel --prod
-```
+   | Setting | Value |
+   |---------|-------|
+   | **Framework Preset** | `Vite` (auto-detected) |
+   | **Root Directory** | `deployment` |
+   | **Branch** | `deploy` |
 
-When prompted:
-- **Set up and deploy?** → Yes
-- **Which scope?** → Your account
-- **Link to existing project?** → No
-- **Project name?** → `charusat-chatbot` (or any name)
-- **In which directory is your code located?** → `./`
-- **Override settings?** → No (Vercel auto-detects Vite)
+4. Expand **Environment Variables** → add:
 
-After deployment, set the environment variable in Vercel:
-1. Go to your project on https://vercel.com
-2. **Settings → Environment Variables**
-3. Add `VITE_API_URL` = your ngrok URL (e.g. `https://abc123.ngrok-free.app`)
-4. **Redeploy** (Deployments → three dots → Redeploy)
+   | Key | Value |
+   |-----|-------|
+   | `VITE_API_URL` | `https://charusat-chatbot-api.onrender.com` (your Render URL from Step 1) |
 
-### Option B: GitHub Integration
+5. Click **Deploy**
 
-1. Push this repo to GitHub
-2. Go to https://vercel.com/new
-3. Import the repo
-4. Set **Root Directory** to `deployment`
-5. Add env variable `VITE_API_URL`
-6. Deploy
+> **Build time:** ~1 minute. Vercel builds the React app and serves it globally.
+
+6. Once deployed, Vercel gives you a URL like: `https://charusat-chatbot.vercel.app`
 
 ---
 
-## 4. Run Smoke Tests
+## Step 3 — Share with Your Guide
 
-Verify everything is working end-to-end:
+Send your guide this single URL:
+
+```
+https://charusat-chatbot.vercel.app
+```
+
+That's it. They open it, see the chatbot, ask questions, get answers.
+
+---
+
+## ⚠ Free Tier Limitation: Cold Starts
+
+Render's free tier **spins down after 15 minutes of inactivity**.
+
+- First message after idle: ~30–90 second delay (Render wakes up + loads ML model)
+- All subsequent messages: fast (2–5 seconds)
+
+**Before your guide's demo session:** Open `https://charusat-chatbot-api.onrender.com/health` yourself to wake the server up. Wait for a `{"status":"ok"}` response, then tell your guide to open the chatbot.
+
+---
+
+## Smoke Test
+
+After deployment, verify everything end-to-end:
 
 ```bash
-# Test backend only (backend must be running)
-python deployment/smoke_test.py --backend http://localhost:8000
-
-# Test backend + deployed frontend
-python deployment/smoke_test.py --backend https://abc123.ngrok-free.app --frontend https://charusat-chatbot.vercel.app
+# From the project root — requires: pip install requests
+python deployment/smoke_test.py \
+  --backend https://charusat-chatbot-api.onrender.com \
+  --frontend https://charusat-chatbot.vercel.app
 ```
 
 Expected output:
@@ -111,51 +115,26 @@ Expected output:
 ║   CHARUSAT Chatbot — Smoke Test Suite            ║
 ╚══════════════════════════════════════════════════╝
 
-  Backend : http://localhost:8000
-
   ✔ PASS  Health check  status=ok  docs=444
   ✔ PASS  Root endpoint  GET / → 200
-
   ✔ PASS  Chat endpoint  session=abc12345…  answer_len=312  sources=3  llm=groq
-  ✔ PASS  Follow-up (session continuity)  resolved_query="What are the fees for CHARUSAT online programmes?"
+  ✔ PASS  Follow-up (session continuity)  resolved_query="..."
   ✔ PASS  Clear history  session abc12345… cleared
+  ✔ PASS  Frontend reachable  https://charusat-chatbot.vercel.app → 200
 
-  All 5 tests passed ✓
+  All 6 tests passed ✓
 ```
 
 ---
 
-## 5. Sharing the Demo Link
+## Updating the Deployment
 
-Once deployed, share this with your stakeholder:
+Whenever you push to the `deploy` branch, both Render and Vercel **automatically redeploy**.
 
-```
-https://charusat-chatbot.vercel.app
-```
-
-**Before the demo, make sure:**
-- [ ] Backend is running locally (`uvicorn api:app --port 8000`)
-- [ ] ngrok is tunnelling (`ngrok http 8000`)
-- [ ] Vercel env variable `VITE_API_URL` points to the ngrok URL
-- [ ] Smoke tests pass
-
----
-
-## Project Structure
-
-```
-deployment/
-├── .env.example        # Frontend environment template
-├── index.html          # HTML entry point
-├── package.json        # Node.js dependencies
-├── README.md           # This file
-├── smoke_test.py       # Endpoint verification script
-├── vercel.json         # Vercel SPA routing config
-├── vite.config.js      # Vite build configuration
-└── src/
-    ├── main.jsx        # React entry point
-    ├── index.css       # Global styles (dark glassmorphism theme)
-    └── App.jsx         # Chatbot UI component
+```bash
+git add .
+git commit -m "your message"
+git push origin deploy
 ```
 
 ---
@@ -164,8 +143,38 @@ deployment/
 
 | Issue | Fix |
 |-------|-----|
-| Chat shows "Offline" badge | Backend not running or ngrok not active |
-| CORS errors in browser console | Backend already has `allow_origins=["*"]` — restart uvicorn |
-| Chat takes too long | First request loads ML model (~40s cold start), subsequent are faster |
-| ngrok URL changed | Update `VITE_API_URL` in Vercel env vars and redeploy |
-| Smoke test `requests` not found | `pip install requests` in your venv |
+| Chatbot shows red "Offline" badge | Backend cold-starting — wait 60s and refresh |
+| First message takes 90 seconds | Normal — cold start + model loading. Warn your guide beforehand. |
+| Render build fails | Check Render logs. Most likely a missing env var. |
+| Vercel shows blank page | Check that `Root Directory` is set to `deployment`, not the repo root |
+| `VITE_API_URL` not working | Confirm no trailing slash in the URL, redeploy Vercel after changing env vars |
+| Render shows "OOM" (out of memory) | Upgrade from Free to Starter ($7/month) for 512MB→512MB dedicated |
+
+---
+
+## Project Structure (relevant to deployment)
+
+```
+CHATBOT-OnlineCourse/          ← repo root
+├── render.yaml                ← Render IaC config (tells Render how to deploy)
+├── .env.example               ← template for backend env vars
+│
+├── backend/                   ← deployed to Render
+│   ├── build.sh               ← Render build script (installs deps + builds vector DB)
+│   ├── api.py                 ← FastAPI entry point (uvicorn api:app)
+│   ├── requirements.txt       ← Python dependencies
+│   ├── rebuild_vectordb.py    ← builds ChromaDB from knowledge_base/
+│   ├── knowledge_base/        ← tracked in git (markdown + PDFs)
+│   └── app/                   ← RAG pipeline modules
+│
+└── deployment/                ← deployed to Vercel
+    ├── .env.example           ← template for frontend env vars
+    ├── vercel.json            ← Vercel SPA routing
+    ├── vite.config.js         ← Vite build config
+    ├── package.json           ← Node dependencies
+    ├── smoke_test.py          ← end-to-end verification script
+    └── src/
+        ├── main.jsx           ← React entry point
+        ├── index.css          ← dark glassmorphism styles
+        └── App.jsx            ← chatbot UI
+```

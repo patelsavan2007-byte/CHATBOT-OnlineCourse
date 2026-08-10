@@ -218,8 +218,8 @@ async def root():
     """Root endpoint welcoming users and pointing to docs."""
     return {
         "message": "CHARUSAT Online Course Assistant API is running.",
-        "docs": "http://127.0.0.1:8000/docs",
-        "health": "http://127.0.0.1:8000/health",
+        "docs": "/docs",
+        "health": "/health",
     }
 
 

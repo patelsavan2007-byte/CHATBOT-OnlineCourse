@@ -1,0 +1,6 @@
+# Ensure shell scripts always use Unix (LF) line endings in the repo
+# so they can run on Linux (Render) without "bad interpreter" errors.
+backend/build.sh text eol=lf
+
+# Everything else: let git handle normally
+* text=auto
