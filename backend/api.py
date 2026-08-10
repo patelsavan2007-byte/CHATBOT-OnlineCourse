@@ -52,15 +52,22 @@ try:
     vector_store = embedding_store.load_vector_store()
     count = vector_store._collection.count()
     if count == 0:
-        print_warning("Vector store is empty. Please run 'python rebuild_vectordb.py' first.")
-        raise SystemExit(1)
+        raise ValueError("Vector store is empty")
     print_info(f"Loaded vector store with {count} documents.")
-except SystemExit:
-    raise
 except Exception as exc:
-    print_warning(f"Failed to load vector store: {exc}")
-    print_warning("Please run 'python rebuild_vectordb.py' to create the vector database.")
-    raise SystemExit(1)
+    print_warning(f"Vector store not ready ({exc}). Building vector store now...")
+    try:
+        from app.ingestion import KnowledgeBaseIngester
+        ingester = KnowledgeBaseIngester()
+        documents = ingester.load_documents()
+        chunks = ingester.split_documents(documents)
+        vector_store = embedding_store.build_vector_store(chunks)
+        ingester.write_source_manifest()
+        count = vector_store._collection.count()
+        print_info(f"Vector store created with {count} documents.")
+    except Exception as build_exc:
+        print_warning(f"Failed to build vector store: {build_exc}")
+        raise SystemExit(1) from build_exc
 
 retriever = RAGRetriever(vector_store)
 llm_client = LLMClient()
