@@ -21,3 +21,8 @@ vector_db/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Deployment build artifacts
+deployment/node_modules/
+deployment/dist/
+deployment/.env

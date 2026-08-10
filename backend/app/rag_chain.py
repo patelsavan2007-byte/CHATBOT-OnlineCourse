@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 
 from langchain_core.documents import Document
 
 from app import config
 from app.conflict import detect_conflicts_from_documents, format_conflict_notice
 from app.llm import LLMClient, LLMStatus
-from app.prompt import build_prompt
+from app.prompt import build_prompt, build_prompt_with_history
+from app.query_resolver import resolve_followup_query
 from app.retriever import RAGRetriever
 from app.utils import logger
 
@@ -42,6 +43,73 @@ class RAGChain:
         self.last_status = status
         logger.info("LLM generation status: %s", status)
         return response_text, retrieved
+
+    def answer_with_history(
+        self,
+        question: str,
+        history: List[Dict[str, str]],
+    ) -> Tuple[str, List[Tuple[Document, float]], str]:
+        """Answer a question using conversation history for context.
+
+        This method wraps the existing RAG pipeline with two additional steps:
+
+        1. **Query resolution** — follow-up questions are reformulated into
+           standalone queries so the retriever finds the right documents.
+        2. **History-aware prompting** — recent conversation turns are included
+           in the LLM prompt so the model can produce contextually coherent
+           answers.
+
+        Parameters
+        ----------
+        question:
+            The current user question (may be a follow-up).
+        history:
+            Recent conversation messages (already trimmed by the caller).
+
+        Returns
+        -------
+        tuple
+            ``(answer_text, retrieved_docs, resolved_query)`` where
+            *resolved_query* is the standalone version of the question used
+            for retrieval.
+        """
+        # Step 1: Resolve follow-ups into standalone queries
+        resolved_query = resolve_followup_query(
+            question, history, llm_client=self.llm_client,
+        )
+
+        # Step 2: Retrieve using the resolved (standalone) query
+        retrieved = self.retriever.retrieve(resolved_query)
+        program_name = getattr(self.retriever, "last_program", "")
+
+        pool_docs = [doc for doc, _ in getattr(self.retriever, "last_pool", retrieved)]
+        conflicts = detect_conflicts_from_documents(
+            pool_docs or [doc for doc, _ in retrieved],
+            resolved_query,
+            program_name,
+        )
+        self.last_conflicts = conflicts
+
+        # Step 3: Build context (existing logic, unchanged)
+        context = self._build_context(retrieved, conflicts)
+
+        # Step 4: Build history-aware prompt
+        prompt = build_prompt_with_history(
+            context=context,
+            question=question,
+            history=history,
+        )
+
+        # Step 5: Generate answer (existing LLM client, unchanged)
+        evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
+        response_text, status = self.llm_client.generate(
+            prompt,
+            context_chunks=evidence,
+            conflicts=conflicts,
+        )
+        self.last_status = status
+        logger.info("LLM generation status (with history): %s", status)
+        return response_text, retrieved, resolved_query
 
     def _build_context(
         self,
@@ -93,3 +161,4 @@ class RAGChain:
         if conflicts:
             context = format_conflict_notice(conflicts) + "\n\n" + context
         return context
+

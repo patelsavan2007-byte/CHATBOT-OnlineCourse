@@ -1,0 +1,236 @@
+================================================================================
+  SESSION-BASED CHAT HISTORY — CHANGES & USAGE GUIDE
+  CHARUSAT Online Course Assistant
+  Date: 2026-08-09
+================================================================================
+
+
+================================================================================
+1. FILES CREATED (NEW)
+================================================================================
+
+backend/app/conversation_history.py
+  - In-memory session store (ConversationStore class)
+  - Creates/manages sessions, adds messages, retrieves history
+  - Thread-safe with locking
+  - History is lost when backend restarts (no database)
+
+backend/app/query_resolver.py
+  - Detects follow-up questions ("What about the duration?")
+  - Reformulates them into standalone queries for better RAG retrieval
+  - Example: "What about the fee?" → "What is the fee of Online MBA?"
+
+backend/api.py
+  - FastAPI HTTP server (NEW entry point, separate from CLI)
+  - Endpoints: POST /chat, DELETE /chat/history/{session_id}, GET /health
+
+backend/test_conversation_history.py
+  - 26 unit tests for session management
+
+backend/test_query_resolver.py
+  - 14 tests for follow-up question detection
+
+backend/test_api.py
+  - 13 API integration tests
+
+
+================================================================================
+2. FILES MODIFIED (EXISTING)
+================================================================================
+
+backend/app/config.py
+  - Added: CHAT_HISTORY_MAX_MESSAGES = 10 (configurable limit)
+  - No other changes
+
+backend/app/prompt.py
+  - Added: build_prompt_with_history() function
+  - Existing build_prompt() is UNCHANGED
+
+backend/app/rag_chain.py
+  - Added: answer_with_history() method to RAGChain class
+  - Existing answer() method is UNCHANGED
+
+backend/requirements.txt
+  - Added: fastapi>=0.115.0, uvicorn>=0.30.0
+
+
+================================================================================
+3. FILES NOT CHANGED (PRESERVED AS-IS)
+================================================================================
+
+main.py, chatbot.py, retriever.py, llm.py, embeddings.py,
+conflict.py, deduplicate.py, source_authority.py, ingestion.py,
+pdf_ingestion.py, scraper.py, utils.py, __init__.py
+ChromaDB / vector_db — untouched
+Frontend — no changes
+
+
+================================================================================
+4. HOW TO RUN THE PROJECT
+================================================================================
+
+STEP 1: Install new dependencies (one time only)
+-------------------------------------------------
+  cd backend
+  pip install fastapi uvicorn
+
+STEP 2: Start the API server
+-----------------------------
+  cd backend
+  uvicorn api:app --reload --port 8000
+
+  The server will start at: http://localhost:8000
+  API docs (Swagger UI): http://localhost:8000/docs
+
+STEP 3: The old CLI still works too (unchanged)
+------------------------------------------------
+  cd backend
+  python main.py
+
+
+================================================================================
+5. HOW TO USE CHAT HISTORY (API EXAMPLES)
+================================================================================
+
+--- FIRST MESSAGE (no session_id needed) ---
+
+  POST http://localhost:8000/chat
+  Body:
+  {
+      "question": "What is the Online MBA fee?"
+  }
+
+  Response:
+  {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "answer": "The Online MBA programme fee is ₹1,50,000...",
+      "sources": ["PPR_Online_MBA.pdf (Page 3)"],
+      "resolved_query": "What is the Online MBA fee?",
+      "llm_status": "gemini"
+  }
+
+  → SAVE the session_id from the response!
+
+
+--- FOLLOW-UP MESSAGE (send the same session_id) ---
+
+  POST http://localhost:8000/chat
+  Body:
+  {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "question": "What about the examination fee?"
+  }
+
+  Response:
+  {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "answer": "The examination fee for Online MBA is ₹3,500 per semester...",
+      "sources": ["PPR_Online_MBA.pdf (Page 4)"],
+      "resolved_query": "What is the examination fee of Online MBA?",
+      "llm_status": "gemini"
+  }
+
+  → The backend understood "the examination fee" refers to MBA
+    because it checked the previous conversation history!
+
+
+--- CLEAR HISTORY ---
+
+  DELETE http://localhost:8000/chat/history/550e8400-e29b-41d4-a716-446655440000
+
+  Response:
+  {
+      "session_id": "550e8400-e29b-41d4-a716-446655440000",
+      "cleared": true
+  }
+
+
+--- HEALTH CHECK ---
+
+  GET http://localhost:8000/health
+
+  Response:
+  {
+      "status": "ok",
+      "vector_store_documents": 423
+  }
+
+
+================================================================================
+6. WHERE TO SEE HISTORY WORKING
+================================================================================
+
+OPTION A: Swagger UI (easiest)
+------------------------------
+  1. Start the server: uvicorn api:app --reload --port 8000
+  2. Open browser: http://localhost:8000/docs
+  3. Click "POST /chat" → "Try it out"
+  4. Send your first question (no session_id)
+  5. Copy the session_id from the response
+  6. Send a follow-up question WITH that session_id
+  7. Check the "resolved_query" field — it shows how the
+     backend understood your follow-up
+
+OPTION B: Using curl (terminal)
+-------------------------------
+  First message:
+    curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d "{\"question\": \"What is the Online MBA fee?\"}"
+
+  Follow-up (replace SESSION_ID with the actual value):
+    curl -X POST http://localhost:8000/chat -H "Content-Type: application/json" -d "{\"session_id\": \"SESSION_ID\", \"question\": \"What about the examination fee?\"}"
+
+OPTION C: Using Postman
+------------------------
+  1. Create a POST request to http://localhost:8000/chat
+  2. Set body to JSON, send questions as shown above
+
+
+================================================================================
+7. HOW HISTORY WORKS INTERNALLY
+================================================================================
+
+  Client sends: session_id + question
+       ↓
+  Backend loads conversation history for that session_id
+       ↓
+  Query Resolver checks if it's a follow-up question
+       ↓
+  If follow-up → reformulates into standalone question
+       ↓
+  Standalone question goes to existing RAG retrieval (ChromaDB)
+       ↓
+  ChromaDB returns relevant documents
+       ↓
+  Conversation history + RAG context + question → sent to Gemini/Groq
+       ↓
+  LLM generates answer
+       ↓
+  User question + assistant answer saved to session history
+       ↓
+  Response returned to client
+
+
+================================================================================
+8. IMPORTANT NOTES
+================================================================================
+
+  - History is IN-MEMORY ONLY. Restarting the server clears ALL history.
+  - No authentication. session_id is the only identifier.
+  - No database. Will be added in a future update.
+  - Different session_ids = different conversations (fully isolated).
+  - Maximum 10 messages kept per session (configurable in config.py).
+  - The existing CLI (python main.py) still works, unaffected.
+  - The existing RAG pipeline is NOT modified.
+
+
+================================================================================
+9. RUNNING TESTS
+================================================================================
+
+  cd backend
+  python -m pytest test_conversation_history.py test_query_resolver.py test_api.py -v
+
+  Result: 53 tests passed (26 + 14 + 13)
+
+
+================================================================================
