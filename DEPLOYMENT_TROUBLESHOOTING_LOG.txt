@@ -1,0 +1,89 @@
+===============================================================================
+CHARUSAT Online Course Chatbot — Deployment Troubleshooting & Issue Log
+===============================================================================
+
+This document logs all deployment issues encountered during cloud deployment 
+to Render (Backend) and Vercel (Frontend), their root causes, and resolutions.
+
+-------------------------------------------------------------------------------
+1. ISSUE: Vercel FastAPI Auto-Detection Error
+-------------------------------------------------------------------------------
+Symptom:
+  "Error: No FastAPI entrypoint found in default locations"
+
+Root Cause:
+  Vercel defaulted to building the root project directory (`./`), where it detected
+  the root `requirements.txt` and assumed the project was a Python FastAPI app.
+
+Resolution:
+  1. Set Vercel Project Settings -> General -> Root Directory to `deployment`.
+  2. Set Framework Preset to `Vite`.
+  3. Triggered redeploy on Vercel.
+
+-------------------------------------------------------------------------------
+2. ISSUE: Vercel Package Hardlink Warning
+-------------------------------------------------------------------------------
+Symptom:
+  "warning: Failed to hardlink files; falling back to full copy"
+
+Root Cause:
+  Vercel uses `uv` for build caching. Hardlinks between Vercel cache volumes and
+  the project build folder are not supported on Vercel's build machine virtual disk.
+
+Resolution:
+  Harmless warning — Vercel falls back to copy mode automatically.
+  Optional fix: Add env var `UV_LINK_MODE=copy` in Vercel settings.
+
+-------------------------------------------------------------------------------
+3. ISSUE: Chroma Vector Store AttributeError (`.persist()`)
+-------------------------------------------------------------------------------
+Symptom:
+  "AttributeError: 'Chroma' object has no attribute 'persist'" during `rebuild_vectordb.py`
+
+Root Cause:
+  Newer versions of `langchain-chroma` automatically persist data on creation and 
+  have deprecated/removed the explicit `.persist()` method.
+
+Resolution:
+  Modified `backend/app/embeddings.py` to wrap `.persist()` calls in `hasattr()` checks:
+    if hasattr(vector_store, "persist"):
+        vector_store.persist()
+  Committed & pushed fix to branch `deploy` (Commit: `ba38604`).
+
+-------------------------------------------------------------------------------
+4. ISSUE: Render Port Binding Delay / Port Scanning
+-------------------------------------------------------------------------------
+Symptom:
+  "==> No open ports detected, continuing to scan..."
+
+Root Cause:
+  Python takes 20 to 40 seconds to import heavy machine learning dependencies 
+  (`sentence-transformers` and `BAAI/bge-small-en-v1.5`) into memory before `uvicorn`
+  opens the HTTP port.
+
+Resolution:
+  1. Updated `render.yaml` Start Command to:
+     `uvicorn api:app --host 0.0.0.0 --port $PORT`
+  2. Updated `backend/api.py` to automatically self-heal and build the vector database
+     on startup if missing.
+  3. Pushed fix to branch `deploy` (Commit: `1749886`).
+  Note: Seeing this message for 30 seconds during server spin-up is normal on Render.
+
+-------------------------------------------------------------------------------
+5. ISSUE: Frontend "Offline" Badge / "Failed to Fetch"
+-------------------------------------------------------------------------------
+Symptom:
+  Red "Offline" dot and "Failed to fetch" error in the chatbot UI.
+
+Root Cause:
+  Frontend `VITE_API_URL` environment variable was either missing on Vercel or the 
+  Render backend had not finished deploying yet.
+
+Resolution:
+  1. Deploy Backend to Render and copy public URL (e.g. `https://charusat-chatbot-api.onrender.com`).
+  2. Set `VITE_API_URL` in Vercel -> Settings -> Environment Variables.
+  3. Redeploy frontend in Vercel (Vite injects env vars at build time).
+
+===============================================================================
+Last Updated: August 2026 | Branch: deploy
+===============================================================================
