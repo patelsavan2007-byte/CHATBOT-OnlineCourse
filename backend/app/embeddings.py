@@ -32,7 +32,8 @@ class EmbeddingStore:
             embedding=self.embedding_model,
             persist_directory=self.persist_directory,
         )
-        vector_store.persist()
+        if hasattr(vector_store, "persist"):
+            vector_store.persist()
         print_info("Database saved successfully.")
         logger.info("Database saved successfully")
         return vector_store
@@ -52,7 +53,8 @@ class EmbeddingStore:
         print_info(f"Adding {len(documents)} documents to existing vector store...")
         logger.info("Adding %d documents to existing vector store", len(documents))
         store.add_documents(documents)
-        store.persist()
+        if hasattr(store, "persist"):
+            store.persist()
         print_info("Documents added and persisted successfully.")
         logger.info("Documents added and persisted successfully")
         return store
