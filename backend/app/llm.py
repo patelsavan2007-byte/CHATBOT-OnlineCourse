@@ -99,70 +99,23 @@ class LLMClient:
         if self.groq_api_key and HAS_GROQ:
             try:
                 self._groq_client = Groq(api_key=self.groq_api_key)
-                print_info(f"Groq client initialised for fallback tier (model: {config.GROQ_MODEL}).")
+                print_info(f"Groq client initialised as PRIMARY LLM (model: {config.GROQ_MODEL}).")
+                logger.info("Groq client initialised as primary LLM: %s", config.GROQ_MODEL)
             except Exception as exc:
                 logger.error("Failed to initialise Groq client: %s", exc)
                 self._groq_client = None
 
-        if not self.api_key:
-            print_warning("[WARNING] GOOGLE_API_KEY is missing or invalid in .env file.")
-            if self._groq_client:
-                print_info("Groq fallback tier will be used primary.")
-            else:
-                print_warning("Using local fallback answer generation from retrieved context.")
-            logger.warning("GOOGLE_API_KEY missing; fallback tier active")
-            return
-
-        try:
-            self._client = genai.Client(
-                api_key=self.api_key,
-                http_options=genai_types.HttpOptions(
-                    timeout=int(config.LLM_TIMEOUT),
-                    retryOptions=genai_types.HttpRetryOptions(attempts=1),
-                ),
-            )
-            self._gen_config = genai_types.GenerateContentConfig(
-                temperature=config.LLM_TEMPERATURE,
-                max_output_tokens=1024,
-            )
-        except Exception as exc:
-            logger.error("Failed to initialise Gemini client: %s", exc)
-            self._client = None
-            return
-
-        discovered = self._discover_models()
-        self._working_models = discovered or list(config.PREFERRED_MODELS)
-        if self._working_models:
-            print_info(f"Gemini client ready; candidate models: {', '.join(self._working_models)}")
-        else:
-            print_warning("[WARNING] No Gemini models available; using local fallback.")
+        if not self._groq_client:
+            print_warning("[WARNING] GROQ_API_KEY is missing or invalid in environment. Using local fallback.")
+            logger.warning("Groq client unavailable; using local fallback")
 
     def _discover_models(self) -> List[str]:
-        """Return available Gemini model names in preferred order.
-
-        Some models are still *listed* but reject generation for new users
-        (404); those are removed lazily when a call fails, so discovery never
-        burns quota probing generation.
-        """
-        try:
-            available = set()
-            for model in self._client.models.list():
-                name = getattr(model, "name", "")
-                actions = getattr(model, "supported_actions", None) or []
-                if name and "generateContent" in actions:
-                    available.add(name)
-            logger.info("Available Gemini models (generateContent): %s", sorted(available))
-
-            preferred = [name for name in config.PREFERRED_MODELS if name in available]
-            others = sorted(name for name in available if "gemini" in name)
-            return preferred + [name for name in others if name not in preferred]
-        except Exception as exc:
-            logger.error("Model discovery failed: %s", exc)
-            return []
+        """Disabled for Groq primary deployment."""
+        return []
 
     # ------------------------------------------------------------------
     # Generation
-    # Fallback Chain: Gemini (multi-model) -> Groq -> raw chunk fallback
+    # Primary: Groq API (llama-3.3-70b-versatile) -> Local Fallback
     # ------------------------------------------------------------------
 
     def generate(
@@ -172,75 +125,18 @@ class LLMClient:
         context_chunks: Optional[List[Tuple[str, Dict[str, object]]]] = None,
         conflicts: Optional[List[Dict[str, object]]] = None,
     ) -> Tuple[str, str]:
-        """Generate an answer using the fallback chain: Gemini -> Groq -> Local.
+        """Generate an answer using Groq directly as primary LLM.
 
         Returns ``(text, status)`` where status is one of ``LLMStatus``.
         """
-        if not (self.api_key and self._client and self._working_models):
-            groq_text = self._try_groq(prompt)
-            if groq_text:
-                self._last_status = LLMStatus.GROQ
-                return groq_text, LLMStatus.GROQ
-            return self._fallback_generate(prompt, context_chunks, conflicts), LLMStatus.FALLBACK
-
-        if self._quota_exhausted:
-            logger.warning("Gemini quota exhausted; attempting Groq fallback")
-            groq_text = self._try_groq(prompt)
-            if groq_text:
-                self._last_status = LLMStatus.GROQ
-                return groq_text, LLMStatus.GROQ
-            return self._fallback_generate(prompt, context_chunks, conflicts), LLMStatus.QUOTA
-
-        if time.time() < self._cooldown_until:
-            logger.info(
-                "Gemini API in cooldown (%.0fs left); attempting Groq fallback",
-                self._cooldown_until - time.time(),
-            )
-            groq_text = self._try_groq(prompt)
-            if groq_text:
-                self._last_status = LLMStatus.GROQ
-                return groq_text, LLMStatus.GROQ
-            return self._fallback_generate(prompt, context_chunks, conflicts), self._last_status
-
-        last_error: Optional[Exception] = None
-        seen_quota = False
-        seen_timeout = False
-        for model in list(self._working_models):
-            try:
-                text = self._generate_once(model, prompt)
-                self._last_status = LLMStatus.GEMINI
-                return text, LLMStatus.GEMINI
-            except (APIQuotaError, LLMTimeoutError, APIAccessError, LLMGenerationError) as exc:
-                last_error = exc
-                if isinstance(exc, APIQuotaError):
-                    seen_quota = True
-                elif isinstance(exc, LLMTimeoutError):
-                    seen_timeout = True
-                logger.warning("%s with model %s: %s", type(exc).__name__, model, exc)
-                if isinstance(exc, APIAccessError) and exc.unavailable:
-                    self._working_models.remove(model)
-                    logger.info("Removed unavailable model %s from working set", model)
-                continue
-
-        if seen_quota:
-            self._quota_exhausted = True
-            status = LLMStatus.QUOTA
-        elif seen_timeout:
-            status = LLMStatus.TIMEOUT
-        else:
-            status = self._status_for(last_error)
-        self._last_status = status
-        self._cooldown_until = time.time() + config.LLM_COOLDOWN_SECONDS
-        logger.warning("All Gemini models failed (%s); attempting Groq fallback tier", status)
-
         groq_text = self._try_groq(prompt)
         if groq_text:
-            logger.info("Groq fallback generation succeeded")
             self._last_status = LLMStatus.GROQ
             return groq_text, LLMStatus.GROQ
 
-        logger.warning("Groq fallback unavailable or failed; using local raw chunk fallback")
-        return self._fallback_generate(prompt, context_chunks, conflicts), status
+        logger.warning("Groq API unavailable or failed; using local deterministic fallback")
+        self._last_status = LLMStatus.FALLBACK
+        return self._fallback_generate(prompt, context_chunks, conflicts), LLMStatus.FALLBACK
 
     def _try_groq(self, prompt: str) -> Optional[str]:
         """Attempt answer generation using Groq API as a fallback tier.
