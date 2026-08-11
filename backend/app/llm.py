@@ -21,8 +21,13 @@ import re
 import time
 from typing import Dict, List, Optional, Tuple
 
-from google import genai
-from google.genai import types as genai_types
+try:
+    from google import genai
+    from google.genai import types as genai_types
+except ImportError:
+    genai = None
+    genai_types = None
+
 
 try:
     from groq import Groq

@@ -14,7 +14,8 @@ set -o errexit  # Exit on any error
 
 echo "=== Installing Python dependencies ==="
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --prefer-binary --no-cache-dir -r requirements.txt
+
 
 echo "=== Checking vector database ==="
 if [ -f "vector_db/chroma.sqlite3" ] && [ "$1" != "--force" ]; then

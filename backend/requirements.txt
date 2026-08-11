@@ -2,9 +2,7 @@ python-dotenv>=1.0.1
 langchain>=0.3.0
 langchain-core>=0.3.0
 langchain-community>=0.3.0
-langchain-google-genai>=2.0.0
 langchain-chroma>=0.1.4
-langchain-openai>=0.3.0
 langchain-text-splitters>=0.3.0
 chromadb>=0.5.0
 fastembed>=0.3.0
@@ -15,10 +13,9 @@ pymupdf>=1.0.0
 numpy>=1.26.0
 beautifulsoup4>=4.0.0
 requests>=2.31.0
-lxml>=5.0.0
-google-genai>=1.0.0
 groq>=0.9.0
 fastapi>=0.115.0
 uvicorn>=0.30.0
 gunicorn>=21.2.0
+
 
