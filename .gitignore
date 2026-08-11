@@ -12,8 +12,6 @@ __pycache__/
 *$py.class
 
 # Vector DB & generated artifacts
-backend/vector_db/
-vector_db/
 .chroma/
 
 # IDE & OS settings

@@ -16,7 +16,13 @@ echo "=== Installing Python dependencies ==="
 pip install --upgrade pip
 pip install -r requirements.txt
 
-echo "=== Rebuilding vector database from knowledge_base/ ==="
-python rebuild_vectordb.py
+echo "=== Checking vector database ==="
+if [ -f "vector_db/chroma.sqlite3" ] && [ "$1" != "--force" ]; then
+    echo "Using existing pre-built ChromaDB vector store in vector_db/ (444 chunks)."
+else
+    echo "=== Rebuilding vector database from knowledge_base/ ==="
+    python rebuild_vectordb.py
+fi
 
 echo "=== Build complete ==="
+
