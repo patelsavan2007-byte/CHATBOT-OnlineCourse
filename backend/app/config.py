@@ -242,6 +242,12 @@ ATTRIBUTE_TAXONOMY: Dict[str, Dict[str, object]] = {
 # ---------------------------------------------------------------------------
 # Context construction
 # ---------------------------------------------------------------------------
+# Minimum relevance score threshold for candidate chunks to be included in top-K.
+MIN_RELEVANCE_SCORE = 0.55
+
+# Minimum score threshold for a source chunk to be displayed in the response sources list.
+MIN_SOURCE_SCORE = 0.60
+
 # Maximum characters of a single chunk's content included in the LLM context.
 CONTEXT_CHUNK_MAX_CHARS = 800
 # Maximum total context size (headers + content + separators) sent to the LLM.
@@ -250,12 +256,13 @@ CONTEXT_TOTAL_MAX_CHARS = 4200
 # ---------------------------------------------------------------------------
 # LLM / API
 # ---------------------------------------------------------------------------
-LLM_MAX_RETRIES = 3          # maximum number of attempts for a generation call
-LLM_RETRY_DELAY = 2.0        # initial delay (seconds) before a retry
-LLM_BACKOFF_FACTOR = 2.0     # multiplier applied to the delay between retries
-LLM_TIMEOUT = 60             # per-attempt timeout in seconds
+LLM_MAX_RETRIES = 2          # maximum number of attempts for a generation call
+LLM_RETRY_DELAY = 1.0        # initial delay (seconds) before a retry
+LLM_BACKOFF_FACTOR = 1.5     # multiplier applied to the delay between retries
+LLM_TIMEOUT = 15             # per-attempt timeout in seconds (fast fail)
 LLM_TEMPERATURE = 0.2
-LLM_COOLDOWN_SECONDS = 60    # circuit-breaker: skip the API for this long after a full failure sweep
+LLM_COOLDOWN_SECONDS = 300   # circuit-breaker: skip Gemini for 5 mins after a full failure sweep
+
 
 # Preferred Gemini models in priority order (exact names from the API).
 PREFERRED_MODELS: List[str] = [

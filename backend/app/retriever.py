@@ -220,13 +220,20 @@ class RAGRetriever:
 
         scored.sort(key=lambda item: item[1], reverse=True)
 
-        # Keep the full scored pool for conflict detection so disagreements
-        # between different pages are never lost to the diversity cap.
-        self.last_pool = scored
+        # Filter out low-relevance noise below threshold
+        relevant_scored = [item for item in scored if item[1] >= getattr(config, "MIN_RELEVANCE_SCORE", 0.55)]
+        if not relevant_scored:
+            logger.info("All retrieved candidates fell below minimum relevance score threshold (%.2f)", getattr(config, "MIN_RELEVANCE_SCORE", 0.55))
+            self.last_pool = []
+            return []
 
-        kept, _removed_dup = deduplicate_results(scored)
+        # Keep the full relevant pool for conflict detection
+        self.last_pool = relevant_scored
+
+        kept, _removed_dup = deduplicate_results(relevant_scored)
         kept, _removed_div = apply_diversity_cap(kept)
         final = kept[: config.TOP_K]
+
 
         print_info(f"Final selection: {len(final)} chunk(s)")
         for doc, score in final:

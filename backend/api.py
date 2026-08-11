@@ -33,6 +33,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from app import config
 from app.config import ensure_directories
 from app.conversation_history import ConversationStore
 from app.embeddings import EmbeddingStore
@@ -40,6 +41,7 @@ from app.llm import LLMClient
 from app.rag_chain import RAGChain
 from app.retriever import RAGRetriever
 from app.utils import logger, print_info, print_warning
+
 
 # -----------------------------------------------------------------------
 # Application bootstrap
@@ -187,12 +189,30 @@ async def chat(request: ChatRequest) -> ChatResponse:
     conversation_store.add_message(session_id, "user", request.question)
     conversation_store.add_message(session_id, "assistant", answer_text)
 
-    # Build source list
-    sources = sorted({
-        f"{doc.metadata.get('source', 'unknown')}"
-        + (f" (Page {doc.metadata.get('page')})" if doc.metadata.get("page") is not None else "")
-        for doc, _ in retrieved
-    })
+    # Build source list:
+    # 1. If information was NOT found in the knowledge base, do NOT list sources.
+    # 2. Otherwise, only list sources for chunks meeting the MIN_SOURCE_SCORE threshold.
+    is_not_found = any(
+        phrase in answer_text.lower()
+        for phrase in ("couldn't find", "could not find", "not present in the context")
+    )
+    if is_not_found or not retrieved:
+        sources = []
+    else:
+        min_src_score = getattr(config, "MIN_SOURCE_SCORE", 0.60)
+        filtered_docs = [
+            doc for doc, score in retrieved
+            if score >= min_src_score
+        ]
+        # Fallback to top document if all scores were slightly below threshold but answer was generated
+        if not filtered_docs and retrieved:
+            filtered_docs = [retrieved[0][0]]
+
+        sources = sorted({
+            f"{doc.metadata.get('source', 'unknown')}"
+            + (f" (Page {doc.metadata.get('page')})" if doc.metadata.get("page") is not None and str(doc.metadata.get("page")).strip() != "" else "")
+            for doc in filtered_docs
+        })
 
     return ChatResponse(
         session_id=session_id,
@@ -201,6 +221,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
         resolved_query=resolved_query,
         llm_status=rag_chain.last_status,
     )
+
 
 
 @app.delete("/chat/history/{session_id}", response_model=ClearHistoryResponse)

@@ -13,8 +13,10 @@ IMPORTANT RULES:
 2. Always include the source file at the end of your answer in the format:
    Source: <filename>
    If a page number is available, include it: Source: <filename>, Page: <page>
-3. If the information is not present in the context, respond with:
+3. If the retrieved context genuinely contains NO relevant information about the question, respond with:
    "I couldn't find this information in the university knowledge base."
+   Otherwise, answer using the available facts in the context.
+
 4. Do not hallucinate, speculate, or use outside knowledge.
 5. Keep answers focused and direct. Prefer short, precise answers over long summaries.
 

@@ -21,12 +21,17 @@ class RAGChain:
         self.llm_client = llm_client
         self.last_status: str = LLMStatus.FALLBACK
         self.last_conflicts: List[dict] = []
+        self.last_timing: Dict[str, float] = {}
 
     def answer(self, question: str) -> Tuple[str, List[Tuple[Document, float]]]:
+        import time
+        t_start = time.time()
+
+        t_ret = time.time()
         retrieved = self.retriever.retrieve(question)
+        ret_time = time.time() - t_ret
+
         program_name = getattr(self.retriever, "last_program", "")
-        # Detect conflicts over the full diverse pool (not just the top-K) so
-        # disagreements between different pages are never missed.
         pool_docs = [doc for doc, _ in getattr(self.retriever, "last_pool", retrieved)]
         conflicts = detect_conflicts_from_documents(pool_docs or [doc for doc, _ in retrieved], question, program_name)
         self.last_conflicts = conflicts
@@ -35,14 +40,24 @@ class RAGChain:
         prompt = build_prompt(context=context, question=question)
 
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
+        t_llm = time.time()
         response_text, status = self.llm_client.generate(
             prompt,
             context_chunks=evidence,
             conflicts=conflicts,
         )
+        llm_time = time.time() - t_llm
+
         self.last_status = status
-        logger.info("LLM generation status: %s", status)
+        total_time = time.time() - t_start
+        self.last_timing = {
+            "retrieval_s": round(ret_time, 3),
+            "llm_generation_s": round(llm_time, 3),
+            "total_s": round(total_time, 3),
+        }
+        logger.info("RAG pipeline timing: ret=%.3fs, llm=%.3fs, total=%.3fs, status=%s", ret_time, llm_time, total_time, status)
         return response_text, retrieved
+
 
     def answer_with_history(
         self,
@@ -73,13 +88,20 @@ class RAGChain:
             *resolved_query* is the standalone version of the question used
             for retrieval.
         """
+        import time
+        t_start = time.time()
+
         # Step 1: Resolve follow-ups into standalone queries
+        t_res = time.time()
         resolved_query = resolve_followup_query(
             question, history, llm_client=self.llm_client,
         )
+        res_time = time.time() - t_res
 
         # Step 2: Retrieve using the resolved (standalone) query
+        t_ret = time.time()
         retrieved = self.retriever.retrieve(resolved_query)
+        ret_time = time.time() - t_ret
         program_name = getattr(self.retriever, "last_program", "")
 
         pool_docs = [doc for doc, _ in getattr(self.retriever, "last_pool", retrieved)]
@@ -90,7 +112,7 @@ class RAGChain:
         )
         self.last_conflicts = conflicts
 
-        # Step 3: Build context (existing logic, unchanged)
+        # Step 3: Build context
         context = self._build_context(retrieved, conflicts)
 
         # Step 4: Build history-aware prompt
@@ -100,16 +122,27 @@ class RAGChain:
             history=history,
         )
 
-        # Step 5: Generate answer (existing LLM client, unchanged)
+        # Step 5: Generate answer
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
+        t_llm = time.time()
         response_text, status = self.llm_client.generate(
             prompt,
             context_chunks=evidence,
             conflicts=conflicts,
         )
+        llm_time = time.time() - t_llm
+
         self.last_status = status
-        logger.info("LLM generation status (with history): %s", status)
+        total_time = time.time() - t_start
+        self.last_timing = {
+            "query_resolution_s": round(res_time, 3),
+            "retrieval_s": round(ret_time, 3),
+            "llm_generation_s": round(llm_time, 3),
+            "total_s": round(total_time, 3),
+        }
+        logger.info("RAG pipeline timing (history): res=%.3fs, ret=%.3fs, llm=%.3fs, total=%.3fs, status=%s", res_time, ret_time, llm_time, total_time, status)
         return response_text, retrieved, resolved_query
+
 
     def _build_context(
         self,
