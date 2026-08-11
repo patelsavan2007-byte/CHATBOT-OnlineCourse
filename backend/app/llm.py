@@ -144,10 +144,12 @@ class LLMClient:
         return self._fallback_generate(prompt, context_chunks, conflicts), LLMStatus.FALLBACK
 
     def _try_groq(self, prompt: str) -> Optional[str]:
-        """Attempt answer generation using Groq API as a fallback tier.
+        """Attempt answer generation using Groq API.
 
-        Reuses the exact same prompt/context that was sent to Gemini.
-        Wrapped in try/except with a short timeout (5-10s).
+        Tries the primary configured model (llama-3.3-70b-versatile) first.
+        If a 429 rate limit or error occurs, automatically fails over to
+        secondary Groq models (llama-3.1-8b-instant, mixtral-8x7b-32768, gemma2-9b-it)
+        before ever resorting to deterministic fallback.
         """
         if not self._groq_client:
             if not self.groq_api_key or not HAS_GROQ:
@@ -158,26 +160,38 @@ class LLMClient:
                 logger.error("Failed to initialise Groq client: %s", exc)
                 return None
 
-        try:
-            logger.info("Calling Groq API fallback model: %s", config.GROQ_MODEL)
-            response = self._groq_client.chat.completions.create(
-                model=config.GROQ_MODEL,
-                messages=[
-                    {"role": "user", "content": prompt},
-                ],
-                temperature=config.LLM_TEMPERATURE,
-                max_tokens=1024,
-                timeout=config.GROQ_TIMEOUT,
-            )
-            if response.choices and len(response.choices) > 0:
-                text = response.choices[0].message.content
-                if text and text.strip():
-                    return text.strip()
-            logger.warning("Groq API returned an empty response")
-            return None
-        except Exception as exc:
-            logger.error("Groq API fallback call failed: %s", exc)
-            return None
+        # Tiered list of Groq models to try in order
+        groq_models = [
+            getattr(config, "GROQ_MODEL", "llama-3.3-70b-versatile"),
+            "llama-3.1-8b-instant",
+            "mixtral-8x7b-32768",
+            "gemma2-9b-it",
+        ]
+
+        for model_name in groq_models:
+            try:
+                logger.info("Calling Groq API model: %s", model_name)
+                response = self._groq_client.chat.completions.create(
+                    model=model_name,
+                    messages=[
+                        {"role": "user", "content": prompt},
+                    ],
+                    temperature=config.LLM_TEMPERATURE,
+                    max_tokens=1024,
+                    timeout=config.GROQ_TIMEOUT,
+                )
+                if response.choices and len(response.choices) > 0:
+                    text = response.choices[0].message.content
+                    if text and text.strip():
+                        print_info(f"Groq generation succeeded with model: {model_name}")
+                        return text.strip()
+                logger.warning("Groq API model %s returned an empty response", model_name)
+            except Exception as exc:
+                logger.warning("Groq API model %s failed (%s), trying failover model...", model_name, exc)
+                continue
+
+        logger.error("All Groq API models exhausted or failed")
+        return None
 
     def _generate_once(self, model: str, prompt: str) -> str:
         attempt = 0
