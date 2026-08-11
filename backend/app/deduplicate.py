@@ -85,7 +85,12 @@ def deduplicate_results(
     removed: List[Tuple[Document, float]] = []
     for doc, score in ordered:
         is_duplicate = False
+        pname = doc.metadata.get("program_name", "")
         for kept_doc, _ in kept:
+            kept_pname = kept_doc.metadata.get("program_name", "")
+            # Chunks belonging to different programmes are never near-duplicates
+            if pname and kept_pname and pname != kept_pname:
+                continue
             if is_near_duplicate(doc.page_content, kept_doc.page_content):
                 is_duplicate = True
                 break

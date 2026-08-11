@@ -29,6 +29,15 @@ def _detect_program(query: str) -> str:
     return ""
 
 
+def _is_programme_overview_query(query: str) -> bool:
+    """Detect broad queries asking what programmes/courses are offered or available."""
+    patterns = [
+        r"\b(?:what|which|list|available|all)\b.*\b(?:program|programme|course|degree)s?\b",
+        r"\b(?:program|programme|course|degree)s?\b.*\b(?:offer|offered|available|provide|provided)\b",
+    ]
+    return any(re.search(p, query, re.IGNORECASE) for p in patterns)
+
+
 def _detect_query_keywords(query: str) -> List[str]:
     """Detect attribute keywords present in the user query.
 
@@ -173,6 +182,34 @@ class RAGRetriever:
             except Exception as exc:
                 logger.warning("Filtered candidate search failed (%s): %s", filter_args, exc)
 
+        # Broad program query search handling: query each programme for candidate chunks
+        if _is_programme_overview_query(query):
+            try:
+                all_progs = ["online_bca", "online_bba", "online_mba", "online_mca"]
+                prog_candidates = []
+                for p in all_progs:
+                    try:
+                        p_res = self.vector_store.similarity_search_with_relevance_scores(
+                            query, k=5, filter={"program_name": p}
+                        )
+                        prog_candidates.extend(p_res)
+                    except Exception:
+                        pass
+                gen_results = self.vector_store.similarity_search_with_relevance_scores(
+                    query, k=config.CANDIDATE_POOL_SIZE
+                )
+                # Combine results giving preference to higher scores
+                seen: Dict[str, Tuple[Document, float]] = {}
+                for doc, score in (prog_candidates + gen_results):
+                    doc_id = doc.page_content.strip()[:100]
+                    if doc_id not in seen or score > seen[doc_id][1]:
+                        seen[doc_id] = (doc, score)
+                combined = list(seen.values())
+                combined.sort(key=lambda x: x[1], reverse=True)
+                return combined
+            except Exception as exc:
+                logger.warning("Programme overview query search failed: %s", exc)
+
         try:
             return self.vector_store.similarity_search_with_relevance_scores(
                 query, k=config.CANDIDATE_POOL_SIZE
@@ -220,8 +257,42 @@ class RAGRetriever:
 
         scored.sort(key=lambda item: item[1], reverse=True)
 
+        if _is_programme_overview_query(query):
+            # Boost official programme overview markdown files so they outrank contact/terms
+            boosted = []
+            for doc, score in scored:
+                src = str(doc.metadata.get("source", ""))
+                if src.startswith("programs/online_"):
+                    score = min(score + 0.10, config.SCORE_CAP)
+                boosted.append((doc, score))
+            scored = boosted
+            scored.sort(key=lambda item: item[1], reverse=True)
+
+            # Diversify across programmes so top-K represents each offered programme (BCA, BBA, MBA, MCA)
+            from collections import defaultdict
+            prog_counts: defaultdict[str, int] = defaultdict(int)
+            diversified = []
+            for doc, score in scored:
+                pname = str(doc.metadata.get("program_name", ""))
+                if not pname:
+                    continue
+                if prog_counts[pname] >= 1:
+                    continue
+                prog_counts[pname] += 1
+                diversified.append((doc, score))
+
+            # If fewer than TOP_K programme chunks found, fill remaining with other candidates
+            if len(diversified) < config.TOP_K:
+                seen_ids = {d.page_content.strip()[:100] for d, _ in diversified}
+                for doc, score in scored:
+                    if doc.page_content.strip()[:100] not in seen_ids:
+                        diversified.append((doc, score))
+                        if len(diversified) >= config.TOP_K:
+                            break
+            scored = diversified
+
         # Filter out low-relevance noise below threshold
-        relevant_scored = [item for item in scored if item[1] >= getattr(config, "MIN_RELEVANCE_SCORE", 0.55)]
+        relevant_scored = [item for item in scored if item[1] >= getattr(config, "MIN_RELEVANCE_SCORE", 0.52)]
         if not relevant_scored:
             logger.info("All retrieved candidates fell below minimum relevance score threshold (%.2f)", getattr(config, "MIN_RELEVANCE_SCORE", 0.55))
             self.last_pool = []

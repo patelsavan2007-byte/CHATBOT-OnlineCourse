@@ -56,7 +56,7 @@ TOP_K = 5
 # deduplication and final top-K selection. A larger pool lets the ranking
 # stage prefer the best non-duplicate, diverse chunks instead of simply
 # taking the first K neighbours.
-CANDIDATE_POOL_SIZE = 15
+CANDIDATE_POOL_SIZE = 20
 
 # Hard ceiling applied to every final score. Prevents boosting from
 # flattening many chunks onto the same maximum value.
@@ -78,7 +78,8 @@ VALUE_PROXIMITY_MAX = 0.03        # absolute cap on the value-proximity contribu
 ATTRIBUTE_KEYWORDS: set = {
     "total programme fee", "annual fee", "semester fee", "examination fee",
     "tuition fee", "course fee", "caution deposit", "fee structure",
-    "refund policy", "total fee", "fee",
+    "refund policy", "total fee", "fee", "payment", "payment mode", "payment modes",
+    "mode of payment", "pay fee", "pay fees", "installment",
     "programme duration", "duration",
     "total credits", "semester credits", "number of credits", "credits",
     "eligibility", "eligible",
@@ -243,7 +244,7 @@ ATTRIBUTE_TAXONOMY: Dict[str, Dict[str, object]] = {
 # Context construction
 # ---------------------------------------------------------------------------
 # Minimum relevance score threshold for candidate chunks to be included in top-K.
-MIN_RELEVANCE_SCORE = 0.55
+MIN_RELEVANCE_SCORE = 0.52
 
 # Minimum score threshold for a source chunk to be displayed in the response sources list.
 MIN_SOURCE_SCORE = 0.60
