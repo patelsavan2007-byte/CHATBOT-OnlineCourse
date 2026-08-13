@@ -1,4 +1,5 @@
 {
+  "framework": null,
   "installCommand": "npm install --prefix deployment",
   "buildCommand": "npm run build --prefix deployment",
   "outputDirectory": "deployment/dist",
