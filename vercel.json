@@ -1,5 +1,8 @@
 {
-  "buildCommand": "npm run build --prefix frontend",
-  "outputDirectory": "frontend/dist",
-  "installCommand": "npm install --prefix frontend"
+  "installCommand": "npm install --prefix deployment",
+  "buildCommand": "npm run build --prefix deployment",
+  "outputDirectory": "deployment/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
