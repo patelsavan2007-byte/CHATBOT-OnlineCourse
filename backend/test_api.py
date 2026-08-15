@@ -51,7 +51,10 @@ _STUB_MODULES = [
 
 for _mod_name in _STUB_MODULES:
     if _mod_name not in sys.modules:
-        sys.modules[_mod_name] = MagicMock()
+        try:
+            __import__(_mod_name)
+        except ImportError:
+            sys.modules[_mod_name] = MagicMock()
 
 
 def _make_mock_doc(content: str = "mock content", source: str = "mock.pdf", page: int = 1):
@@ -151,18 +154,14 @@ class TestChatWithoutSession:
         assert "session_id" in data
         assert len(data["session_id"]) > 0
         assert data["answer"]
-        assert data["llm_status"]
 
-    def test_returns_sources(self, client) -> None:
+    def test_does_not_expose_debug_fields(self, client) -> None:
+        """The API payload only carries session_id and answer — no debug details."""
         response = client.post("/chat", json={"question": "What is Online MBA fee?"})
         data = response.json()
-        assert "sources" in data
-        assert isinstance(data["sources"], list)
-
-    def test_returns_resolved_query(self, client) -> None:
-        response = client.post("/chat", json={"question": "What is Online MBA fee?"})
-        data = response.json()
-        assert "resolved_query" in data
+        assert set(data.keys()) == {"session_id", "answer"}
+        for hidden in ("sources", "resolved_query", "llm_status", "scores", "chunks"):
+            assert hidden not in data
 
 
 # -----------------------------------------------------------------------

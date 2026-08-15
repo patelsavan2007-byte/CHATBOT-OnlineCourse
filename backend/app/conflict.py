@@ -421,14 +421,23 @@ def detect_conflicts_from_documents(
     return detect_conflicts(pairs, question, query_program)
 
 
-def format_conflict_notice(conflicts: List[Conflict]) -> str:
-    """Build the human-readable conflict notice included in the LLM context."""
+def format_conflict_notice(conflicts: List[Conflict], include_locations: bool = True) -> str:
+    """Build the human-readable conflict notice included in the LLM context.
+
+    Locations (source file/page) are included when the notice is sent to the
+    LLM so it can report both values. They are omitted when the notice is
+    embedded in an end-user answer (deterministic fallback) so the UI never
+    shows internal source details.
+    """
     lines = ["Conflict Notice:"]
     for conflict in conflicts:
-        lines.append(f'The retrieved sources disagree about "{conflict["label"]}":')
+        lines.append(f'The retrieved documents disagree about "{conflict["label"]}":')
         for value in conflict["values"]:
             location = value["source"]
             if value.get("page") is not None:
                 location += f", page {value['page']}"
-            lines.append(f"- {value['value_text']} ({location})")
+            if include_locations:
+                lines.append(f"- {value['value_text']} ({location})")
+            else:
+                lines.append(f"- {value['value_text']}")
     return "\n".join(lines)

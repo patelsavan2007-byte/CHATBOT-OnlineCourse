@@ -16,7 +16,7 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -28,7 +28,6 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from app import config
 from app.config import ensure_directories
 from app.conversation_history import ConversationStore
 from app.utils import logger, print_info, print_warning
@@ -148,20 +147,14 @@ class ChatRequest(BaseModel):
 
 
 class ChatResponse(BaseModel):
-    """Response from ``POST /chat``."""
+    """Response from ``POST /chat``.
+
+    Only the assistant answer is returned to the client. Debug details
+    (retrieved chunks, scores, resolved query, LLM status) are written to the
+    backend logs, not exposed in the API payload.
+    """
     session_id: str
     answer: str
-    sources: List[str]
-    resolved_query: str = Field(
-        description=(
-            "The standalone version of the question used for RAG retrieval.  "
-            "May differ from the original question when the user asked a "
-            "follow-up that was reformulated using conversation context."
-        ),
-    )
-    llm_status: str = Field(
-        description="Which generation backend produced the answer (gemini, groq, fallback, ...).",
-    )
 
 
 class ClearHistoryResponse(BaseModel):
@@ -197,7 +190,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
     3. Runs the existing RAG retrieval pipeline (unchanged).
     4. Sends history + RAG context + question to the LLM.
     5. Appends the user question and assistant answer to the session.
-    6. Returns the answer with sources and the resolved query.
+    6. Returns the answer (and session id) to the client; debug details are
+       written to the backend logs only.
     """
     if not _rag_ready:
         raise HTTPException(status_code=503, detail="Chatbot RAG pipeline is not available.")
@@ -210,7 +204,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
 
     # 3-5. Answer with history-aware RAG chain
     try:
-        answer_text, retrieved, resolved_query = rag_chain.answer_with_history(
+        answer_text, _retrieved, _resolved_query = rag_chain.answer_with_history(
             request.question, history,
         )
     except Exception as exc:
@@ -221,37 +215,9 @@ async def chat(request: ChatRequest) -> ChatResponse:
     conversation_store.add_message(session_id, "user", request.question)
     conversation_store.add_message(session_id, "assistant", answer_text)
 
-    # Build source list:
-    # 1. If information was NOT found in the knowledge base, do NOT list sources.
-    # 2. Otherwise, only list sources for chunks meeting the MIN_SOURCE_SCORE threshold.
-    is_not_found = any(
-        phrase in answer_text.lower()
-        for phrase in ("couldn't find", "could not find", "not present in the context")
-    )
-    if is_not_found or not retrieved:
-        sources = []
-    else:
-        min_src_score = getattr(config, "MIN_SOURCE_SCORE", 0.60)
-        filtered_docs = [
-            doc for doc, score in retrieved
-            if score >= min_src_score
-        ]
-        # Fallback to top document if all scores were slightly below threshold but answer was generated
-        if not filtered_docs and retrieved:
-            filtered_docs = [retrieved[0][0]]
-
-        sources = sorted({
-            f"{doc.metadata.get('source', 'unknown')}"
-            + (f" (Page {doc.metadata.get('page')})" if doc.metadata.get("page") is not None and str(doc.metadata.get("page")).strip() != "" else "")
-            for doc in filtered_docs
-        })
-
     return ChatResponse(
         session_id=session_id,
         answer=answer_text,
-        sources=sources,
-        resolved_query=resolved_query,
-        llm_status=rag_chain.last_status,
     )
 
 

@@ -21,14 +21,29 @@ from app.rag_chain import RAGChain
 from app.retriever import RAGRetriever
 
 TEST_QUESTIONS = [
-    "What programmes are available at CHARUSAT?",
-    "What is the duration of the online BCA programme?",
-    "What are the eligibility requirements for online MBA?",
-    "How can I contact faculty members?",
-    "What is the fee for online BBA?",
+    "What is the duration of BBA?",
+    "What is the BBA fee structure?",
+    "What is the BCA programme about?",
+    "Is the online degree recognized by UGC?",
+    "How are examinations conducted?",
+    "Is technical support available?",
+    "Will I receive a degree certificate after completion?",
+    "What programmes are offered?",
+    "What is the eligibility for Online BCA?",
+    "How do I apply for admission?",
+    "Can I pay the fees in installments?",
+    "What is the refund policy?",
+    "Are the classes online?",
+    "Is there placement assistance?",
+    "How can I contact the university?",
+    "What is the total fee of MBA?",
+    "What are the specializations in MBA?",
+    "What is the admission process for MCA?",
+    "How many credits are in the BBA programme?",
+    "Is there any scholarship or financial aid?",
     "What documents are required for admission?",
-    "What is the examination process?",
-    "What is the degree/certificate process?",
+    "What is the examination fee?",
+    "Does the university offer counselling?",
     "What is the GDP of India?",  # NOT in knowledge base
 ]
 

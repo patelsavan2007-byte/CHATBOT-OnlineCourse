@@ -1,51 +1,87 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const DEFAULT_API_URL =
+  typeof window !== 'undefined' && window.location.hostname === 'localhost'
+    ? 'http://localhost:8000'
+    : 'https://charusat-chatbot-api.onrender.com'
+
+const API_URL = (import.meta.env.VITE_API_URL || DEFAULT_API_URL).replace(/\/$/, '')
+
+const APP_TITLE = 'CHARUSAT Online Course Assistant'
 
 const SUGGESTIONS = [
-  'What programmes are available?',
-  'Tell me about Online BCA fees',
-  'What is the eligibility for MBA?',
+  'What programmes are offered?',
+  'What is the eligibility for Online BCA?',
+  'What is the total fee of MBA?',
   'How long is the BBA programme?',
+  'How do I apply for admission?',
+  'What is the refund policy?',
 ]
+
+const sanitizeUserAnswer = (text) => {
+  if (!text || typeof text !== 'string') return ''
+
+  const trimmed = text.trim()
+  const isFallback = /available university knowledge base|available knowledge-base source files/i.test(trimmed)
+
+  if (isFallback) {
+    return trimmed
+  }
+
+  let cleaned = trimmed
+  cleaned = cleaned.replace(/(?:^|\n)\s*(?:Source|Page|Chunk ID|Score|Programme|Content Type|Document Type)\s*:\s*.*$/gim, '')
+  cleaned = cleaned.replace(/\b(?:programs|pdfs|knowledge_base)[/\\][^\n\r,;:()]+\.(?:md|pdf|txt|docx)\b/gi, '')
+  cleaned = cleaned.replace(/\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|ciqa|feedback|home|mandatory-disclosures|privacy-policy|terms-conditions|contact|online_bba|online_bca|online_mba|online_mca)(?:\.(?:pdf|md|txt))?\b/gi, '')
+  cleaned = cleaned.replace(/\b(?:via|generated\s+by)\s+(?:groq|gemini)\b/gi, '')
+  cleaned = cleaned.replace(/\bresolved\s*:\s*.*$/gim, '')
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n').trim()
+  return cleaned
+}
 
 function App() {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
   const [sessionId, setSessionId] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [health, setHealth] = useState('checking') // 'checking' | 'ok' | 'error'
-  const [healthDocs, setHealthDocs] = useState(null)
+  const [health, setHealth] = useState('checking')
+  const [theme, setTheme] = useState(() => localStorage.getItem('charusat-theme') || 'light')
   const [error, setError] = useState(null)
   const chatEndRef = useRef(null)
   const textareaRef = useRef(null)
 
-  // --- Health check ---
+  useEffect(() => {
+    document.body.dataset.theme = theme
+    localStorage.setItem('charusat-theme', theme)
+  }, [theme])
+
   useEffect(() => {
     let cancelled = false
     const check = async () => {
       try {
-        const res = await fetch(`${API_URL}/health`, { signal: AbortSignal.timeout(8000) })
-        if (!res.ok) throw new Error('unhealthy')
+        const controller = new AbortController()
+        const timeout = setTimeout(() => controller.abort(), 8000)
+        const res = await fetch(`${API_URL}/health`, { signal: controller.signal })
+        clearTimeout(timeout)
+        if (!res.ok) throw new Error(`health_status_${res.status}`)
         const data = await res.json()
-        if (!cancelled) {
-          setHealth('ok')
-          setHealthDocs(data.vector_store_documents)
-        }
+        if (!cancelled) setHealth(data && data.status === 'ok' ? 'ok' : 'error')
       } catch {
         if (!cancelled) setHealth('error')
       }
     }
+
     check()
-    return () => { cancelled = true }
+    const interval = setInterval(check, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(interval)
+    }
   }, [])
 
-  // --- Auto-scroll ---
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages, loading])
 
-  // --- Auto-resize textarea ---
   const handleInputChange = (e) => {
     setInput(e.target.value)
     const el = e.target
@@ -53,7 +89,6 @@ function App() {
     el.style.height = Math.min(el.scrollHeight, 120) + 'px'
   }
 
-  // --- Send message ---
   const sendMessage = useCallback(async (text) => {
     const question = (text || input).trim()
     if (!question || loading) return
@@ -64,7 +99,6 @@ function App() {
       textareaRef.current.style.height = 'auto'
     }
 
-    // Add user message
     setMessages((prev) => [...prev, { role: 'user', text: question }])
     setLoading(true)
 
@@ -90,28 +124,23 @@ function App() {
         ...prev,
         {
           role: 'bot',
-          text: data.answer,
-          sources: data.sources,
-          resolvedQuery: data.resolved_query,
-          llmStatus: data.llm_status,
+          text: sanitizeUserAnswer(data.answer),
         },
       ])
     } catch (err) {
       setError(err.message || 'Failed to connect to the backend API.')
-      // Remove the user message if the request completely failed
       setMessages((prev) => prev.slice(0, -1))
     } finally {
       setLoading(false)
     }
   }, [input, loading, sessionId])
 
-  // --- New chat ---
   const handleNewChat = async () => {
     if (sessionId) {
       try {
         await fetch(`${API_URL}/chat/history/${sessionId}`, { method: 'DELETE' })
       } catch {
-        // Ignore — just reset locally
+        // Ignore and reset locally.
       }
     }
     setMessages([])
@@ -119,7 +148,6 @@ function App() {
     setError(null)
   }
 
-  // --- Key handler ---
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -130,119 +158,114 @@ function App() {
   const isEmpty = messages.length === 0
 
   return (
-    <div className="app-container">
-      {/* Header */}
-      <header className="app-header">
-        <div className="header-left">
-          <div className="header-logo">🎓</div>
-          <div>
-            <div className="header-title">CHARUSAT Course Assistant</div>
-            <div className="header-subtitle">AI-powered programme enquiries</div>
+    <div className={`app-shell ${theme}`}>
+      <div className="app-container">
+        <header className="app-header">
+          <div className="header-left">
+            <div className="header-logo" aria-hidden="true">C</div>
+            <div>
+              <div className="header-title">{APP_TITLE}</div>
+              <div className="header-subtitle">Online programme enquiries and support</div>
+            </div>
           </div>
-        </div>
-        <div className="header-actions">
-          <div className="health-badge" title={healthDocs != null ? `${healthDocs} docs indexed` : ''}>
-            <span className={`health-dot ${health}`} />
-            {health === 'ok' ? `${healthDocs} docs` : health === 'error' ? 'Offline' : 'Checking…'}
-          </div>
-          {!isEmpty && (
-            <button className="btn-new-chat" onClick={handleNewChat} id="btn-new-chat">
-              ✦ New Chat
+
+          <div className="header-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              aria-label="Toggle colour theme"
+              onClick={() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))}
+            >
+              <span>{theme === 'light' ? 'Dark' : 'Light'}</span>
             </button>
-          )}
-        </div>
-      </header>
 
-      {/* Chat Area */}
-      <div className="chat-area" id="chat-area">
-        {isEmpty && !loading ? (
-          <div className="welcome">
-            <div className="welcome-icon">🎓</div>
-            <h2>Welcome to CHARUSAT Assistant</h2>
-            <p>
-              Ask me anything about CHARUSAT's online programmes — fees, eligibility,
-              duration, curriculum, and more.
-            </p>
-            <div className="suggestions">
-              {SUGGESTIONS.map((s) => (
-                <button
-                  key={s}
-                  className="suggestion-chip"
-                  onClick={() => sendMessage(s)}
-                >
-                  {s}
-                </button>
-              ))}
+            <div className="health-badge" aria-live="polite">
+              <span className={`health-dot ${health}`} />
+              {health === 'ok' ? 'Online' : health === 'error' ? 'Offline' : 'Checking…'}
             </div>
+
+            {!isEmpty && (
+              <button className="btn-new-chat" onClick={handleNewChat} id="btn-new-chat">
+                New Chat
+              </button>
+            )}
           </div>
-        ) : (
-          messages.map((msg, i) => (
-            <div key={i} className={`message ${msg.role}`}>
-              <div className="msg-avatar">
-                {msg.role === 'user' ? '👤' : '🤖'}
-              </div>
-              <div className="msg-content">
-                <div className="msg-bubble">{msg.text}</div>
-                {msg.sources && msg.sources.length > 0 && (
-                  <div className="msg-sources">
-                    {msg.sources.map((src, j) => (
-                      <span key={j} className="source-tag">📄 {src}</span>
-                    ))}
-                  </div>
-                )}
-                {msg.llmStatus && (
-                  <div className="msg-meta">
-                    via {msg.llmStatus}
-                    {msg.resolvedQuery && msg.resolvedQuery !== msg.text && (
-                      <> · resolved: "{msg.resolvedQuery}"</>
-                    )}
-                  </div>
-                )}
+        </header>
+
+        <div className="chat-area" id="chat-area">
+          {isEmpty && !loading ? (
+            <div className="welcome">
+              <div className="welcome-icon" aria-hidden="true">C</div>
+              <h2>Welcome to the {APP_TITLE}</h2>
+              <p>
+                Ask about CHARUSAT's online programmes — fees, eligibility, duration,
+                curriculum, admissions and more. Answers are based on the materials
+                available in the university knowledge base.
+              </p>
+              <div className="suggestions">
+                {SUGGESTIONS.map((s) => (
+                  <button
+                    key={s}
+                    className="suggestion-chip"
+                    onClick={() => sendMessage(s)}
+                  >
+                    {s}
+                  </button>
+                ))}
               </div>
             </div>
-          ))
-        )}
+          ) : (
+            messages.map((msg, i) => (
+              <div key={i} className={`message ${msg.role}`}>
+                <div className="msg-avatar">{msg.role === 'user' ? 'U' : 'A'}</div>
+                <div className="msg-content">
+                  <div className="msg-bubble">{msg.text}</div>
+                </div>
+              </div>
+            ))
+          )}
 
-        {loading && (
-          <div className="message bot">
-            <div className="msg-avatar">🤖</div>
-            <div className="msg-content">
-              <div className="msg-bubble">
-                <div className="typing-indicator">
-                  <span /><span /><span />
+          {loading && (
+            <div className="message bot">
+              <div className="msg-avatar">A</div>
+              <div className="msg-content">
+                <div className="msg-bubble">
+                  <div className="typing-indicator">
+                    <span /><span /><span />
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+
+          {error && <div className="error-banner">{error}</div>}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        <div className="input-area">
+          <div className="input-wrapper">
+            <textarea
+              ref={textareaRef}
+              id="chat-input"
+              rows={1}
+              placeholder="Ask about programmes, fees, eligibility…"
+              value={input}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              disabled={loading}
+            />
+            <button
+              className="btn-send"
+              id="btn-send"
+              onClick={() => sendMessage()}
+              disabled={loading || !input.trim()}
+              title="Send message"
+              aria-label="Send"
+            >
+              Send
+            </button>
           </div>
-        )}
-
-        {error && <div className="error-banner">⚠ {error}</div>}
-
-        <div ref={chatEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="input-area">
-        <div className="input-wrapper">
-          <textarea
-            ref={textareaRef}
-            id="chat-input"
-            rows={1}
-            placeholder="Ask about programmes, fees, eligibility…"
-            value={input}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            disabled={loading}
-          />
-          <button
-            className="btn-send"
-            id="btn-send"
-            onClick={() => sendMessage()}
-            disabled={loading || !input.trim()}
-            title="Send message"
-          >
-            ➤
-          </button>
         </div>
       </div>
     </div>

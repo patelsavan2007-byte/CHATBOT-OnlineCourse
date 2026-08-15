@@ -50,13 +50,38 @@ def ensure_directories() -> None:
 # ===========================================================================
 
 # Number of chunks sent to the LLM for answer generation.
-TOP_K = 5
+TOP_K = 4
 
 # Raw candidates retrieved from the vector store before re-ranking,
 # deduplication and final top-K selection. A larger pool lets the ranking
 # stage prefer the best non-duplicate, diverse chunks instead of simply
 # taking the first K neighbours.
 CANDIDATE_POOL_SIZE = 20
+
+# Per-source-group depth used by the generic-intent candidate search. Generic
+# university-level questions are answered from a balanced pool across every
+# programme plus the general/policy documents instead of a single default
+# programme. The depth must be generous: a relevant general page (e.g. the
+# CIQA learner-support page) can sit further down the similarity ranking of
+# its group than a trivial per-group depth would allow.
+GENERIC_POOL_PER_GROUP = 12
+
+# Max number of chunks from a single programme allowed in a generic answer,
+# so one programme's page cannot dominate the top-K.
+GENERIC_MAX_PER_PROGRAMME = 2
+
+# ---------------------------------------------------------------------------
+# Verbatim phrase boosting.
+#
+# Semantic similarity is the primary signal, but small, specific chunks that
+# share an exact multi-word phrase with the user question (e.g. "technical
+# support") are a strong relevance signal. Chunks containing any meaningful
+# 2-3 word phrase from the query receive a one-time bounded bonus so they
+# surface above loosely-related boilerplate. The bonus must be large enough
+# to rescue a topically-correct chunk that the embedding ranker buried
+# (legal boilerplate routinely scores ~0.55 against unrelated queries).
+# ---------------------------------------------------------------------------
+PHRASE_MATCH_BONUS = 0.15
 
 # Hard ceiling applied to every final score. Prevents boosting from
 # flattening many chunks onto the same maximum value.

@@ -395,17 +395,16 @@ def test_chat_endpoint(base: str) -> Optional[str]:
 
         session_id    = data.get("session_id", "")
         answer        = data.get("answer", "")
-        sources       = data.get("sources", [])
-        llm_status    = data.get("llm_status", "")
-        resolved_query = data.get("resolved_query", "")
 
         missing = []
         if not session_id: missing.append("session_id")
         if not answer:     missing.append("answer")
 
+        for hidden in ("sources", "resolved_query", "llm_status"):
+            if hidden in data:
+                missing.append(f"leaked field '{hidden}'")
+
         print(f"  session_id     : {session_id[:8]}...")
-        print(f"  llm_status     : {llm_status}")
-        print(f"  sources        : {len(sources)}")
         print(f"  answer_len     : {len(answer)}")
         print(f"  answer preview : {CYAN}{answer[:300]}{'...' if len(answer)>300 else ''}{RESET}")
 
@@ -413,7 +412,7 @@ def test_chat_endpoint(base: str) -> Optional[str]:
             _fail("Chat endpoint", f"Missing fields: {missing}")
             return None
 
-        _ok("Chat endpoint", f"HTTP 200  session={session_id[:8]}...  llm={llm_status}")
+        _ok("Chat endpoint", f"HTTP 200  session={session_id[:8]}...")
         return session_id
 
     except urllib.error.HTTPError as exc:
@@ -456,11 +455,7 @@ def test_session_followup(base: str, session_id: str) -> None:
 
         returned_session = data.get("session_id", "")
         answer           = data.get("answer", "")
-        resolved_query   = data.get("resolved_query", "")
-        llm_status       = data.get("llm_status", "")
 
-        print(f"  resolved_query : {CYAN}\"{resolved_query[:80]}\"{RESET}")
-        print(f"  llm_status     : {llm_status}")
         print(f"  answer preview : {CYAN}{answer[:250]}{'...' if len(answer)>250 else ''}{RESET}")
 
         if returned_session != session_id:
@@ -470,7 +465,7 @@ def test_session_followup(base: str, session_id: str) -> None:
             _fail("Session continuity", "Empty answer for follow-up question")
             return
 
-        _ok("Session continuity", f"session preserved  resolved_query=\"{resolved_query[:60]}\"")
+        _ok("Session continuity", "session preserved")
 
     except urllib.error.HTTPError as exc:
         body = exc.read().decode(errors="replace")[:300]

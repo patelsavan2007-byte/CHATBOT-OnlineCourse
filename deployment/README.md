@@ -115,10 +115,10 @@ Expected output:
 ║   CHARUSAT Chatbot — Smoke Test Suite            ║
 ╚══════════════════════════════════════════════════╝
 
-  ✔ PASS  Health check  status=ok  docs=444
+  ✔ PASS  Health check  status=ok  docs=408
   ✔ PASS  Root endpoint  GET / → 200
-  ✔ PASS  Chat endpoint  session=abc12345…  answer_len=312  sources=3  llm=groq
-  ✔ PASS  Follow-up (session continuity)  resolved_query="..."
+  ✔ PASS  Chat endpoint  session=abc12345…  answer_len=312
+  ✔ PASS  Follow-up (session continuity)  answer_len=280
   ✔ PASS  Clear history  session abc12345… cleared
   ✔ PASS  Frontend reachable  https://charusat-chatbot.vercel.app → 200
 

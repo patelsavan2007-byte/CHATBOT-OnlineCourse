@@ -109,8 +109,6 @@ def test_chat(base: str) -> Optional[str]:
         data = r.json()
         session_id = data.get("session_id")
         answer = data.get("answer", "")
-        sources = data.get("sources", [])
-        llm_status = data.get("llm_status", "")
 
         missing = []
         if not session_id:
@@ -118,14 +116,18 @@ def test_chat(base: str) -> Optional[str]:
         if not answer:
             missing.append("answer")
 
+        # Debug details must never leak into the API payload.
+        for hidden in ("sources", "resolved_query", "llm_status", "scores"):
+            if hidden in data:
+                missing.append(f"leaked field '{hidden}'")
+
         if missing:
-            fail("Chat endpoint", f"missing fields: {missing}")
+            fail("Chat endpoint", f"bad response: {missing}")
             return None
 
         ok(
             "Chat endpoint",
-            f"session={session_id[:8]}…  answer_len={len(answer)}  "
-            f"sources={len(sources)}  llm={llm_status}",
+            f"session={session_id[:8]}…  answer_len={len(answer)}",
         )
         return session_id
     except Exception as exc:
@@ -149,9 +151,12 @@ def test_followup(base: str, session_id: str) -> bool:
         if data.get("session_id") != session_id:
             fail("Follow-up (session continuity)", "session_id changed")
             return False
+        if not data.get("answer"):
+            fail("Follow-up (session continuity)", "missing answer")
+            return False
         ok(
             "Follow-up (session continuity)",
-            f"resolved_query=\"{data.get('resolved_query', '')[:60]}\"",
+            f"answer_len={len(data.get('answer', ''))}",
         )
         return True
     except Exception as exc:

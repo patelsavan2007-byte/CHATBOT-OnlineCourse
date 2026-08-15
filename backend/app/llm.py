@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import re
 import time
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 try:
@@ -40,7 +41,104 @@ from app import config
 from app.conflict import extract_claims, focus_attributes, format_conflict_notice
 from app.utils import logger, print_info, print_warning
 
-NOT_FOUND_ANSWER = "I couldn't find this information in the university knowledge base."
+NOT_FOUND_ANSWER = (
+    "I couldn't find this information in the available CHARUSAT Online "
+    "Programme information. You may contact the university for the latest details."
+)
+
+
+def get_available_knowledge_sources() -> List[str]:
+    """Return the currently available knowledge-base files, relative to the knowledge base root."""
+    root = Path(config.KNOWLEDGE_BASE_DIR)
+    if not root.exists():
+        return []
+
+    files: List[str] = []
+    for path in sorted(root.rglob('*')):
+        if not path.is_file():
+            continue
+        if path.suffix.lower() not in {'.md', '.pdf', '.txt'}:
+            continue
+        if any(part == '__pycache__' for part in path.parts):
+            continue
+        files.append(path.relative_to(root).as_posix())
+    return files
+
+
+def build_not_found_answer() -> str:
+    """Return a professional fallback that lists the source files actually available to the chatbot."""
+    sources = get_available_knowledge_sources()
+    lines = [
+        "I could not find sufficient information in the available university knowledge base for this query.",
+        "",
+        "Available knowledge-base sources currently searched:",
+    ]
+    if sources:
+        lines.extend(f"- {source}" for source in sources)
+    else:
+        lines.append("- No knowledge-base files are currently available.")
+    return "\n".join(lines)
+
+
+_INTERNAL_REF_RE = re.compile(
+    r"^[ 	]*(?:Source|Page|Chunk ID|Score|Content Type|Document Type|Programme)\s*:.*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+_SOURCE_AT_END_RE = re.compile(r"[ 	]*Source\s*:\s*[^\n]*$", re.IGNORECASE)
+_FILE_PATH_RE = re.compile(
+    r"\b(?:programs|pdfs|knowledge_base)[/\\][^\n\r,;:()]+\.(?:md|pdf|txt|docx)\b",
+    re.IGNORECASE,
+)
+_SPECIFIC_FILES_RE = re.compile(
+    r"\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|ciqa|feedback|home|mandatory-disclosures|privacy-policy|terms-conditions|contact|online_bba|online_bca|online_mba|online_mca)(?:\.(?:pdf|md|txt))?\b",
+    re.IGNORECASE,
+)
+_BARE_FILE_RE = re.compile(r"\b[\w\s.-]+\.(?:md|pdf|txt|docx)\b", re.IGNORECASE)
+_AS_PER_LEFTOVER_RE = re.compile(
+    r"\b(?:as\s+per|according\s+to|stated\s+in|mentioned\s+in|in\s+the\s+document|as\s+seen\s+in)\b",
+    re.IGNORECASE,
+)
+_PAGE_REF_RE = re.compile(r"\(?\bpage\s+\d+\b\)?", re.IGNORECASE)
+_VENDOR_RE = re.compile(r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b", re.IGNORECASE)
+_RESOLVED_RE = re.compile(r"^(?:resolved|retrieved|search|source|sources)\s*[:\-].*$", re.IGNORECASE | re.MULTILINE)
+_MULTI_BLANK_RE = re.compile(r"\n{3,}")
+
+
+def strip_internal_references(text: str) -> str:
+    """Remove source/page/score references from an answer before display.
+
+    The LLM is instructed never to mention internal details, but the
+    deterministic fallback and stubborn models occasionally echo them. This
+    sanitizer removes the common shapes so the production UI never shows
+    source files, page numbers, chunk IDs or scores.
+    """
+    if not text:
+        return text
+    cleaned = _INTERNAL_REF_RE.sub("", text)
+    cleaned = _SOURCE_AT_END_RE.sub("", cleaned)
+    cleaned = _FILE_PATH_RE.sub("", cleaned)
+    cleaned = _SPECIFIC_FILES_RE.sub("", cleaned)
+    cleaned = _BARE_FILE_RE.sub("", cleaned)
+    cleaned = _AS_PER_LEFTOVER_RE.sub("", cleaned)
+    cleaned = _PAGE_REF_RE.sub("", cleaned)
+    cleaned = _VENDOR_RE.sub("", cleaned)
+    cleaned = _RESOLVED_RE.sub("", cleaned)
+    cleaned = re.sub(r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b.*$", "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
+    cleaned = re.sub(r"\(\s*\)", "", cleaned)
+    cleaned = re.sub(r"\[\s*\]", "", cleaned)
+    cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"^[ 	]*[,.-]\s*", "", cleaned, flags=re.MULTILINE)
+    cleaned = re.sub(r"[ 	]{2,}", " ", cleaned)
+    cleaned = _MULTI_BLANK_RE.sub("\n\n", cleaned)
+
+    lines = cleaned.split("\n")
+    cleaned_lines = []
+    for line in lines:
+        l = line.strip()
+        if l and l[0].islower():
+            l = l[0].upper() + l[1:]
+        cleaned_lines.append(l)
+    return "\n".join(cleaned_lines).strip()
 
 
 class LLMStatus:
@@ -137,7 +235,7 @@ class LLMClient:
         groq_text = self._try_groq(prompt)
         if groq_text:
             self._last_status = LLMStatus.GROQ
-            return groq_text, LLMStatus.GROQ
+            return strip_internal_references(groq_text), LLMStatus.GROQ
 
         logger.warning("Groq API unavailable or failed; using local deterministic fallback")
         self._last_status = LLMStatus.FALLBACK
@@ -310,7 +408,7 @@ class LLMClient:
 
         output: List[str] = []
         if conflicts:
-            output.append(format_conflict_notice(conflicts))
+            output.append(format_conflict_notice(conflicts, include_locations=False))
 
         focused = focus_attributes(question)
         if focused:
@@ -405,15 +503,12 @@ class LLMClient:
         if semantics == "single":
             distinct = self._distinct_claim_groups(claims)
             if len(distinct) > 1:
-                lines = [f'Note: The retrieved sources contain conflicting values for "{label}":']
+                lines = [f'Note: The retrieved documents contain conflicting values for "{label}":']
                 for claim in distinct:
-                    lines.append(f"- {claim['value_text']} ({self._location(claim)})")
+                    lines.append(f"- {claim['value_text']}")
                 return lines
             claim = claims[0]
-            return [
-                f"{label}: {claim['value_text']}",
-                f"Source: {self._location(claim)}",
-            ]
+            return [f"{label}: {claim['value_text']}"]
 
         if semantics == "set":
             seen = []
@@ -426,14 +521,10 @@ class LLMClient:
             lines = [f"{label}:"]
             for value in seen[:12]:
                 lines.append(f"- {value}")
-            lines.append(f"Source: {self._location(claims[0])}")
             return lines
 
         claim = claims[0]
-        return [
-            f"{label}: {claim['value_text']}",
-            f"Source: {self._location(claim)}",
-        ]
+        return [f"{label}: {claim['value_text']}"]
 
     @staticmethod
     def _distinct_claim_groups(claims: List[Dict[str, object]]) -> List[Dict[str, object]]:
@@ -446,14 +537,6 @@ class LLMClient:
                 continue
             groups.append(claim)
         return groups
-
-    @staticmethod
-    def _location(claim: Dict[str, object]) -> str:
-        source = str(claim.get("source") or "unknown")
-        page = claim.get("page")
-        if page is not None and str(page).strip() and str(page).lower() != "none":
-            return f"{source}, page {page}"
-        return source
 
     def _general_extract(
         self,
@@ -474,9 +557,7 @@ class LLMClient:
             return NOT_FOUND_ANSWER
 
         relevant: List[str] = []
-        sources: List[str] = []
         for content, metadata in chunks:
-            source = str(metadata.get("source") or "unknown")
             for line in content.splitlines():
                 stripped = line.strip()
                 if not stripped:
@@ -486,13 +567,12 @@ class LLMClient:
                     continue
                 if any(token in lowered for token in tokens):
                     relevant.append(stripped)
-                    sources.append(source)
 
         if relevant:
             answer = "\n".join(relevant[:6])
             if len(answer) > 1400:
                 answer = answer[:1400]
-            return f"{answer}\n\nSource: {sources[0]}"
+            return answer
 
         # No token matched: fall back to a short excerpt of the top chunks.
         excerpt = []
@@ -506,5 +586,5 @@ class LLMClient:
             if len(excerpt) >= 6:
                 break
         if excerpt:
-            return f"{' '.join(excerpt)[:1400]}\n\nSource: {str(chunks[0][1].get('source') or 'unknown')}"
+            return ' '.join(excerpt)[:1400]
         return NOT_FOUND_ANSWER
