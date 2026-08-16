@@ -24,3 +24,9 @@ Thumbs.db
 deployment/node_modules/
 deployment/dist/
 deployment/.env
+
+# Vercel CLI
+.vercel/
+
+.vercel
+.env*

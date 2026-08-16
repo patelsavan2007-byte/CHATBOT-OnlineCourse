@@ -268,7 +268,7 @@ class LLMClient:
 
         for model_name in groq_models:
             try:
-                logger.info("Calling Groq API model: %s", model_name)
+                logger.info("[LLM] Groq request: model=%s", model_name)
                 response = self._groq_client.chat.completions.create(
                     model=model_name,
                     messages=[
@@ -281,7 +281,6 @@ class LLMClient:
                 if response.choices and len(response.choices) > 0:
                     text = response.choices[0].message.content
                     if text and text.strip():
-                        print_info(f"Groq generation succeeded with model: {model_name}")
                         return text.strip()
                 logger.warning("Groq API model %s returned an empty response", model_name)
             except Exception as exc:

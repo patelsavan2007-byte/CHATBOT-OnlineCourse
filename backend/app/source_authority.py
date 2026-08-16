@@ -88,7 +88,7 @@ def source_authority_bonus(
     bonus = SourceAuthority.authority_bonus(metadata, query_program)
     if bonus > 0:
         label = SourceAuthority.describe(metadata)
-        logger.info(
+        logger.debug(
             "Source authority bonus %.3f (%s) for %s",
             bonus, label or "unclassified",
             metadata.get("source", "unknown"),

@@ -301,12 +301,3 @@ PREFERRED_MODELS: List[str] = [
 # Groq fallback tier settings.
 GROQ_MODEL = "llama-3.3-70b-versatile"
 GROQ_TIMEOUT = 10.0  # seconds
-
-# ---------------------------------------------------------------------------
-# Chat History / Session
-# ---------------------------------------------------------------------------
-# Maximum number of messages (user + assistant combined) retained per session
-# when sending conversation history to the LLM.  Only the most recent
-# messages are kept.  Increase this for longer contextual memory at the cost
-# of larger prompts; decrease it to save tokens.
-CHAT_HISTORY_MAX_MESSAGES = 10

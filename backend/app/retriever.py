@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 from app import config
 from app.deduplicate import apply_diversity_cap, deduplicate_results
 from app.source_authority import source_authority_bonus
-from app.utils import logger, print_info
+from app.utils import logger
 
 
 # Intent tags describing how a query should be routed through retrieval.
@@ -475,30 +475,17 @@ class RAGRetriever:
         self.last_phrases = _query_phrases(query)
         program_name = self.last_program
 
-        if program_name:
-            print_info(f"Programme detected: {program_name}")
-        print_info(f"Query intent: {self.last_intent}")
-        if self.last_keywords:
-            print_info(f"Attribute keywords detected: {', '.join(self.last_keywords)}")
-
         pool = self._candidate_search(query, program_name)
         if not pool:
             logger.warning("No candidates retrieved for query: %s", query)
             return []
 
-        print_info(f"Retrieved candidate pool: {len(pool)} chunk(s)")
-
         scored: List[Tuple[Document, float]] = []
         for doc, base_score in pool:
-            final, kw, prox, phrase, auth = _score_chunk(
+            final, *_ = _score_chunk(
                 doc, base_score, program_name, self.last_keywords, self.last_phrases,
             )
             scored.append((doc, final))
-            logger.info(
-                "Chunk %s | base %.3f +kw %.3f +prox %.3f +phrase %.3f +auth %.3f = %.3f",
-                doc.metadata.get("source", "unknown"),
-                base_score, kw, prox, phrase, auth, final,
-            )
 
         scored.sort(key=lambda item: item[1], reverse=True)
 
@@ -521,14 +508,4 @@ class RAGRetriever:
         kept, _removed_div = apply_diversity_cap(kept)
         final = kept[: config.TOP_K]
 
-
-        print_info(f"Final selection: {len(final)} chunk(s)")
-        for doc, score in final:
-            logger.info(
-                "Selected %.3f from %s (page %s, %s)",
-                score,
-                doc.metadata.get("source", "unknown"),
-                doc.metadata.get("page", "n/a"),
-                doc.metadata.get("content_type", "n/a"),
-            )
         return final

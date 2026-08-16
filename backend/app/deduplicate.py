@@ -100,14 +100,7 @@ def deduplicate_results(
             kept.append((doc, score))
 
     if removed:
-        logger.info(
-            "Removed %d near-duplicate chunk(s): %s",
-            len(removed),
-            ", ".join(
-                f"{d.metadata.get('source', 'unknown')} (page {d.metadata.get('page', 'n/a')})"
-                for d, _ in removed
-            ),
-        )
+        logger.info("Removed %d near-duplicate chunk(s)", len(removed))
     return kept, removed
 
 

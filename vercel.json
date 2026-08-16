@@ -1,8 +1,8 @@
 {
   "framework": null,
-  "installCommand": "npm install --prefix deployment",
-  "buildCommand": "npm run build --prefix deployment",
-  "outputDirectory": "deployment/dist",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ]
