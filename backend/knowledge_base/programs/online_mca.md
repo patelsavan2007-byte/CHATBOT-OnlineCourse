@@ -1,7 +1,7 @@
 Title: MCA - Charusat
 URL: https://charusat.online/programs/mca.html
 Category: Programs
-Last Scraped: 2026-08-07T14:32:47.527147+00:00
+Last Scraped: 2026-09-20T05:20:41.385679+00:00
 
 # Online MCA
 

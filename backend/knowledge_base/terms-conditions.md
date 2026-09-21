@@ -1,7 +1,7 @@
 Title: Terms & Conditions
 URL: https://charusat.online/terms-conditions.html
 Category: Terms Conditions.Html
-Last Scraped: 2026-08-07T14:32:49.546618+00:00
+Last Scraped: 2026-09-20T05:20:42.587184+00:00
 
 # TERMS & CONDITIONS
 

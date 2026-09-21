@@ -93,29 +93,57 @@ def _clean_text(text: str) -> str:
 
 
 def _table_to_markdown(table_data: List[List[str]]) -> str:
-    """Convert a 2D list of cell values into a Markdown table string."""
+    """Convert a 2D list of cell values into a compact Markdown table string.
+
+    PDF tables frequently contain large merged/blank regions that inflate the
+    extracted table (a three-row BBA fee table can exceed 6000 characters).
+    Columns that are empty in every row, rows that are fully empty and empty
+    trailing cells are dropped so the real data stays embeddable and fits the
+    LLM context window.
+    """
     if not table_data or not table_data[0]:
         return ""
 
     def _cell(val: Any) -> str:
         s = str(val) if val is not None else ""
-        # Replace newlines inside cells with spaces
         return s.replace("\n", " ").strip()
 
     rows = [[_cell(c) for c in row] for row in table_data]
 
-    # Use first row as header
-    header = rows[0]
-    col_widths = [max(len(header[i]), *(len(r[i]) for r in rows[1:])) for i in range(len(header))] if len(rows) > 1 else [len(h) for h in header]
+    if not rows:
+        return ""
+
+    # Normalise to equal column counts
+    ncols = max(len(row) for row in rows)
+    padded = [row + [""] * (ncols - len(row)) for row in rows]
+
+    # Drop columns that are empty in every row (incl. the header)
+    keep_cols = [
+        ci for ci in range(ncols)
+        if any(padded[r][ci] for r in range(len(padded)))
+    ]
+    trimmed_rows = [[padded[r][ci] for ci in keep_cols] for r in range(len(padded))]
+
+    # Drop fully-empty rows
+    trimmed_rows = [row for row in trimmed_rows if any(c for c in row)]
+
+    header = trimmed_rows[0]
+    # Guard against a fully-empty header column
+    header = [("Column" if not h else h) for h in header]
+    col_widths = [
+        max(len(header[i]), *(len(r[i]) for r in trimmed_rows[1:]))
+        if len(trimmed_rows) > 1 else len(header[i])
+        for i in range(len(header))
+    ]
 
     lines: List[str] = []
-    # Header row
     lines.append("| " + " | ".join(h.ljust(w) for h, w in zip(header, col_widths)) + " |")
-    # Separator
     lines.append("| " + " | ".join("-" * w for w in col_widths) + " |")
-    # Data rows
-    for row in rows[1:]:
-        lines.append("| " + " | ".join(c.ljust(w) for c, w in zip(row, col_widths)) + " |")
+    for row in trimmed_rows[1:]:
+        cells = row[:]
+        while cells and not cells[-1]:
+            cells.pop()
+        lines.append("| " + " | ".join(c.ljust(w) for c, w in zip(cells, col_widths)) + " |")
 
     return "\n".join(lines)
 

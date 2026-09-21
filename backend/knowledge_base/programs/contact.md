@@ -1,7 +1,7 @@
 Title: Study Online Business programs and courses in Gujarat | Online BBA degree Gujarat
 URL: https://charusat.online/programs/contact.html
 Category: Programs
-Last Scraped: 2026-08-07T14:32:40.901152+00:00
+Last Scraped: 2026-09-20T05:20:38.976062+00:00
 
 # Contact Details
 

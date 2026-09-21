@@ -115,8 +115,13 @@ class RAGChain:
             header_lines.append(f"Score: {score:.3f}")
 
             content = doc.page_content.strip()
-            if len(content) > config.CONTEXT_CHUNK_MAX_CHARS:
-                content = content[: config.CONTEXT_CHUNK_MAX_CHARS] + " ..."
+            content_cap = (
+                config.CONTEXT_TABLE_MAX_CHARS
+                if meta.get("content_type") == "table"
+                else config.CONTEXT_CHUNK_MAX_CHARS
+            )
+            if len(content) > content_cap:
+                content = content[:content_cap] + " ..."
 
             block = "\n".join(header_lines) + "\nContent:\n" + content
             block_size = len(block) + 4  # account for the "\n\n---\n\n" separator

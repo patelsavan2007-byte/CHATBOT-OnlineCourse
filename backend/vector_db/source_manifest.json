@@ -1,59 +1,69 @@
 {
   "files": [
     {
+      "path": "bba-admission-data.md",
+      "size": 8019,
+      "modified": 1789881644
+    },
+    {
+      "path": "bca-admission-data.md",
+      "size": 9404,
+      "modified": 1789881647
+    },
+    {
       "path": "ciqa.md",
       "size": 9636,
-      "modified": 1786113153
+      "modified": 1789881633
     },
     {
       "path": "feedback.md",
       "size": 374,
-      "modified": 1786113180
+      "modified": 1789881649
     },
     {
       "path": "home.md",
       "size": 9925,
-      "modified": 1786113150
+      "modified": 1789881631
     },
     {
       "path": "mandatory-disclosures.md",
-      "size": 1210,
-      "modified": 1786113154
+      "size": 1234,
+      "modified": 1789881634
     },
     {
       "path": "privacy-policy.md",
       "size": 6705,
-      "modified": 1786113156
+      "modified": 1789881635
     },
     {
       "path": "programs/contact.md",
       "size": 1245,
-      "modified": 1786113160
+      "modified": 1789881638
     },
     {
       "path": "programs/online_bba.md",
       "size": 7761,
-      "modified": 1786113157
+      "modified": 1789881636
     },
     {
       "path": "programs/online_bca.md",
       "size": 8310,
-      "modified": 1786113159
+      "modified": 1789881637
     },
     {
       "path": "programs/online_mba.md",
       "size": 7616,
-      "modified": 1786113164
+      "modified": 1789881640
     },
     {
       "path": "programs/online_mca.md",
       "size": 7444,
-      "modified": 1786113167
+      "modified": 1789881641
     },
     {
       "path": "terms-conditions.md",
       "size": 28337,
-      "modified": 1786113169
+      "modified": 1789881642
     }
   ]
 }

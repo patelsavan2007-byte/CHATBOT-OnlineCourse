@@ -1,6 +1,7 @@
 """FastAPI HTTP server for the CHARUSAT Online Course Assistant.
 
-This module provides the chatbot HTTP API for the RAG-based Q&A assistant.
+This module provides the chatbot HTTP API for the RAG-based Q&A assistant,
+plus authentication, conversation management, and admin endpoints.
 
 Run with::
 
@@ -70,6 +71,25 @@ except Exception as rag_exc:
     print_warning(f"RAG pipeline init failed: {rag_exc}. Chatbot will be unavailable.")
 
 # -----------------------------------------------------------------------
+# MongoDB initialisation (best-effort)
+# -----------------------------------------------------------------------
+
+try:
+    from app.database import init_mongodb
+    _mongo_db = init_mongodb()
+except Exception as mongo_exc:
+    print_warning(f"MongoDB init failed: {mongo_exc}. Auth and chat history unavailable.")
+    _mongo_db = None
+
+# Seed dev admin user if configured
+try:
+    from app.auth import seed_dev_admin, is_dev_auto_login_enabled
+    if is_dev_auto_login_enabled() and _mongo_db is not None:
+        seed_dev_admin()
+except Exception as seed_exc:
+    print_warning(f"Dev admin seeding failed: {seed_exc}")
+
+# -----------------------------------------------------------------------
 # FastAPI app
 # -----------------------------------------------------------------------
 
@@ -79,8 +99,9 @@ app = FastAPI(
         "CHARUSAT Online Course Assistant API:\n"
         "- RAG-based Q&A chatbot for CHARUSAT online degree programmes "
         "(fees, eligibility, duration, curriculum, admissions and more)\n"
+        "- User authentication and conversation management\n"
     ),
-    version="1.0.0",
+    version="2.0.0",
 )
 
 # Allow CORS for local frontend development.
@@ -93,7 +114,21 @@ app.add_middleware(
 )
 
 # -----------------------------------------------------------------------
-# Chatbot Request / Response models
+# Mount new API routes
+# -----------------------------------------------------------------------
+
+from app.routes.auth_routes import router as auth_router
+from app.routes.conversation_routes import router as conversation_router
+from app.routes.chat_routes import router as chat_router
+from app.routes.admin_routes import router as admin_router
+
+app.include_router(auth_router)
+app.include_router(conversation_router)
+app.include_router(chat_router)
+app.include_router(admin_router)
+
+# -----------------------------------------------------------------------
+# Chatbot Request / Response models (backward-compatible)
 # -----------------------------------------------------------------------
 
 
@@ -123,7 +158,7 @@ class HealthResponse(BaseModel):
 
 
 # -----------------------------------------------------------------------
-# Chatbot Endpoints
+# Chatbot Endpoints (backward-compatible — kept for existing integrations)
 # -----------------------------------------------------------------------
 
 

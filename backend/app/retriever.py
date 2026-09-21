@@ -66,6 +66,25 @@ def _is_programme_overview_query(query: str) -> bool:
     return any(re.search(p, query, re.IGNORECASE) for p in patterns)
 
 
+ALL_PROGRAM_NAMES: List[str] = ["online_bca", "online_bba", "online_mba", "online_mca"]
+
+# Attribute words that vary per programme. When one of these is asked WITH
+# no programme named, the answer must cover every programme (e.g. "How many
+# semesters are there?" -> semester count for BBA, BCA, MBA and MCA).
+_CROSS_PROGRAM_ATTR_RE = re.compile(
+    r"\b(?:semesters?|duration|how\s+long|how\s+many\s+semesters?|"
+    r"fees?|tuition|credits?|curriculum|syllabus|subjects?|"
+    r"specialisations?|specializations?)\b",
+    re.IGNORECASE,
+)
+
+
+def _requires_all_program_coverage(query: str) -> bool:
+    """True for generic attribute questions where every programme's value
+    should be reported (short semester counts, durations, fees, credits)."""
+    return bool(_CROSS_PROGRAM_ATTR_RE.search(query))
+
+
 def _detect_query_keywords(query: str) -> List[str]:
     """Detect attribute keywords present in the user query.
 
@@ -504,8 +523,47 @@ class RAGRetriever:
         # Keep the full relevant pool for conflict detection
         self.last_pool = relevant_scored
 
-        kept, _removed_dup = deduplicate_results(relevant_scored)
-        kept, _removed_div = apply_diversity_cap(kept)
-        final = kept[: config.TOP_K]
+        # Generic attribute questions without a named programme ("How many
+        # semesters are there?") must be answerable for EVERY programme, so we
+        # force one chunk per online programme into the final top-K.
+        needs_coverage = (
+            self.last_intent == INTENT_GENERAL
+            and not self.last_program
+            and _requires_all_program_coverage(query)
+        )
+
+        if needs_coverage:
+            final = self._all_program_selection(relevant_scored)
+        else:
+            kept, _removed_dup = deduplicate_results(relevant_scored)
+            kept, _removed_div = apply_diversity_cap(kept)
+            final = kept[: config.TOP_K]
 
         return final
+
+    def _all_program_selection(
+        self, pool: List[Tuple[Document, float]],
+    ) -> List[Tuple[Document, float]]:
+        """Guarantee one chunk per online programme for cross-programmatic
+        attribute questions, then fill the remaining top-K slots with the
+        best-scoring non-programme chunks."""
+        best_by_program: Dict[str, Tuple[Document, float]] = {}
+        for doc, score in pool:
+            pname = str(doc.metadata.get("program_name", "") or "")
+            if pname in ALL_PROGRAM_NAMES:
+                if pname not in best_by_program or score > best_by_program[pname][1]:
+                    best_by_program[pname] = (doc, score)
+
+        ordered = sorted(pool, key=lambda item: item[1], reverse=True)
+        selected: List[Tuple[Document, float]] = [
+            best_by_program[p] for p in ALL_PROGRAM_NAMES if p in best_by_program
+        ]
+        seen = {doc.page_content.strip()[:100] for doc, _ in selected}
+        for item in ordered:
+            if len(selected) >= config.TOP_K:
+                break
+            if item[0].page_content.strip()[:100] in seen:
+                continue
+            selected.append(item)
+            seen.add(item[0].page_content.strip()[:100])
+        return selected[: config.TOP_K]

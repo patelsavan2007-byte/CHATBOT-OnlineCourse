@@ -1,7 +1,7 @@
 Title: BCA - Charusat
 URL: https://charusat.online/programs/bca.html
 Category: Programs
-Last Scraped: 2026-08-07T14:32:39.331763+00:00
+Last Scraped: 2026-09-20T05:20:37.969301+00:00
 
 # Online BCA
 

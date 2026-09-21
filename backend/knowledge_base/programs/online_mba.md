@@ -1,7 +1,7 @@
 Title: MBA - Charusat
 URL: https://charusat.online/programs/mba.html
 Category: Programs
-Last Scraped: 2026-08-07T14:32:44.449402+00:00
+Last Scraped: 2026-09-20T05:20:40.110391+00:00
 
 # Online MBA
 

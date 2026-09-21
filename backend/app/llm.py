@@ -38,7 +38,7 @@ except ImportError:
     HAS_GROQ = False
 
 from app import config
-from app.conflict import extract_claims, focus_attributes, format_conflict_notice
+from app.conflict import extract_claims, focus_attributes
 from app.utils import logger, print_info, print_warning
 
 NOT_FOUND_ANSWER = (
@@ -102,6 +102,25 @@ _PAGE_REF_RE = re.compile(r"\(?\bpage\s+\d+\b\)?", re.IGNORECASE)
 _VENDOR_RE = re.compile(r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b", re.IGNORECASE)
 _RESOLVED_RE = re.compile(r"^(?:resolved|retrieved|search|source|sources)\s*[:\-].*$", re.IGNORECASE | re.MULTILINE)
 _MULTI_BLANK_RE = re.compile(r"\n{3,}")
+
+# Groq 70B occasionally answers "I couldn't find this information" even when
+# the retrieved context contains a direct answer. When a model returns one of
+# these markers, we fail over to the next model instead of trusting it.
+_NOT_FOUND_MARKERS = (
+    "couldn't find",
+    "could not find",
+    "cannot find",
+    "unable to find",
+    "not found",
+    "no information in the available",
+    "do not have information",
+    "i am unable to answer",
+)
+
+
+def _says_not_found(text: str) -> bool:
+    lowered = text.lower()
+    return any(marker in lowered for marker in _NOT_FOUND_MARKERS)
 
 
 def strip_internal_references(text: str) -> str:
@@ -258,12 +277,14 @@ class LLMClient:
                 logger.error("Failed to initialise Groq client: %s", exc)
                 return None
 
-        # Tiered list of Groq models to try in order
+        # Tiered list of Groq models to try in order. Must reflect the account's
+        # current model availability (see config.GROQ_MODEL); outdated names
+        # return 404/decommissioned and force deterministic fallback.
         groq_models = [
-            getattr(config, "GROQ_MODEL", "llama-3.3-70b-versatile"),
-            "llama-3.1-8b-instant",
-            "mixtral-8x7b-32768",
-            "gemma2-9b-it",
+            getattr(config, "GROQ_MODEL", "openai/gpt-oss-120b"),
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.8-27b",
+            "allam-2-7b",
         ]
 
         for model_name in groq_models:
@@ -281,6 +302,13 @@ class LLMClient:
                 if response.choices and len(response.choices) > 0:
                     text = response.choices[0].message.content
                     if text and text.strip():
+                        # Never trust a not-found confession when a fallback
+                        # model may still answer from the same context.
+                        if _says_not_found(text):
+                            logger.warning(
+                                "Groq API model %s answered not-found; trying failover model...", model_name
+                            )
+                            continue
                         return text.strip()
                 logger.warning("Groq API model %s returned an empty response", model_name)
             except Exception as exc:
@@ -406,12 +434,22 @@ class LLMClient:
             return NOT_FOUND_ANSWER
 
         output: List[str] = []
+        covered_attributes = set()
         if conflicts:
-            output.append(format_conflict_notice(conflicts, include_locations=False))
+            for conflict in conflicts:
+                label = conflict.get("label", "").lower()
+                values = "; ".join(v["value_text"] for v in conflict.get("values", []))
+                output.append(
+                    f"Note: The documents give different values for {label or 'this'}: {values}"
+                )
+                if conflict.get("attribute"):
+                    covered_attributes.add(conflict["attribute"])
 
         focused = focus_attributes(question)
         if focused:
             for attribute in focused:
+                if attribute in covered_attributes:
+                    continue
                 lines = self._extract_attribute(chunks, attribute)
                 if lines:
                     output.extend(lines)
