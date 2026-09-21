@@ -1,7 +1,7 @@
 Title: CIQA - Charusat
 URL: https://charusat.online/ciqa.html
 Category: Ciqa.Html
-Last Scraped: 2026-08-07T14:32:33.081351+00:00
+Last Scraped: 2026-09-20T05:20:33.223259+00:00
 
 # Center for Internal Quality Assurance
 

@@ -1,7 +1,7 @@
 Title: Privacy Policy - Charusat
 URL: https://charusat.online/privacy-policy.html
 Category: Privacy Policy.Html
-Last Scraped: 2026-08-07T14:32:36.185635+00:00
+Last Scraped: 2026-09-20T05:20:35.506355+00:00
 
 # PRIVACY POLICY
 

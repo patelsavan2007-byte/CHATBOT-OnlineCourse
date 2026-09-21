@@ -1,35 +1,207 @@
+/* ============================================================
+   CHARUSAT Online Programs — Design System
+   Foundation: CSS custom properties for theming + 
+   editorial typography + polished AI product feel
+   ============================================================ */
+
 @import "tailwindcss";
 
+/* ---- Typography tokens ---- */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
 }
 
+/* ============================================================
+   Theme Variables — Dark (default)
+   ============================================================ */
+:root,
+.dark {
+  /* Surfaces */
+  --surface-primary: #0a0e1a;
+  --surface-secondary: #111827;
+  --surface-tertiary: #1e293b;
+  --surface-elevated: #1a2236;
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --surface-active: rgba(255, 255, 255, 0.1);
+
+  /* Borders */
+  --border-primary: rgba(255, 255, 255, 0.12);
+  --border-secondary: rgba(255, 255, 255, 0.09);
+  --border-hover: rgba(255, 255, 255, 0.22);
+  --border-focus: rgba(99, 102, 241, 0.6);
+
+  /* Text */
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-tertiary: #94a3b8;
+  --text-muted: #6b7a93;
+  --text-inverse: #0f172a;
+
+  /* Accent */
+  --accent-primary: #6366f1;
+  --accent-primary-hover: #818cf8;
+  --accent-secondary: #a78bfa;
+  --accent-surface: rgba(99, 102, 241, 0.16);
+
+  /* Icon tints (welcome screen suggestions) */
+  --tint-indigo: #818cf8;
+  --tint-emerald: #34d399;
+  --tint-amber: #fbbf24;
+  --tint-rose: #fb7185;
+
+  /* Status */
+  --success: #10b981;
+  --error: #f43f5e;
+  --error-surface: rgba(244, 63, 94, 0.1);
+  --error-border: rgba(244, 63, 94, 0.2);
+  --warning: #fbbf24;
+  --warning-surface: rgba(245, 158, 11, 0.08);
+  --warning-border: rgba(245, 158, 11, 0.3);
+
+  /* Chat-specific */
+  --user-bubble: #242f45;
+  --user-bubble-text: #f1f5f9;
+  --assistant-bg: transparent;
+  --composer-bg: #161d2f;
+  --composer-border: rgba(255, 255, 255, 0.16);
+  --composer-focus-border: rgba(255, 255, 255, 0.28);
+  --composer-focus-ring: rgba(99, 102, 241, 0.16);
+
+  /* Sidebar */
+  --sidebar-bg: rgba(17, 24, 39, 0.95);
+  --sidebar-active: rgba(255, 255, 255, 0.16);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(148, 163, 184, 0.2);
+  --scrollbar-thumb-hover: rgba(148, 163, 184, 0.32);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   Theme Variables — Light
+   ============================================================ */
+.light {
+  /* Surfaces */
+  --surface-primary: #ffffff;
+  --surface-secondary: #f8fafc;
+  --surface-tertiary: #f1f5f9;
+  --surface-elevated: #ffffff;
+  --surface-hover: rgba(0, 0, 0, 0.06);
+  --surface-active: rgba(0, 0, 0, 0.11);
+
+  /* Borders */
+  --border-primary: rgba(0, 0, 0, 0.18);
+  --border-secondary: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(0, 0, 0, 0.3);
+  --border-focus: rgba(99, 102, 241, 0.7);
+
+  /* Text */
+  --text-primary: #0f172a;
+  --text-secondary: #1e293b;
+  --text-tertiary: #334155;
+  --text-muted: #64748b;
+  --text-inverse: #f8fafc;
+
+  /* Accent */
+  --accent-primary: #4338ca;
+  --accent-primary-hover: #4f46e5;
+  --accent-secondary: #6d28d9;
+  --accent-surface: rgba(67, 56, 202, 0.1);
+
+  /* Icon tints (welcome screen suggestions) */
+  --tint-indigo: #4f46e5;
+  --tint-emerald: #047857;
+  --tint-amber: #b45309;
+  --tint-rose: #be123c;
+
+  /* Status */
+  --success: #047857;
+  --error: #be123c;
+  --error-surface: rgba(225, 29, 72, 0.08);
+  --error-border: rgba(190, 18, 60, 0.25);
+  --warning: #92400e;
+  --warning-surface: rgba(180, 83, 9, 0.09);
+  --warning-border: rgba(146, 64, 14, 0.3);
+
+  /* Chat-specific */
+  --user-bubble: #4f46e5;
+  --user-bubble-text: #ffffff;
+  --assistant-bg: transparent;
+  --composer-bg: #ffffff;
+  --composer-border: rgba(0, 0, 0, 0.25);
+  --composer-focus-border: rgba(0, 0, 0, 0.35);
+  --composer-focus-ring: rgba(67, 56, 202, 0.16);
+
+  /* Sidebar */
+  --sidebar-bg: #f8fafc;
+  --sidebar-active: rgba(0, 0, 0, 0.11);
+
+  /* Scrollbar */
+  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.34);
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* ---- Base ---- */
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 body {
-  @apply bg-white text-slate-800 antialiased;
+  background-color: var(--surface-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
 }
 
-/* ---- scrollbar ---- */
-.chat-scroll::-webkit-scrollbar {
-  width: 6px;
+/* ---- Selection ---- */
+::selection {
+  background-color: rgba(99, 102, 241, 0.25);
+  color: inherit;
 }
-.chat-scroll::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background-color: rgb(203 213 225);
+
+/* ============================================================
+   Scrollbar
+   ============================================================ */
+.chat-scroll::-webkit-scrollbar {
+  width: 5px;
 }
 .chat-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 999px;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
 
-/* ---- animations ---- */
+/* ============================================================
+   Keyframe Animations
+   ============================================================ */
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(16px);
   }
   to {
     opacity: 1;
@@ -37,29 +209,228 @@ body {
   }
 }
 
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
 @keyframes dot-bounce {
-  0%,
-  80%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.4;
+  0%, 80%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.35;
   }
   40% {
-    transform: translateY(-4px);
+    transform: translateY(-5px) scale(1.1);
     opacity: 1;
   }
 }
 
-.animate-fade-up {
-  animation: fade-up 0.35s ease-out both;
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }
 
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position: 200% 0; }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
+  50%      { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ---- Animation utility classes ---- */
+.animate-fade-in    { animation: fade-in 0.3s ease-out both; }
+.animate-fade-up    { animation: fade-up 0.4s ease-out both; }
+.animate-fade-in-left { animation: fade-in-left 0.3s ease-out both; }
+.animate-slide-in   { animation: slide-in-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-slide-in-right { animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-scale-in   { animation: scale-in 0.3s ease-out both; }
+.animate-glow       { animation: glow-pulse 3s ease-in-out infinite; }
+.animate-float      { animation: float 3s ease-in-out infinite; }
+
+/* ---- Typing dots ---- */
 .typing-dot {
-  animation: dot-bounce 1.2s infinite ease-in-out;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--text-tertiary);
+  animation: dot-bounce 1.3s infinite ease-in-out;
 }
-.typing-dot:nth-child(2) {
-  animation-delay: 0.15s;
+.typing-dot:nth-child(2) { animation-delay: 0.18s; }
+.typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
+/* ---- Skeleton shimmer ---- */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-hover) 25%,
+    var(--surface-active) 50%,
+    var(--surface-hover) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s infinite;
 }
-.typing-dot:nth-child(3) {
-  animation-delay: 0.3s;
+
+/* ============================================================
+   Prose / RichText rendering (inside chat messages)
+   ============================================================ */
+.prose-chat {
+  font-size: 15px;
+  line-height: 1.75;
+  color: var(--text-primary);
+}
+
+.prose-chat p {
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.prose-chat p:first-child {
+  margin-top: 0;
+}
+
+.prose-chat strong,
+.prose-chat b {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.prose-chat ul,
+.prose-chat ol {
+  margin: 0.5em 0;
+  padding-left: 1.4em;
+}
+
+.prose-chat li {
+  margin: 0.25em 0;
+  color: var(--text-secondary);
+}
+
+.prose-chat ul li::marker {
+  color: var(--accent-primary);
+}
+
+.prose-chat ol li::marker {
+  color: var(--text-tertiary);
+}
+
+.prose-chat a {
+  color: var(--accent-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.prose-chat code {
+  background: var(--surface-hover);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+
+/* ---- Conflict / warning notice inside answers ---- */
+.prose-chat .notice-conflict,
+.prose-chat .notice-conflict p {
+  color: var(--warning);
+}
+.prose-chat .notice-conflict strong {
+  color: var(--warning);
+  font-weight: 600;
+}
+
+/* ============================================================
+   Focus ring — accessible
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Suggestion chips
+   ============================================================ */
+.suggestion-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: 9999px;
+  border: 1px solid var(--border-primary);
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.suggestion-chip:hover {
+  border-color: var(--border-hover);
+  background: var(--surface-active);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============================================================
+   Subtle noise texture for depth
+   ============================================================ */
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 0;
+}
+
+/* ============================================================
+   Glass morphism utility
+   ============================================================ */
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.light .glass {
+  background: rgba(255, 255, 255, 0.7);
 }

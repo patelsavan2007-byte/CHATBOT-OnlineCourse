@@ -1,70 +1,130 @@
-function inline(text, keyPrefix) {
-  const parts = [];
-  let rest = text;
-  let i = 0;
-  const pattern = /\*\*(.+?)\*\*/g;
-  let match;
-  let last = 0;
+/**
+ * RichText — lightweight markdown-like renderer for assistant answers.
+ * Handles: **bold**, bullet lists (- / • / *), numbered lists, headers (##),
+ * "Conflict Notice:" callout, and plain paragraphs.
+ * Designed for use inside both the light landing (unused) and dark chat surfaces.
+ */
 
-  while ((match = pattern.exec(rest)) !== null) {
-    if (match.index > last) parts.push(rest.slice(last, match.index));
+function parseInline(text, keyPrefix) {
+  const parts = [];
+  const pattern = /\*\*(.+?)\*\*/g;
+  let last = 0;
+  let i = 0;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    if (match.index > last) parts.push(text.slice(last, match.index));
     parts.push(
-      <strong key={`${keyPrefix}-b${i++}`} className="font-semibold text-slate-900">
+      <strong key={`${keyPrefix}-b${i++}`} className="font-semibold text-[var(--text-primary)]">
         {match[1]}
-      </strong>,
+      </strong>
     );
     last = match.index + match[0].length;
   }
-  if (last < rest.length) parts.push(rest.slice(last));
+  if (last < text.length) parts.push(text.slice(last));
   return parts;
 }
 
-/**
- * Lightweight renderer for assistant answers:
- * - groups consecutive "- " lines into bullet lists
- * - renders **bold** inline
- * - renders "Conflict Notice:" answers inside a highlighted callout
- */
 export default function RichText({ text }) {
+  if (!text) return null;
+
   const isConflict = /^\s*conflict notice/i.test(text);
-  const lines = text.split("\n");
-  const blocks = [];
-  let bullets = [];
+  const lines      = text.split("\n");
+  const blocks     = [];
+  let bullets      = [];
+  let numberedItems = [];
 
   const flushBullets = (key) => {
-    if (bullets.length === 0) return;
+    if (!bullets.length) return;
     blocks.push(
-      <ul key={key} className="my-1.5 list-disc space-y-1 pl-5 marker:text-indigo-400">
+      <ul key={key} className="my-2 list-disc space-y-1 pl-5 marker:text-[var(--accent-primary)]">
         {bullets.map((b, idx) => (
-          <li key={idx}>{inline(b, `${key}-${idx}`)}</li>
+          <li key={idx} className="text-[var(--text-primary)]">
+            {parseInline(b, `${key}-${idx}`)}
+          </li>
         ))}
-      </ul>,
+      </ul>
     );
     bullets = [];
   };
 
+  const flushNumbered = (key) => {
+    if (!numberedItems.length) return;
+    blocks.push(
+      <ol key={key} className="my-2 list-decimal space-y-1 pl-5">
+        {numberedItems.map((item, idx) => (
+          <li key={idx} className="text-[var(--text-primary)]">
+            {parseInline(item, `${key}-${idx}`)}
+          </li>
+        ))}
+      </ol>
+    );
+    numberedItems = [];
+  };
+
   lines.forEach((raw, idx) => {
     const line = raw.trimEnd();
+
+    // Bullet list
     if (/^\s*[-•*]\s+/.test(line)) {
+      flushNumbered(`ol-${idx}`);
       bullets.push(line.replace(/^\s*[-•*]\s+/, ""));
       return;
     }
+
+    // Numbered list
+    const numberedMatch = line.match(/^\s*\d+\.\s+(.*)/);
+    if (numberedMatch) {
+      flushBullets(`ul-${idx}`);
+      numberedItems.push(numberedMatch[1]);
+      return;
+    }
+
     flushBullets(`ul-${idx}`);
+    flushNumbered(`ol-${idx}`);
+
     if (line.trim() === "") return;
+
+    // Headings (## / ###)
+    const h2 = line.match(/^##\s+(.*)/);
+    const h3 = line.match(/^###\s+(.*)/);
+    if (h2) {
+      blocks.push(
+        <p key={`h2-${idx}`} className="mt-3 mb-1 font-semibold text-[var(--text-primary)] text-[15px]">
+          {parseInline(h2[1], `h2-${idx}`)}
+        </p>
+      );
+      return;
+    }
+    if (h3) {
+      blocks.push(
+        <p key={`h3-${idx}`} className="mt-2 mb-0.5 font-semibold text-[var(--text-primary)] text-[14px]">
+          {parseInline(h3[1], `h3-${idx}`)}
+        </p>
+      );
+      return;
+    }
+
+    // Plain paragraph
     blocks.push(
-      <p key={`p-${idx}`} className="my-1.5 leading-relaxed">
-        {inline(line, `p-${idx}`)}
-      </p>,
+      <p key={`p-${idx}`} className="my-1.5 leading-relaxed text-[var(--text-primary)]">
+        {parseInline(line, `p-${idx}`)}
+      </p>
     );
   });
+
+  // Flush any remaining
   flushBullets("ul-end");
+  flushNumbered("ol-end");
 
   if (isConflict) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 [&_p]:my-1 [&_strong]:text-amber-950">
+      <div className="notice-conflict rounded-xl border px-4 py-3 text-sm"
+        style={{ borderColor: "var(--warning-border)", backgroundColor: "var(--warning-surface)" }}>
         {blocks}
       </div>
     );
   }
+
   return <div className="text-[15px]">{blocks}</div>;
 }

@@ -51,6 +51,7 @@ _ASPECT_KEYWORDS: List[Tuple[str, List[str]]] = [
 # (e.g. a bare "fee" question focuses the whole fee family).
 ATTRIBUTE_FAMILIES: Dict[str, List[str]] = {
     "fee": ["total_fee", "annual_fee", "semester_fee", "examination_fee", "caution_deposit"],
+    "cost": ["total_fee", "annual_fee", "semester_fee", "examination_fee", "caution_deposit"],
     "credit": ["total_credits", "per_semester_credits"],
     "duration": ["duration"],
     "eligib": ["eligibility"],
@@ -312,6 +313,11 @@ def _extract_table_claims(content: str, metadata: Dict[str, Any]) -> List[Claim]
         row_aspect = match_aspect(row_label)
 
         for ci in range(label_idx + 1, len(row)):
+            # Header-derived column attributes/aspects only cover the header
+            # width; merged/ragged PDF tables may contain extra trailing
+            # columns that have no header to describe them.
+            if ci >= len(col_attributes):
+                break
             cell = row[ci]
             number = _first_number(cell)
             if number is None:
@@ -382,6 +388,23 @@ def detect_conflicts(
                 "programme": programme,
                 "values": values,
             })
+
+    # Scope the notice to the attribute family the user actually asked about.
+    # Without this, a "what is the BBA fee?" query would surface a "total
+    # credits 133 vs 130" disagreement from the same evidence, which is noise.
+    if conflicts:
+        focus = focus_attributes(question)
+        if focus:
+            focus_set = set(focus)
+            before = len(conflicts)
+            conflicts = [c for c in conflicts if c["attribute"] in focus_set]
+            if len(conflicts) < before:
+                logger.info(
+                    "Scoped conflicts to question attributes %s (%d kept, %d dropped)",
+                    sorted(focus_set),
+                    len(conflicts),
+                    before - len(conflicts),
+                )
 
     if conflicts:
         logger.warning(

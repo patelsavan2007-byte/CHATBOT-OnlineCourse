@@ -15,7 +15,7 @@ FALLBACK_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 100
 PDF_CHUNK_SIZE = 800
-PDF_TABLE_CHUNK_SIZE = 1200
+PDF_TABLE_CHUNK_SIZE = 3600
 SCRAPE_START_URL = "https://charusat.online/"
 SCRAPE_MAX_PAGES = 250
 CRAWL_DELAY = 0.5
@@ -49,8 +49,10 @@ def ensure_directories() -> None:
 # Retrieval / Ranking
 # ===========================================================================
 
-# Number of chunks sent to the LLM for answer generation.
-TOP_K = 4
+# Number of chunks sent to the LLM for answer generation. Kept modest so
+# retrieval diversity still matters; the context builder trims to the total
+# character budget anyway.
+TOP_K = 6
 
 # Raw candidates retrieved from the vector store before re-ranking,
 # deduplication and final top-K selection. A larger pool lets the ranking
@@ -105,6 +107,7 @@ ATTRIBUTE_KEYWORDS: set = {
     "tuition fee", "course fee", "caution deposit", "fee structure",
     "refund policy", "total fee", "fee", "payment", "payment mode", "payment modes",
     "mode of payment", "pay fee", "pay fees", "installment",
+    "total cost", "cost", "programme cost",
     "programme duration", "duration",
     "total credits", "semester credits", "number of credits", "credits",
     "eligibility", "eligible",
@@ -276,8 +279,11 @@ MIN_SOURCE_SCORE = 0.60
 
 # Maximum characters of a single chunk's content included in the LLM context.
 CONTEXT_CHUNK_MAX_CHARS = 800
+# Table chunks (fee structures, seat matrices, etc.) carry dense data in wide
+# rows; give them more room so the actual values survive the context window.
+CONTEXT_TABLE_MAX_CHARS = 3400
 # Maximum total context size (headers + content + separators) sent to the LLM.
-CONTEXT_TOTAL_MAX_CHARS = 4200
+CONTEXT_TOTAL_MAX_CHARS = 5600
 
 # ---------------------------------------------------------------------------
 # LLM / API
@@ -299,5 +305,8 @@ PREFERRED_MODELS: List[str] = [
 ]
 
 # Groq fallback tier settings.
-GROQ_MODEL = "llama-3.3-70b-versatile"
+# Models must match the account's current availability (verified via
+# GET /openai/v1/models); retired names like llama-3.3-70b-versatile /
+# mixtral-8x7b-32768 are gone and cause silent fallback to deterministic mode.
+GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_TIMEOUT = 10.0  # seconds

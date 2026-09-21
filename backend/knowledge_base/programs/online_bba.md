@@ -1,7 +1,7 @@
 Title: BBA - Charusat
 URL: https://charusat.online/programs/bba.html
 Category: Programs
-Last Scraped: 2026-08-07T14:32:37.643117+00:00
+Last Scraped: 2026-09-20T05:20:36.803359+00:00
 
 # Online BBA
 

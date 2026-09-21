@@ -1,7 +1,7 @@
 Title: Mandatory Disclosures - Charusat
 URL: https://charusat.online/mandatory-disclosures.html
 Category: Mandatory Disclosures.Html
-Last Scraped: 2026-08-07T14:32:34.727637+00:00
+Last Scraped: 2026-09-20T05:20:34.398307+00:00
 
 # Mandatory Disclosures
 
@@ -60,6 +60,8 @@ Feedback Mechanism
 CIQA Reports 2023-24
 
 CIQA Reports 2024-25
+
+CIQA Reports 2025-26
 
 Academic Audit Reports
 
