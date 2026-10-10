@@ -1,0 +1,711 @@
+[
+  {
+    "id": "Q01",
+    "text": "What online programs are offered?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q02",
+    "text": "Is the online degree recognized by UGC?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q03",
+    "text": "Is the degree valid for government and private jobs?",
+    "category": "General Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q04",
+    "text": "Is the online degree equivalent to a regular degree?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q05",
+    "text": "Who is eligible for this program?",
+    "category": "General Questions",
+    "topics": [
+      "eligibility"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q06",
+    "text": "What is the admission process?",
+    "category": "General Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q07",
+    "text": "What documents are required for admission?",
+    "category": "General Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q08",
+    "text": "Is there an entrance exam?",
+    "category": "General Questions",
+    "topics": [
+      "exams/grading"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q09",
+    "text": "What is the duration of the program?",
+    "category": "General Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q10",
+    "text": "Can I study while working?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q11",
+    "text": "Are live classes compulsory?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q12",
+    "text": "Are classes recorded?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q13",
+    "text": "Can I access recorded lectures anytime?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q14",
+    "text": "What is the class schedule?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q15",
+    "text": "How are examinations conducted?",
+    "category": "General Questions",
+    "topics": [
+      "exams/grading"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q16",
+    "text": "Will exams be online or offline?",
+    "category": "General Questions",
+    "topics": [
+      "exams/grading"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q17",
+    "text": "What is the attendance requirement?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q18",
+    "text": "Is there any internship included?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q19",
+    "text": "Are placement assistance services available?",
+    "category": "General Questions",
+    "topics": [
+      "placement/career",
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q20",
+    "text": "Will I receive a degree certificate after completion?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q21",
+    "text": "What is the total course fee?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q22",
+    "text": "What is the semester-wise fee?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q23",
+    "text": "Is there any registration or application fee?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "lms/technical"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q24",
+    "text": "Can I pay the fees in installments?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q25",
+    "text": "What are the available payment modes?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q26",
+    "text": "Are EMI options available?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q27",
+    "text": "Are there any scholarships or fee concessions?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q28",
+    "text": "Is GST included in the course fee?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q29",
+    "text": "Are examination fees included in the tuition fee?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "exams/grading"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q30",
+    "text": "Are there any hidden charges?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q31",
+    "text": "What is the refund policy if I cancel my admission?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "admission",
+      "refund"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q32",
+    "text": "Is there any late fee for delayed payment?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q33",
+    "text": "Can I pay the fee semester-wise instead of annually?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q34",
+    "text": "Will I receive a fee receipt after payment?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q35",
+    "text": "Is the fee refundable after classes begin?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "refund"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q36",
+    "text": "What subjects are covered in the program?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q37",
+    "text": "How many semesters does the course have?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true
+  },
+  {
+    "id": "Q38",
+    "text": "Who are the faculty members?",
+    "category": "Academic Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q39",
+    "text": "Will I receive study materials?",
+    "category": "Academic Questions",
+    "topics": [
+      "academic"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q40",
+    "text": "Are e-books provided?",
+    "category": "Academic Questions",
+    "topics": [
+      "academic"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q41",
+    "text": "How are assignments submitted?",
+    "category": "Academic Questions",
+    "topics": [
+      "academic"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q42",
+    "text": "How much weightage do assignments carry?",
+    "category": "Academic Questions",
+    "topics": [
+      "academic"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q43",
+    "text": "What is the passing criteria?",
+    "category": "Academic Questions",
+    "topics": [
+      "eligibility"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q44",
+    "text": "Can I appear for backlogs online?",
+    "category": "Academic Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q45",
+    "text": "How is the grading system structured?",
+    "category": "Academic Questions",
+    "topics": [
+      "exams/grading"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q46",
+    "text": "Which Learning Management System (LMS) is used?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q47",
+    "text": "How do I log in to the LMS?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q48",
+    "text": "What if I forget my LMS password?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q49",
+    "text": "Can I attend classes on my mobile phone?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q50",
+    "text": "Is there a dedicated mobile app?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q51",
+    "text": "What internet speed is recommended?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q52",
+    "text": "Is technical support available?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical",
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q53",
+    "text": "Who should I contact if I face technical issues?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical",
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q54",
+    "text": "Does the university provide placement assistance?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career",
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q55",
+    "text": "Are internships available?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q56",
+    "text": "Can I pursue higher education after completing this program?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q57",
+    "text": "Is the degree accepted abroad?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q58",
+    "text": "Will there be career guidance sessions?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q59",
+    "text": "Are resume-building workshops conducted?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q60",
+    "text": "Will there be mock interviews?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q61",
+    "text": "Do companies recruit online degree students?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q62",
+    "text": "When does admission start?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q63",
+    "text": "What is the last date to apply?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission",
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q64",
+    "text": "Can I apply online?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission",
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q65",
+    "text": "How long does admission approval take?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission",
+      "duration/semesters/credits",
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q66",
+    "text": "How will I know if my admission is confirmed?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q67",
+    "text": "Can I change my course after admission?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q68",
+    "text": "Can international students apply?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission",
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q69",
+    "text": "Is there any age limit for admission?",
+    "category": "Admission Questions",
+    "topics": [
+      "admission"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q70",
+    "text": "Is academic counseling available?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q71",
+    "text": "Will I get a student ID card?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q72",
+    "text": "How can I contact faculty members?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q73",
+    "text": "Is there a dedicated student support team?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q74",
+    "text": "What are the student support timings?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q75",
+    "text": "Can I raise queries through email or WhatsApp?",
+    "category": "Student Support Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q76",
+    "text": "How can I download my marksheet?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  },
+  {
+    "id": "Q77",
+    "text": "How do I obtain my degree certificate after completion?",
+    "category": "Student Support Questions",
+    "topics": [
+      "support/contact"
+    ],
+    "programme_specific": false
+  }
+]

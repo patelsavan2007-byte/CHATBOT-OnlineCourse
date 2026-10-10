@@ -32,17 +32,17 @@ def extract_citations(
 
     threshold = min_score if min_score is not None else getattr(config, "MIN_SOURCE_SCORE", 0.60)
 
-    # Extract numbers from answer (e.g. 50000, 1500, 164000)
+    # Extract numbers from answer (e.g. 50000, 1500, 164000, 2, 3, 4)
     raw_numbers = re.findall(r"\b\d+(?:,\d+)*(?:\.\d+)?\b", answer_text)
-    clean_numbers = {n.replace(",", "") for n in raw_numbers if len(n.replace(",", "")) >= 2 or int(float(n)) > 5}
+    clean_numbers = [n.replace(",", "") for n in raw_numbers]
 
-    # Distinctive content words from answer
+    # Distinctive content words from answer (including acronyms like bba, bca, mba, mca, ugc, lms)
     stopwords = {
         "this", "that", "with", "from", "have", "will", "your", "official",
-        "programme", "program", "programmes", "programs", "charusat", "university",
-        "please", "contact", "online", "courses", "student", "students", "degree"
+        "please", "contact", "about", "which", "there", "their", "where",
+        "tell", "give", "full", "information", "available"
     }
-    answer_words = {w for w in re.findall(r"\b[a-zA-Z]{4,}\b", lowered_ans) if w not in stopwords}
+    answer_words = {w for w in re.findall(r"\b[a-zA-Z]{3,}\b", lowered_ans) if w not in stopwords}
 
     candidates = []
     seen = set()
@@ -62,12 +62,12 @@ def extract_citations(
 
         doc_lower = doc.page_content.lower()
 
-        # Check support: shared numbers or distinctive terms
-        shares_num = any(num in doc_lower for num in clean_numbers) if clean_numbers else False
-        doc_words = set(re.findall(r"\b[a-zA-Z]{4,}\b", doc_lower))
+        # Check support: shared numbers (with word boundary) or distinctive terms
+        shares_num = any(re.search(r"\b" + re.escape(num) + r"\b", doc_lower) for num in clean_numbers) if clean_numbers else False
+        doc_words = set(re.findall(r"\b[a-zA-Z]{3,}\b", doc_lower))
         shared_terms = len(answer_words & doc_words)
 
-        if shares_num or shared_terms >= 2:
+        if shares_num or shared_terms >= 1:
             seen.add(key)
             src_item: Dict[str, Any] = {
                 "source": source_path,
