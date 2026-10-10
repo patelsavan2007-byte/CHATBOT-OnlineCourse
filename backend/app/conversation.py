@@ -81,7 +81,7 @@ _COMPARE_RE = re.compile(
 )
 
 _FOLLOWUP_SHORT_PROG_RE = re.compile(
-    r"^\s*(?:and\s+)?(?:for|what\s+about|how\s+about)\s+(?:the\s+)?(?:online\s+)?(bca|bba|mba|mca)\s*[!?.]*\s*$",
+    r"^\s*(?:and\s+|or\s+)?(?:for\s+|what\s+about\s+|how\s+about\s+)?(?:the\s+)?(?:online\s+)?(bca|bba|mba|mca)(?:\s+(?:programme|program|course|degree))?\s*[!?.]*\s*$",
     re.I,
 )
 
@@ -216,14 +216,31 @@ def analyze_turn(
         prev_plan = analyze_turn(user_queries[-1], history=None)
 
         if short_switch_m:
-            # "for mba" / "and for MCA?" -> switches programme, retains topic & year
+            # "for mba" / "and for MCA?" / "mca" -> switches programme, retains topic & year
             is_followup = True
-            if prev_plan.topic != "general":
+            inherited_topic = None
+            for uq in reversed(user_queries):
+                plan_t = analyze_turn(uq, history=None)
+                if plan_t.topic != "general":
+                    inherited_topic = plan_t.topic
+                    break
+            if inherited_topic:
+                resolved_topic = inherited_topic
+            elif prev_plan.topic != "general":
                 resolved_topic = prev_plan.topic
+
             if resolved_year is None:
-                resolved_year = prev_plan.year
-                resolved_sem = prev_plan.semester
-                resolved_sems = list(prev_plan.semesters_for_year)
+                for uq in reversed(user_queries):
+                    y, s, sems = _detect_year_semester(uq)
+                    if y is not None or s is not None:
+                        resolved_year = y
+                        resolved_sem = s
+                        resolved_sems = list(sems)
+                        break
+                if resolved_year is None and prev_plan.year is not None:
+                    resolved_year = prev_plan.year
+                    resolved_sem = prev_plan.semester
+                    resolved_sems = list(prev_plan.semesters_for_year)
         elif not curr_progs:
             # Current message did NOT name a programme
             # Scan backwards for most recent user message naming a programme

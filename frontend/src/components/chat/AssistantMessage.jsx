@@ -5,6 +5,7 @@
  */
 import { useState, useCallback } from "react";
 import RichText from "../RichText.jsx";
+import { apiFetch } from "../../services/api.js";
 
 function formatTime(t) {
   try {
@@ -49,17 +50,38 @@ function CopyButton({ text }) {
   );
 }
 
-/* ---- Thumbs up / down (best-effort, stored locally) ---- */
+/* ---- Thumbs up / down (persisted in local state and synced to /api/chat/feedback) ---- */
 function FeedbackButtons({ messageId }) {
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState(() => {
+    try {
+      return localStorage.getItem(`charusat_feedback_${messageId}`) || null;
+    } catch {
+      return null;
+    }
+  });
 
-  const send = (value) => {
+  const send = async (value) => {
     if (feedback) return;
     setFeedback(value);
     try {
       const key = `charusat_feedback_${messageId}`;
       localStorage.setItem(key, value);
     } catch {/* ignore */}
+
+    if (messageId && messageId !== "msg") {
+      try {
+        await apiFetch("/api/chat/feedback", {
+          method: "POST",
+          body: JSON.stringify({
+            message_id: String(messageId),
+            feedback: value === "up" ? "thumbs_up" : "thumbs_down",
+          }),
+        });
+      } catch (err) {
+        // Best-effort; message may be guest session
+        console.warn("Feedback sync failed:", err.message);
+      }
+    }
   };
 
   return (
@@ -128,6 +150,7 @@ function RegenerateButton({ onRegenerate }) {
 }
 
 export default function AssistantMessage({
+  messageId,
   content,
   isError,
   timestamp,
@@ -176,7 +199,7 @@ export default function AssistantMessage({
             {/* Actions — copy + feedback + regenerate + timestamp */}
             <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">
               <CopyButton text={content} />
-              <FeedbackButtons messageId={timestamp ? `${timestamp}` : "msg"} />
+              <FeedbackButtons messageId={messageId || (timestamp ? `${timestamp}` : "msg")} />
               <RegenerateButton onRegenerate={onRegenerate} />
               <span className="ml-1 text-[10px] text-[var(--text-tertiary)]">
                 {formatTime(timestamp)}

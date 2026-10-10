@@ -101,6 +101,38 @@ _RESOLVED_RE = re.compile(
 _MULTI_BLANK_RE = re.compile(r"\n{3,}")
 
 
+def normalize_currency(text: str) -> str:
+    """Normalize currency notations (INR, Rs., Rs, ₹ 50,000 INR) to clean ₹ amounts."""
+    if not text:
+        return text
+    # 1. ₹ followed by digits with trailing INR / Rs / /- (e.g. ₹50,000 INR, ₹ 50,000 INR, ₹50,000/-)
+    text = re.sub(
+        r"₹\s*([\d,]+(?:\.\d+)?)(?:\s*/-)?\s*(?:INR|Rs\.?|Rupees)\b",
+        r"₹\1",
+        text,
+        flags=re.IGNORECASE,
+    )
+    # 2. Leading INR / Rs. / Rs / Rupees (e.g. INR 50,000, Rs. 50,000, Rs 50,000, INR. 50,000)
+    text = re.sub(
+        r"\b(?:INR\.?|Rs\.?|Rupees)\s*₹?\s*([\d,]+(?:\.\d+)?)(?:\s*/-)?(?:\s+(?:INR|Rs\.?|Rupees)\b)?",
+        r"₹\1",
+        text,
+        flags=re.IGNORECASE,
+    )
+    # 3. Trailing INR after number: e.g. 50,000 INR
+    text = re.sub(
+        r"(?<=[^\w₹])([\d,]+(?:\.\d+)?)\s*(?:INR|Rupees)\b(?:\s*/-)?",
+        r"₹\1",
+        text,
+        flags=re.IGNORECASE,
+    )
+    # 4. Trailing /- after ₹ amount: e.g. ₹ 50,000/- or ₹50,000/- -> ₹50,000
+    text = re.sub(r"₹\s*([\d,]+(?:\.\d+)?)\s*/-", r"₹\1", text)
+    # 5. Space between ₹ and digits: ₹ 50,000 -> ₹50,000
+    text = re.sub(r"₹\s+([\d,]+)", r"₹\1", text)
+    return text
+
+
 def strip_internal_references(text: str) -> str:
     """Remove source lines, file paths with extensions, page numbers, and vendor tags.
 
@@ -126,6 +158,7 @@ def strip_internal_references(text: str) -> str:
     cleaned = re.sub(r"[ \t]+([.,;:!?])", r"\1", cleaned)
     cleaned = re.sub(r"(?<=\S)[ \t]{2,}", " ", cleaned)
     cleaned = _MULTI_BLANK_RE.sub("\n\n", cleaned)
+    cleaned = normalize_currency(cleaned)
 
     lines = [line.rstrip() for line in cleaned.splitlines()]
     while lines and not lines[0].strip():

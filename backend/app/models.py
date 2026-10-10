@@ -291,7 +291,7 @@ def add_message_feedback(
             {"_id": _oid(message_id)},
             {"$set": {"feedback": feedback}},
         )
-        if result.modified_count > 0:
+        if result.matched_count > 0:
             logger.info("Added feedback %s to message %s", feedback, message_id)
             return get_message_by_id(db, message_id)
         return None

@@ -73,6 +73,7 @@ export default function MessageList({
             ) : (
               <AssistantMessage
                 key={msg.id}
+                messageId={msg.id}
                 content={msg.content}
                 isError={msg.isError}
                 timestamp={msg.timestamp}

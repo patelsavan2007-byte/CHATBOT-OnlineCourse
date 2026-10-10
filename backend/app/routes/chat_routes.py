@@ -476,7 +476,7 @@ async def add_feedback(
             detail="Message not found",
         )
 
-    return {"message": "Feedback added successfully", "message": updated_message}
+    return {"status": "success", "message": "Feedback added successfully", "updated_message": updated_message}
 
 
 @router.post("/correction")
