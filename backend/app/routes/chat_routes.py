@@ -552,26 +552,29 @@ def _resolve_history(
     return None
 
 
-def _extract_pdf_sources(retrieved: List[Any]) -> List[Dict[str, Any]]:
-    """Extract and deduplicate official PDF sources from retrieved chunks."""
+def _extract_sources(retrieved: List[Any]) -> List[Dict[str, Any]]:
+    """Extract and deduplicate sources (PDF and markdown web pages) from retrieved chunks."""
     sources = []
-    seen_source_pages = set()
+    seen = set()
     if retrieved:
         for doc, score in retrieved:
             meta = doc.metadata
             source_path = str(meta.get("source", ""))
-            if not source_path.lower().endswith(".pdf"):
+            page = meta.get("page")
+            url = meta.get("url")
+            key = (source_path, page or url or meta.get("chunk_id"))
+            if key in seen:
                 continue
-            key = (source_path, meta.get("page"))
-            if key in seen_source_pages:
-                continue
-            seen_source_pages.add(key)
-            sources.append({
+            seen.add(key)
+            src_item: Dict[str, Any] = {
                 "source": source_path,
-                "page": meta.get("page"),
+                "page": page,
                 "program": meta.get("program_name"),
                 "score": round(score, 3),
-            })
+            }
+            if url:
+                src_item["url"] = url
+            sources.append(src_item)
     return sources
 
 
@@ -584,9 +587,10 @@ def _process_chat_turn(
     Shared by both /api/chat and /api/chat/stream.
     """
     answer_text, retrieved = rag_chain.answer(question, history=history)
-    sources = _extract_pdf_sources(retrieved)
+    sources = _extract_sources(retrieved)
     suggestions = _generate_suggestions(question, answer_text, history)
     return answer_text, sources, suggestions
+
 
 
 @router.post("", response_model=ChatMessageResponse)

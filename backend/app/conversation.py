@@ -309,7 +309,9 @@ def _build_standalone_question(
         parts.append(prog_name)
 
     if year:
-        parts.append(f"Year {year}")
+        ord_map = {1: "1st", 2: "2nd", 3: "3rd"}
+        ord_str = ord_map.get(year, f"{year}th")
+        parts.append(f"Year {year} ({ord_str} Year)")
     elif semester:
         parts.append(f"Semester {semester}")
 

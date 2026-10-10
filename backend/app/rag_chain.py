@@ -89,7 +89,7 @@ class RAGChain:
         conflicts = detect_conflicts_from_documents(pool_docs or [doc for doc, _ in retrieved], question, program_name)
         self.last_conflicts = conflicts
 
-        context = self._build_context(retrieved, conflicts)
+        context = self._build_context(retrieved, conflicts, plan=plan)
         prompt = build_prompt(context=context, question=question)
 
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
@@ -133,59 +133,123 @@ class RAGChain:
         return answer, retrieved
 
 
+    def _format_chunk(self, doc: Document, score: float) -> str:
+        """Format a single document chunk for the context window."""
+        meta = doc.metadata
+        header_lines = [f"Source: {meta.get('source', 'unknown')}"]
+        if meta.get("page") is not None and str(meta.get("page")) != "":
+            header_lines.append(f"Page: {meta.get('page')}")
+        header_lines.append(f"Chunk ID: {meta.get('chunk_id', 'n/a')}")
+        if meta.get("content_type"):
+            header_lines.append(f"Content Type: {meta.get('content_type')}")
+        if meta.get("document_type"):
+            header_lines.append(f"Document Type: {meta.get('document_type')}")
+        if meta.get("program_name"):
+            header_lines.append(f"Programme: {meta.get('program_name')}")
+        header_lines.append(f"Score: {score:.3f}")
+
+        content = doc.page_content.strip()
+        content_cap = (
+            config.CONTEXT_TABLE_MAX_CHARS
+            if meta.get("content_type") == "table"
+            else config.CONTEXT_CHUNK_MAX_CHARS
+        )
+        if len(content) > content_cap:
+            content = content[:content_cap] + " ..."
+
+        return "\n".join(header_lines) + "\nContent:\n" + content
+
     def _build_context(
         self,
         retrieved: List[Tuple[Document, float]],
         conflicts: List[dict],
+        plan: Optional[Any] = None,
     ) -> str:
         """Build the compact, structured context sent to the LLM.
 
         Each chunk gets a rich header (source, page, type, programme, score)
-        followed by its content trimmed to ``CONTEXT_CHUNK_MAX_CHARS``. The
-        total context is bounded by ``CONTEXT_TOTAL_MAX_CHARS`` so long
-        knowledge base pages cannot crowd out later, equally relevant chunks.
+        followed by its content trimmed to ``CONTEXT_CHUNK_MAX_CHARS``.
+        When multiple programmes are represented, chunks are grouped under
+        programme headers.
         """
+        all_progs = ("online_bca", "online_bba", "online_mba", "online_mca")
+        distinct_progs = sorted({
+            str(doc.metadata.get("program_name", "") or "")
+            for doc, _ in retrieved
+            if str(doc.metadata.get("program_name", "") or "") in all_progs
+        })
+
+        is_multi = len(distinct_progs) >= 2 or (
+            plan and (getattr(plan, "is_compare", False) or len(getattr(plan, "programmes", [])) >= 2)
+        )
+
         parts: List[str] = []
         total = 0
 
-        for doc, score in retrieved:
-            meta = doc.metadata
-            header_lines = [f"Source: {meta.get('source', 'unknown')}"]
-            if meta.get("page") is not None and str(meta.get("page")) != "":
-                header_lines.append(f"Page: {meta.get('page')}")
-            header_lines.append(f"Chunk ID: {meta.get('chunk_id', 'n/a')}")
-            if meta.get("content_type"):
-                header_lines.append(f"Content Type: {meta.get('content_type')}")
-            if meta.get("document_type"):
-                header_lines.append(f"Document Type: {meta.get('document_type')}")
-            if meta.get("program_name"):
-                header_lines.append(f"Programme: {meta.get('program_name')}")
-            header_lines.append(f"Score: {score:.3f}")
+        if is_multi:
+            prog_labels = {
+                "online_bca": "Online BCA (Bachelor of Computer Applications)",
+                "online_bba": "Online BBA (Bachelor of Business Administration)",
+                "online_mba": "Online MBA (Master of Business Administration)",
+                "online_mca": "Online MCA (Master of Computer Applications)",
+            }
+            grouped: Dict[str, List[Tuple[Document, float]]] = {}
+            for doc, score in retrieved:
+                pname = str(doc.metadata.get("program_name", "") or "")
+                grouped.setdefault(pname, []).append((doc, score))
 
-            content = doc.page_content.strip()
-            content_cap = (
-                config.CONTEXT_TABLE_MAX_CHARS
-                if meta.get("content_type") == "table"
-                else config.CONTEXT_CHUNK_MAX_CHARS
-            )
-            if len(content) > content_cap:
-                content = content[:content_cap] + " ..."
+            for p in distinct_progs:
+                if p not in grouped:
+                    continue
+                header = f"### Programme: {prog_labels.get(p, p.upper())}"
+                parts.append(header)
+                total += len(header) + 4
+                for doc, score in grouped[p]:
+                    block = self._format_chunk(doc, score)
+                    block_size = len(block) + 4
+                    if total + block_size > config.CONTEXT_TOTAL_MAX_CHARS:
+                        remaining = config.CONTEXT_TOTAL_MAX_CHARS - total
+                        if remaining > 100:
+                            parts.append(block[:remaining])
+                            total += remaining
+                        break
+                    parts.append(block)
+                    total += block_size
 
-            block = "\n".join(header_lines) + "\nContent:\n" + content
-            block_size = len(block) + 4  # account for the "\n\n---\n\n" separator
+            gen_chunks = [item for pname, items in grouped.items() if pname not in distinct_progs for item in items]
+            if gen_chunks and total < config.CONTEXT_TOTAL_MAX_CHARS - 100:
+                gen_header = "### General University Information"
+                parts.append(gen_header)
+                total += len(gen_header) + 4
+                for doc, score in gen_chunks:
+                    block = self._format_chunk(doc, score)
+                    block_size = len(block) + 4
+                    if total + block_size > config.CONTEXT_TOTAL_MAX_CHARS:
+                        remaining = config.CONTEXT_TOTAL_MAX_CHARS - total
+                        if remaining > 100:
+                            parts.append(block[:remaining])
+                            total += remaining
+                        break
+                    parts.append(block)
+                    total += block_size
+        else:
+            for doc, score in retrieved:
+                block = self._format_chunk(doc, score)
+                block_size = len(block) + 4
 
-            if total + block_size > config.CONTEXT_TOTAL_MAX_CHARS:
-                remaining = config.CONTEXT_TOTAL_MAX_CHARS - total
-                if remaining <= 100:
+                if total + block_size > config.CONTEXT_TOTAL_MAX_CHARS:
+                    remaining = config.CONTEXT_TOTAL_MAX_CHARS - total
+                    if remaining <= 100:
+                        break
+                    parts.append(block[:remaining])
+                    total += remaining
                     break
-                parts.append(block[:remaining])
-                total += remaining
-                break
-            parts.append(block)
-            total += block_size
+                parts.append(block)
+                total += block_size
 
         context = "\n\n---\n\n".join(parts)
         if conflicts:
             context = format_conflict_notice(conflicts, include_locations=False) + "\n\n" + context
         return context
+
 

@@ -165,7 +165,36 @@ def _query_phrases(query: str) -> List[str]:
             required = 2 if size == 3 else 2
             if significant >= required:
                 phrases.append(" ".join(candidate))
-    return phrases
+
+    # Add ordinal/cardinal equivalents for year references so table headers match
+    q_lower = query.lower()
+    year_map = {
+        "1": ["1st year", "first year", "year 1"],
+        "2": ["2nd year", "second year", "year 2"],
+        "3": ["3rd year", "third year", "year 3"],
+    }
+    for yr, forms in year_map.items():
+        if any(f in q_lower for f in forms):
+            for f in forms:
+                if f not in phrases:
+                    phrases.append(f)
+            if "fee" in q_lower:
+                fee_phrase = f"fee for {forms[0]}"
+                if fee_phrase not in phrases:
+                    phrases.append(fee_phrase)
+
+    # Filter out phrases consisting solely of programme keywords and stop words
+    prog_stopwords = {
+        "online", "bba", "bca", "mba", "mca", "program", "programme",
+        "programmes", "courses", "course", "degree", "university",
+    }
+    filtered_phrases = []
+    for p in phrases:
+        tokens = p.split()
+        if any(tok not in prog_stopwords and tok not in _STOPWORDS for tok in tokens):
+            filtered_phrases.append(p)
+
+    return filtered_phrases
 
 
 def _score_chunk(
@@ -563,6 +592,253 @@ class RAGRetriever:
             result.append((doc, score))
         return result
 
+    def _curriculum_candidate_search(
+        self,
+        prog: str,
+        year: Optional[int] = None,
+        semester: Optional[int] = None,
+    ) -> List[Tuple[Document, float]]:
+        """Retrieve semester chunks of the programme from markdown and PDF."""
+        target_sems: List[str] = []
+        if semester is not None:
+            roman = {1: "i", 2: "ii", 3: "iii", 4: "iv", 5: "v", 6: "vi"}.get(semester, str(semester))
+            target_sems = [f"semester {semester}", f"semester {roman}", f"sem-{roman}", f"sem {semester}"]
+        elif year is not None:
+            sems = {1: [1, 2], 2: [3, 4], 3: [5, 6]}.get(year, [])
+            for s in sems:
+                roman = {1: "i", 2: "ii", 3: "iii", 4: "iv", 5: "v", 6: "vi"}.get(s, str(s))
+                target_sems.extend([f"semester {s}", f"semester {roman}", f"sem-{roman}", f"sem {s}"])
+            if year == 2:
+                target_sems.extend(["specialization courses", "sem-iii & iv"])
+            elif year == 3:
+                target_sems.extend(["specialization courses", "sem-v"])
+        else:
+            target_sems = [
+                "semester i", "semester ii", "semester iii", "semester iv",
+                "semester v", "semester vi", "semester 1", "semester 2",
+                "semester 3", "semester 4", "semester 5", "semester 6",
+                "curriculum & syllabus", "specialization courses",
+            ]
+
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is None:
+            return []
+
+        try:
+            data = collection.get(
+                where={"program_name": prog},
+                include=["documents", "metadatas"],
+            )
+        except Exception as exc:
+            logger.warning("Curriculum search failed for %s: %s", prog, exc)
+            return []
+
+        for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+            if not doc_text or not doc_text.strip():
+                continue
+            doc_lower = doc_text.lower()
+            if any(t in doc_lower for t in target_sems):
+                if "testimonial" in doc_lower and "semester" not in doc_lower[:80]:
+                    continue
+                cid = meta.get("chunk_id")
+                key = (str(meta.get("source", "")), meta.get("page"), cid)
+                if key not in seen:
+                    seen.add(key)
+                    results.append((Document(page_content=doc_text, metadata=meta), 0.88))
+
+        return results
+
+    def _specialization_candidate_search(
+        self, prog: str,
+    ) -> List[Tuple[Document, float]]:
+        """Retrieve specialization table and course chunks for the programme."""
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is None:
+            return []
+
+        try:
+            data = collection.get(
+                where={"program_name": prog},
+                include=["documents", "metadatas"],
+            )
+        except Exception as exc:
+            logger.warning("Specialization search failed for %s: %s", prog, exc)
+            return []
+
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+
+        for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+            if not doc_text or not doc_text.strip():
+                continue
+            doc_lower = doc_text.lower()
+            if any(t in doc_lower for t in ("specialization", "specialisation", "elective")):
+                if "testimonial" in doc_lower:
+                    continue
+                cid = meta.get("chunk_id")
+                key = (str(meta.get("source", "")), meta.get("page"), cid)
+                if key not in seen:
+                    seen.add(key)
+                    results.append((Document(page_content=doc_text, metadata=meta), 0.88))
+
+        return results
+
+    def _fee_candidate_search(
+        self, prog: str,
+    ) -> List[Tuple[Document, float]]:
+        """Retrieve fee structure chunks for the programme."""
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is None:
+            return []
+
+        try:
+            data = collection.get(
+                where={"program_name": prog},
+                include=["documents", "metadatas"],
+            )
+        except Exception as exc:
+            logger.warning("Fee search failed for %s: %s", prog, exc)
+            return []
+
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+
+        for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+            if not doc_text or not doc_text.strip():
+                continue
+            doc_lower = doc_text.lower()
+            if ("fee" in doc_lower or "fees" in doc_lower or "tuition" in doc_lower) and any(
+                term in doc_lower for term in ("annual fee", "programme fee", "fee structure", "examination fee", "per year", "total fee")
+            ):
+                if "testimonial" in doc_lower:
+                    continue
+                cid = meta.get("chunk_id")
+                key = (str(meta.get("source", "")), meta.get("page"), cid)
+                if key not in seen:
+                    seen.add(key)
+                    results.append((Document(page_content=doc_text, metadata=meta), 0.88))
+
+        return results
+
+    def _compare_candidate_search(
+        self, query: str, plan: TurnPlan,
+    ) -> List[Tuple[Document, float]]:
+        """A separate sub-retrieval per programme, merged."""
+        target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
+        merged_results: List[Tuple[Document, float]] = []
+        seen = set()
+
+        for prog in target_progs:
+            prog_label = prog.replace("online_", "").upper()
+            if plan.topic == "fees":
+                sub_query = f"fee structure fees for {prog_label}"
+            elif plan.topic:
+                sub_query = f"{plan.topic} for {prog_label}"
+            else:
+                sub_query = f"{query} {prog_label}"
+
+            prog_pool = self._programme_candidate_search(sub_query, prog)
+            if plan.topic == "subjects":
+                curr_chunks = self._curriculum_candidate_search(prog, plan.year, plan.semester)
+                prog_pool = list(curr_chunks) + list(prog_pool)
+            elif plan.topic == "specializations":
+                spec_chunks = self._specialization_candidate_search(prog)
+                prog_pool = list(spec_chunks) + list(prog_pool)
+            elif plan.topic == "fees":
+                fee_chunks = self._fee_candidate_search(prog)
+                prog_pool = list(fee_chunks) + list(prog_pool)
+
+            for doc, base_score in prog_pool:
+                content_key = doc.page_content.strip()[:100]
+                if content_key not in seen:
+                    merged_results.append((doc, base_score))
+                    seen.add(content_key)
+
+        # Include general candidate search results for policy/university-level info
+        gen_pool = self._general_candidate_search(query)
+        for doc, score in gen_pool:
+            pname = str(doc.metadata.get("program_name", "") or "")
+            if pname not in ("", "general"):
+                continue
+            content_key = doc.page_content.strip()[:100]
+            if content_key not in seen:
+                seen.add(content_key)
+                merged_results.append((doc, score))
+
+        return self._merge_phrase_candidates(merged_results)
+
+
+    def _ensure_multi_program_coverage(
+        self,
+        pool: List[Tuple[Document, float]],
+        target_progs: List[str],
+        min_per_prog: int = 2,
+    ) -> List[Tuple[Document, float]]:
+        """Guarantee at least min_per_prog chunks per programme in multi-programme queries."""
+        prog_chunks: Dict[str, List[Tuple[Document, float]]] = {p: [] for p in target_progs}
+        general_chunks: List[Tuple[Document, float]] = []
+
+        kept, _ = deduplicate_results(pool)
+        for doc, score in kept:
+            pname = str(doc.metadata.get("program_name", "") or "")
+            if pname in prog_chunks:
+                prog_chunks[pname].append((doc, score))
+            else:
+                general_chunks.append((doc, score))
+
+        selected: List[Tuple[Document, float]] = []
+        seen = set()
+
+        # Add min_per_prog chunks per target programme
+        for p in target_progs:
+            for doc, score in prog_chunks[p][:min_per_prog]:
+                key = doc.page_content.strip()[:100]
+                if key not in seen:
+                    selected.append((doc, score))
+                    seen.add(key)
+
+        # Fill remaining slots up to capacity with best chunks
+        max_total = max(config.TOP_K, len(target_progs) * min_per_prog + 2)
+        remaining = [item for item in kept if item[0].page_content.strip()[:100] not in seen]
+        for item in remaining:
+            if len(selected) >= max_total:
+                break
+            selected.append(item)
+            seen.add(item[0].page_content.strip()[:100])
+
+        return selected
+
+    def _merge_targeted_pool(
+        self,
+        pool: List[Tuple[Document, float]],
+        targeted: List[Tuple[Document, float]],
+    ) -> List[Tuple[Document, float]]:
+        """Merge targeted candidates into candidate pool, updating existing chunks with max score."""
+        pool_dict: Dict[str, Tuple[Document, float]] = {}
+        order: List[str] = []
+        for doc, score in pool:
+            key = doc.page_content.strip()[:100]
+            if key not in pool_dict:
+                order.append(key)
+                pool_dict[key] = (doc, score)
+            else:
+                existing_doc, existing_score = pool_dict[key]
+                pool_dict[key] = (existing_doc, max(existing_score, score))
+
+        for doc, score in targeted:
+            key = doc.page_content.strip()[:100]
+            if key in pool_dict:
+                existing_doc, existing_score = pool_dict[key]
+                pool_dict[key] = (existing_doc, max(existing_score, score))
+            else:
+                order.append(key)
+                pool_dict[key] = (doc, score)
+
+        return [pool_dict[k] for k in order]
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -578,36 +854,51 @@ class RAGRetriever:
             plan = analyze_turn(query, history=history)
 
         search_query = plan.standalone_question or query
+        self.last_keywords = _detect_query_keywords(search_query)
+        self.last_phrases = _query_phrases(search_query)
 
-        if plan.is_compare or len(plan.programmes) >= 2:
+        is_multi = plan.is_compare or len(plan.programmes) >= 2
+
+        if is_multi:
             program_name = ""
             self.last_program = ""
             self.last_intent = INTENT_GENERAL
+            pool = self._compare_candidate_search(search_query, plan)
         elif len(plan.programmes) == 1:
             program_name = plan.programmes[0]
             self.last_program = program_name
             self.last_intent = INTENT_PROGRAMME
+            pool = self._candidate_search(search_query, program_name)
+            if plan.topic == "subjects":
+                curr_pool = self._curriculum_candidate_search(program_name, plan.year, plan.semester)
+                pool = self._merge_targeted_pool(pool, curr_pool)
+            elif plan.topic == "specializations":
+                spec_pool = self._specialization_candidate_search(program_name)
+                pool = self._merge_targeted_pool(pool, spec_pool)
+            elif plan.topic == "fees":
+                fee_pool = self._fee_candidate_search(program_name)
+                pool = self._merge_targeted_pool(pool, fee_pool)
         elif _is_programme_overview_query(search_query):
+
             program_name = ""
             self.last_program = ""
             self.last_intent = INTENT_OVERVIEW
+            pool = self._candidate_search(search_query, "")
         else:
             program_name = ""
             self.last_program = ""
             self.last_intent = INTENT_GENERAL
+            pool = self._candidate_search(search_query, "")
 
-        self.last_keywords = _detect_query_keywords(search_query)
-        self.last_phrases = _query_phrases(search_query)
-
-        pool = self._candidate_search(search_query, program_name)
         if not pool:
             logger.warning("No candidates retrieved for query: %s", search_query)
             return []
 
         scored: List[Tuple[Document, float]] = []
         for doc, base_score in pool:
+            doc_prog = str(doc.metadata.get("program_name", "") or "")
             final, *_ = _score_chunk(
-                doc, base_score, program_name, self.last_keywords, self.last_phrases,
+                doc, base_score, doc_prog or program_name, self.last_keywords, self.last_phrases,
             )
             scored.append((doc, final))
 
@@ -627,7 +918,7 @@ class RAGRetriever:
 
         if self.last_intent == INTENT_OVERVIEW:
             scored = self._overview_boost_and_diversify(scored)
-        elif self.last_intent == INTENT_GENERAL:
+        elif self.last_intent == INTENT_GENERAL and not is_multi:
             scored = self._general_diversify(scored)
 
         # Filter out low-relevance noise below threshold
@@ -640,23 +931,29 @@ class RAGRetriever:
         # Keep the full relevant pool for conflict detection
         self.last_pool = relevant_scored
 
-        # Generic attribute questions without a named programme ("How many
-        # semesters are there?") must be answerable for EVERY programme, so we
-        # force one chunk per online programme into the final top-K.
-        needs_coverage = (
-            self.last_intent == INTENT_GENERAL
-            and not self.last_program
-            and _requires_all_program_coverage(search_query)
-        )
-
-        if needs_coverage:
-            final = self._all_program_selection(relevant_scored)
-        else:
+        if is_multi:
+            target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
+            final = self._ensure_multi_program_coverage(relevant_scored, target_progs, min_per_prog=2)
+        elif plan.topic in ("subjects", "specializations"):
             kept, _removed_dup = deduplicate_results(relevant_scored)
-            kept, _removed_div = apply_diversity_cap(kept)
-            final = kept[: config.TOP_K]
+            kept, _removed_div = apply_diversity_cap(kept, max_per_source_page=6)
+            top_k = 8 if (plan.topic == "subjects" and not plan.year and not plan.semester) else config.TOP_K
+            final = kept[:top_k]
+        else:
+            needs_coverage = (
+                self.last_intent == INTENT_GENERAL
+                and not self.last_program
+                and _requires_all_program_coverage(search_query)
+            )
+            if needs_coverage:
+                final = self._all_program_selection(relevant_scored)
+            else:
+                kept, _removed_dup = deduplicate_results(relevant_scored)
+                kept, _removed_div = apply_diversity_cap(kept)
+                final = kept[: config.TOP_K]
 
         return final
+
 
     def _all_program_selection(
         self, pool: List[Tuple[Document, float]],
