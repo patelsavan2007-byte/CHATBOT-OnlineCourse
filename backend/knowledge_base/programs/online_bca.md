@@ -246,7 +246,7 @@ end
 
 ## Testimonials
 
-Studying online BCA at CMPICA, CHARUSAT University has been a transformative experience for me. The flexible learning environment, combined with highly supportive faculty, has allowed me to balance my studies with my personal responsibilities. The course content is well-structured, industry-relevant, and delivered through an engaging LMS that makes learning interactive and effective. Regular quizzes, assignments, and insightful case studies have really helped me strengthen my foundation in computer science. I truly feel prepared for my career ahead, and Iâm proud to be a part of the CHARUSAT family!
+Studying online BCA at CMPICA, CHARUSAT University has been a transformative experience for me. The flexible learning environment, combined with highly supportive faculty, has allowed me to balance my studies with my personal responsibilities. The course content is well-structured, industry-relevant, and delivered through an engaging LMS that makes learning interactive and effective. Regular quizzes, assignments, and insightful case studies have really helped me strengthen my foundation in computer science. I truly feel prepared for my career ahead, and I’m proud to be a part of the CHARUSAT family!
 
 ###### Om Patel
 
@@ -270,9 +270,9 @@ The contemporary curriculum of BCA is designed to provide necessary software ski
 
 Mandatory Documents:
 
-Proof of identity* â Any one from this (Aadhaar card, passport, voterâs ID, PAN card with photograph, any other Govt.-issued photo identity card)
+Proof of identity* – Any one from this (Aadhaar card, passport, voter’s ID, PAN card with photograph, any other Govt.-issued photo identity card)
 
-Proof of address* â Any one from this (Aadhaar card, passport, voterâs ID, gas bill, bank statement, Electricity Bill)
+Proof of address* – Any one from this (Aadhaar card, passport, voter’s ID, gas bill, bank statement, Electricity Bill)
 
 Class 10 marksheet
 

@@ -6,31 +6,39 @@ This route wraps the existing RAG pipeline to add:
   - Guest mode support (no persistence, message count tracking)
   - Guest conversation migration on signup/login
   - Context-aware suggested follow-up questions
+  - Streaming responses with typing indicator
 
 The existing ``POST /chat`` endpoint in api.py is kept unchanged for
 backward compatibility.
 
 Endpoints:
   POST /api/chat         — send a message (guest or authenticated)
+  POST /api/chat/stream  — send a message with streaming response
   POST /api/chat/migrate — migrate guest conversation to authenticated user
 """
 from __future__ import annotations
 
+import asyncio
+import json
 import os
 import re
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 from app.auth import get_optional_user, get_current_user
 from app.database import get_db
 from app.models import (
+    add_message_feedback,
+    add_user_correction,
     create_conversation,
     create_message,
     generate_conversation_title,
     get_conversation,
     get_conversation_messages,
+    get_feedback_stats,
     update_conversation,
 )
 from app.utils import logger
@@ -436,6 +444,22 @@ class ChatMessageResponse(BaseModel):
     suggested_questions: List[str] = []
 
 
+class StreamChatRequest(BaseModel):
+    question: str = Field(..., min_length=1)
+    conversation_id: Optional[str] = None
+    history: Optional[List[Dict[str, Any]]] = None
+
+
+class FeedbackRequest(BaseModel):
+    message_id: str = Field(..., description="Message ID to add feedback to")
+    feedback: str = Field(..., description="Feedback type: 'thumbs_up' or 'thumbs_down'")
+
+
+class UserCorrectionRequest(BaseModel):
+    message_id: str = Field(..., description="Message ID to add correction to")
+    correction: str = Field(..., description="User's corrected answer")
+
+
 class MigrateConversationRequest(BaseModel):
     """Migrate a guest conversation to the authenticated user's account."""
     messages: List[Dict[str, Any]] = Field(
@@ -474,6 +498,43 @@ def _get_rag_chain():
 # Endpoints
 # ---------------------------------------------------------------------------
 
+def _persist_turn(
+    db,
+    user: Optional[Dict[str, Any]],
+    conversation_id: Optional[str],
+    question: str,
+    assistant_answer: str,
+    assmt_suggestions: List[str],
+    user_id: Optional[str] = None,
+) -> tuple:
+    """Save user + assistant messages; returns the assistant message and conversation_id."""
+    if db is None or user is None:
+        return None, conversation_id
+
+    actual_user_id = user_id or user["id"]
+
+    if not conversation_id:
+        title = generate_conversation_title(question)
+        conv = create_conversation(db, user_id=actual_user_id, title=title)
+        conversation_id = conv["id"]
+
+    create_message(
+        db,
+        conversation_id=conversation_id,
+        role="user",
+        content=question,
+    )
+    assistant_msg = create_message(
+        db,
+        conversation_id=conversation_id,
+        role="assistant",
+        content=assistant_answer,
+        sources=[],
+        suggested_questions=assmt_suggestions,
+    )
+    return assistant_msg, conversation_id
+
+
 @router.post("", response_model=ChatMessageResponse)
 async def chat_message(
     request: ChatMessageRequest,
@@ -490,37 +551,6 @@ async def chat_message(
     conversation_id = request.conversation_id
 
     # ------------------------------------------------------------------
-    # Persist a guest/auth turn against a conversation (helper)
-    # ------------------------------------------------------------------
-    def _persist_turn(assistant_answer: str, assmt_suggestions: List[str]):
-        """Save user + assistant messages; returns the assistant message."""
-        nonlocal conversation_id
-        db = get_db()
-        if db is None or user is None:
-            return None, conversation_id
-
-        if not conversation_id:
-            title = generate_conversation_title(request.question)
-            conv = create_conversation(db, user_id=user["id"], title=title)
-            conversation_id = conv["id"]
-
-        create_message(
-            db,
-            conversation_id=conversation_id,
-            role="user",
-            content=request.question,
-        )
-        assistant_msg = create_message(
-            db,
-            conversation_id=conversation_id,
-            role="assistant",
-            content=assistant_answer,
-            sources=[],
-            suggested_questions=assmt_suggestions,
-        )
-        return assistant_msg, conversation_id
-
-    # ------------------------------------------------------------------
     # Greeting / small talk — natural conversational reply, no RAG needed.
     # No suggestion chips here: after a greeting, quiet is more natural
     # than pushing programme questions unprompted.
@@ -528,7 +558,8 @@ async def chat_message(
     if _is_pure_smalltalk(request.question):
         answer_text = random.choice(_WARM_REPLIES)
         suggestions: List[str] = []
-        assistant_msg, conv_id = _persist_turn(answer_text, suggestions)
+        db = get_db()
+        assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
         return ChatMessageResponse(
             answer=answer_text,
             conversation_id=conv_id,
@@ -568,16 +599,21 @@ async def chat_message(
             detail="Failed to generate answer",
         ) from exc
 
-    # Extract source information from retrieved chunks.
+    # Extract source information from retrieved chunks (deduplicated by source and page).
     # Only official PDF sources are reported — .md website pages are not
     # shown as citations so the UI stays clean and trustworthy.
     sources = []
+    seen_source_pages = set()
     if retrieved:
         for doc, score in retrieved:
             meta = doc.metadata
             source_path = str(meta.get("source", ""))
             if not source_path.lower().endswith(".pdf"):
                 continue
+            key = (source_path, meta.get("page"))
+            if key in seen_source_pages:
+                continue
+            seen_source_pages.add(key)
             sources.append({
                 "source": source_path,
                 "page": meta.get("page"),
@@ -647,6 +683,137 @@ async def chat_message(
     )
 
 
+@router.post("/stream")
+async def chat_message_stream(
+    request: StreamChatRequest,
+    user: Optional[Dict[str, Any]] = Depends(get_optional_user),
+):
+    """Send a chat message with streaming response.
+
+    Returns a Server-Sent Events (SSE) stream with:
+    - typing indicator events
+    - answer chunks as they're generated
+    - final sources and suggestions
+    """
+    import random
+
+    conversation_id = request.conversation_id
+
+    # ------------------------------------------------------------------
+    # Greeting / small talk — natural conversational reply, no RAG needed.
+    # ------------------------------------------------------------------
+    if _is_pure_smalltalk(request.question):
+        answer_text = random.choice(_WARM_REPLIES)
+        suggestions: List[str] = []
+
+        async def generate_smalltalk():
+            # Send typing indicator
+            yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
+
+            # Simulate typing delay
+            await asyncio.sleep(0.5)
+
+            # Send answer chunks
+            chunk_size = 20
+            for i in range(0, len(answer_text), chunk_size):
+                chunk = answer_text[i:i + chunk_size]
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+                await asyncio.sleep(0.05)
+
+            # Persist the conversation
+            db = get_db()
+            assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
+
+            # Send final message
+            yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'conversation_id': conv_id, 'message_id': assistant_msg['id'] if assistant_msg else None, 'sources': [], 'suggested_questions': suggestions})}\n\n"
+
+        return StreamingResponse(generate_smalltalk(), media_type="text/event-stream")
+
+    rag_chain, rag_ready = _get_rag_chain()
+
+    if not rag_ready or rag_chain is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Chatbot RAG pipeline is not available.",
+        )
+
+    # ------------------------------------------------------------------
+    # Conversation context for smarter suggestions
+    # ------------------------------------------------------------------
+    history: Optional[List[Dict[str, Any]]] = None
+    if request.history:
+        history = request.history
+    elif user is not None and conversation_id:
+        db = get_db()
+        if db is not None:
+            recent = get_conversation_messages(db, conversation_id)
+            if recent:
+                history = recent[-8:]
+
+    async def generate_stream():
+        """Generate streaming response with typing indicator."""
+        # Send typing indicator
+        yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
+
+        try:
+            # Call RAG pipeline (currently non-streaming, but structured for future streaming)
+            answer_text, retrieved = rag_chain.answer(request.question)
+
+            # Extract source information (deduplicated by source and page)
+            sources = []
+            seen_source_pages = set()
+            if retrieved:
+                for doc, score in retrieved:
+                    meta = doc.metadata
+                    source_path = str(meta.get("source", ""))
+                    if not source_path.lower().endswith(".pdf"):
+                        continue
+                    key = (source_path, meta.get("page"))
+                    if key in seen_source_pages:
+                        continue
+                    seen_source_pages.add(key)
+                    sources.append({
+                        "source": source_path,
+                        "page": meta.get("page"),
+                        "program": meta.get("program_name"),
+                        "score": round(score, 3),
+                    })
+
+            # Generate context-aware follow-up suggestions
+            suggestions = _generate_suggestions(request.question, answer_text, history)
+
+            # Simulate streaming the answer
+            chunk_size = 30
+            for i in range(0, len(answer_text), chunk_size):
+                chunk = answer_text[i:i + chunk_size]
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+                await asyncio.sleep(0.03)
+
+            # For guests, return without persistence
+            if user is None:
+                yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
+                return
+
+            # For authenticated users, persist to MongoDB
+            db = get_db()
+            if db is None:
+                # MongoDB unavailable — return answer without persistence
+                yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
+                return
+
+            # Persist the conversation using helper
+            nonlocal conversation_id
+            assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
+
+            yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'conversation_id': conv_id, 'message_id': assistant_msg['id'] if assistant_msg else None, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
+
+        except Exception as exc:
+            logger.error("RAG chain failed during streaming: %s", exc)
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Failed to generate answer'})}\n\n"
+
+    return StreamingResponse(generate_stream(), media_type="text/event-stream")
+
+
 @router.post("/migrate", response_model=MigrateConversationResponse)
 async def migrate_guest_conversation(
     request: MigrateConversationRequest,
@@ -709,3 +876,95 @@ async def migrate_guest_conversation(
         conversation_id=conv["id"],
         message_count=count,
     )
+
+
+@router.post("/feedback")
+async def add_feedback(
+    request: FeedbackRequest,
+    user: Optional[Dict[str, Any]] = Depends(get_optional_user),
+):
+    """Add feedback (thumbs up/down) to a message.
+
+    Args:
+        request: Feedback request with message_id and feedback type
+        user: Optional authenticated user
+
+    Returns:
+        Updated message with feedback
+    """
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    if request.feedback not in ("thumbs_up", "thumbs_down"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid feedback type. Must be 'thumbs_up' or 'thumbs_down'",
+        )
+
+    updated_message = add_message_feedback(db, request.message_id, request.feedback)
+    if updated_message is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Message not found",
+        )
+
+    return {"message": "Feedback added successfully", "message": updated_message}
+
+
+@router.post("/correction")
+async def add_correction(
+    request: UserCorrectionRequest,
+    user: Optional[Dict[str, Any]] = Depends(get_optional_user),
+):
+    """Add user correction to a message.
+
+    Args:
+        request: Correction request with message_id and corrected answer
+        user: Optional authenticated user
+
+    Returns:
+        Updated message with correction
+    """
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    updated_message = add_user_correction(db, request.message_id, request.correction)
+    if updated_message is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Message not found",
+        )
+
+    return {"message": "Correction added successfully", "message": updated_message}
+
+
+@router.get("/feedback/stats")
+async def feedback_stats(
+    user: Optional[Dict[str, Any]] = Depends(get_optional_user),
+):
+    """Get feedback statistics.
+
+    Args:
+        user: Optional authenticated user (if provided, stats are filtered by user)
+
+    Returns:
+        Feedback statistics
+    """
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    user_id = user["id"] if user else None
+    stats = get_feedback_stats(db, user_id)
+    return stats

@@ -65,19 +65,36 @@ def get_available_knowledge_sources() -> List[str]:
     return files
 
 
-def build_not_found_answer() -> str:
-    """Return a professional fallback that lists the source files actually available to the chatbot."""
-    sources = get_available_knowledge_sources()
-    lines = [
-        "I could not find sufficient information in the available university knowledge base for this query.",
-        "",
-        "Available knowledge-base sources currently searched:",
-    ]
-    if sources:
-        lines.extend(f"- {source}" for source in sources)
-    else:
-        lines.append("- No knowledge-base files are currently available.")
-    return "\n".join(lines)
+_UNRELATED_QUERY_RE = re.compile(
+    r"\b(?:weather|temperature|forecast|rain|joke|jokes|riddle|story|"
+    r"python\s+function|write\s+(?:a\s+)?code|sort\s+a\s+list|javascript|algorithm|"
+    r"recipe|cooking|sing\s+a\s+song|who\s+won|president\s+of|capital\s+of)\b",
+    re.IGNORECASE,
+)
+
+
+def build_not_found_answer(query: str = "") -> str:
+    """Return a helpful fallback without dumping internal file names.
+
+    For clearly unrelated questions (weather, jokes, code), returns a polite
+    one-line scope message. For course-related questions where information is
+    not present, suggests contacting admissions with official contact details
+    from programs/contact.md and mentions what the chatbot can help with.
+    """
+    if query and _UNRELATED_QUERY_RE.search(query):
+        return (
+            "I am the CHARUSAT Online Course Assistant. I can only assist with inquiries "
+            "regarding CHARUSAT's online degree programmes (BCA, BBA, MBA, and MCA)."
+        )
+
+    return (
+        "I could not find this information in the available CHARUSAT online programme records.\n\n"
+        "For official and up-to-date assistance, please reach out to the Admissions Office:\n"
+        "• Phone: +91 7434055553 / +91 7600257365\n"
+        "• Official Portal: https://charusat.online\n\n"
+        "I can help you with programme details, eligibility criteria, fee structures, "
+        "curriculum, duration, and admission requirements for Online BCA, BBA, MBA, and MCA."
+    )
 
 
 _INTERNAL_REF_RE = re.compile(
@@ -138,7 +155,8 @@ def strip_internal_references(text: str) -> str:
     cleaned = _FILE_PATH_RE.sub("", cleaned)
     cleaned = _SPECIFIC_FILES_RE.sub("", cleaned)
     cleaned = _BARE_FILE_RE.sub("", cleaned)
-    cleaned = _AS_PER_LEFTOVER_RE.sub("", cleaned)
+    # Note: Do not remove natural connective phrases like 'as per', 'according to'
+    # as that corrupts valid sentences into ungrammatical fragments.
     cleaned = _PAGE_REF_RE.sub("", cleaned)
     cleaned = _VENDOR_RE.sub("", cleaned)
     cleaned = _RESOLVED_RE.sub("", cleaned)
@@ -218,26 +236,60 @@ class LLMClient:
     # ------------------------------------------------------------------
 
     def _initialize(self) -> None:
+        # Initialize Gemini as primary LLM
+        if self.api_key and genai is not None:
+            try:
+                self._client = genai.Client(api_key=self.api_key)
+                self._gen_config = genai_types.GenerateContentConfig(
+                    temperature=config.LLM_TEMPERATURE,
+                    max_output_tokens=1024,
+                )
+                self._working_models = self._discover_models()
+                print_info(f"Gemini client initialised as PRIMARY LLM with {len(self._working_models)} available models.")
+                logger.info("Gemini client initialised as primary LLM with models: %s", self._working_models)
+            except Exception as exc:
+                logger.error("Failed to initialise Gemini client: %s", exc)
+                self._client = None
+
+        # Initialize Groq as failover
         if self.groq_api_key and HAS_GROQ:
             try:
                 self._groq_client = Groq(api_key=self.groq_api_key)
-                print_info(f"Groq client initialised as PRIMARY LLM (model: {config.GROQ_MODEL}).")
-                logger.info("Groq client initialised as primary LLM: %s", config.GROQ_MODEL)
+                print_info(f"Groq client initialised as FAILOVER LLM (model: {config.GROQ_MODEL}).")
+                logger.info("Groq client initialised as failover LLM: %s", config.GROQ_MODEL)
             except Exception as exc:
                 logger.error("Failed to initialise Groq client: %s", exc)
                 self._groq_client = None
 
-        if not self._groq_client:
-            print_warning("[WARNING] GROQ_API_KEY is missing or invalid in environment. Using local fallback.")
-            logger.warning("Groq client unavailable; using local fallback")
+        if not self._client and not self._groq_client:
+            print_warning("[WARNING] Neither GOOGLE_API_KEY nor GROQ_API_KEY is available. Using local fallback.")
+            logger.warning("Both Gemini and Groq unavailable; using local fallback")
 
     def _discover_models(self) -> List[str]:
-        """Disabled for Groq primary deployment."""
-        return []
+        """Discover available Gemini models and return working ones."""
+        if not self._client:
+            return []
+
+        working_models = []
+        for model_name in config.PREFERRED_MODELS:
+            try:
+                # Test model availability with a minimal request
+                response = self._client.models.generate_content(
+                    model=model_name,
+                    contents="test",
+                    config=self._gen_config,
+                )
+                working_models.append(model_name)
+                logger.info("Gemini model %s is available", model_name)
+            except Exception as exc:
+                logger.warning("Gemini model %s not available: %s", model_name, exc)
+                continue
+
+        return working_models
 
     # ------------------------------------------------------------------
     # Generation
-    # Primary: Groq API (llama-3.3-70b-versatile) -> Local Fallback
+    # Primary: Gemini API -> Groq Failover -> Local Fallback
     # ------------------------------------------------------------------
 
     def generate(
@@ -247,18 +299,83 @@ class LLMClient:
         context_chunks: Optional[List[Tuple[str, Dict[str, object]]]] = None,
         conflicts: Optional[List[Dict[str, object]]] = None,
     ) -> Tuple[str, str]:
-        """Generate an answer using Groq directly as primary LLM.
+        """Generate an answer using Gemini as primary LLM, Groq as failover.
 
         Returns ``(text, status)`` where status is one of ``LLMStatus``.
         """
+        # Try Gemini first
+        gemini_text = self._try_gemini(prompt)
+        if gemini_text:
+            self._last_status = LLMStatus.GEMINI
+            return strip_internal_references(gemini_text), LLMStatus.GEMINI
+
+        # Fall back to Groq
         groq_text = self._try_groq(prompt)
         if groq_text:
             self._last_status = LLMStatus.GROQ
             return strip_internal_references(groq_text), LLMStatus.GROQ
 
-        logger.warning("Groq API unavailable or failed; using local deterministic fallback")
+        # Final fallback to deterministic local generation
+        logger.warning("Both Gemini and Groq APIs unavailable or failed; using local deterministic fallback")
         self._last_status = LLMStatus.FALLBACK
         return self._fallback_generate(prompt, context_chunks, conflicts), LLMStatus.FALLBACK
+
+    def _try_gemini(self, prompt: str) -> Optional[str]:
+        """Attempt answer generation using Gemini API.
+
+        Tries the configured Gemini models in priority order.
+        """
+        if not self._client:
+            if not self.api_key or genai is None:
+                return None
+            try:
+                self._client = genai.Client(api_key=self.api_key)
+                self._gen_config = genai_types.GenerateContentConfig(
+                    temperature=config.LLM_TEMPERATURE,
+                    max_output_tokens=1024,
+                )
+                self._working_models = self._discover_models()
+            except Exception as exc:
+                logger.error("Failed to initialise Gemini client: %s", exc)
+                return None
+
+        # Check cooldown
+        if self._quota_exhausted and time.time() < self._cooldown_until:
+            logger.info("Gemini in cooldown until %.0f", self._cooldown_until)
+            return None
+
+        for model_name in self._working_models:
+            try:
+                logger.info("[LLM] Gemini request: model=%s", model_name)
+                response = self._client.models.generate_content(
+                    model=model_name,
+                    contents=prompt,
+                    config=self._gen_config,
+                )
+                text = self._extract_text(response)
+                if text and text.strip():
+                    # Never trust a not-found confession when a fallback
+                    # model may still answer from the same context.
+                    if _says_not_found(text):
+                        logger.warning(
+                            "Gemini model %s answered not-found; trying failover model...", model_name
+                        )
+                        continue
+                    self._quota_exhausted = False
+                    return text.strip()
+                logger.warning("Gemini model %s returned an empty response", model_name)
+            except Exception as exc:
+                error = self._classify_error(exc)
+                if isinstance(error, APIQuotaError):
+                    self._quota_exhausted = True
+                    self._cooldown_until = time.time() + config.LLM_COOLDOWN_SECONDS
+                    logger.warning("Gemini quota exhausted; entering cooldown")
+                    continue
+                logger.warning("Gemini model %s failed (%s), trying failover model...", model_name, exc)
+                continue
+
+        logger.error("All Gemini models exhausted or failed")
+        return None
 
     def _try_groq(self, prompt: str) -> Optional[str]:
         """Attempt answer generation using Groq API.

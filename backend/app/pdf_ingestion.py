@@ -26,6 +26,7 @@ from app.config import (
     PDF_DIR,
     PDF_TABLE_CHUNK_SIZE,
 )
+from app.ingestion import deduplicate_chunks, is_valid_chunk
 from app.utils import logger, print_info, print_warning
 
 
@@ -126,6 +127,24 @@ def _table_to_markdown(table_data: List[List[str]]) -> str:
 
     # Drop fully-empty rows
     trimmed_rows = [row for row in trimmed_rows if any(c for c in row)]
+    if not trimmed_rows:
+        return ""
+
+    # Merge multi-row headers if data rows start with numbers (e.g. Sr. No. tables)
+    data_start = 0
+    for idx, row in enumerate(trimmed_rows):
+        first_cell = (row[0] or "").strip().rstrip(".")
+        if first_cell.isdigit():
+            data_start = idx
+            break
+
+    if data_start > 1:
+        header_rows = trimmed_rows[:data_start]
+        merged_header = []
+        for c in range(len(trimmed_rows[0])):
+            parts = [r[c].strip() for r in header_rows if c < len(r) and r[c] and r[c].strip()]
+            merged_header.append(" ".join(parts) or f"Column {c+1}")
+        trimmed_rows = [merged_header] + trimmed_rows[data_start:]
 
     header = trimmed_rows[0]
     # Guard against a fully-empty header column
@@ -240,12 +259,15 @@ class PDFIngester:
 
                 doc_chunks = splitter.split_documents([doc])
                 for chunk in doc_chunks:
+                    if not is_valid_chunk(chunk.page_content):
+                        continue
                     chunk_counter += 1
                     metadata = dict(doc.metadata)
                     metadata["chunk_id"] = chunk_counter
                     chunk.metadata = metadata
                     chunks.append(chunk)
 
+        chunks = deduplicate_chunks(chunks)
         print_info(f"PDF chunks created: {len(chunks)}")
         logger.info("PDF chunks created: %s", len(chunks))
         return chunks

@@ -11,6 +11,27 @@ from app.deduplicate import apply_diversity_cap, deduplicate_results
 from app.source_authority import source_authority_bonus
 from app.utils import logger
 
+try:
+    from app.hybrid_retrieval import HybridRetriever
+    HYBRID_AVAILABLE = True
+except ImportError:
+    HYBRID_AVAILABLE = False
+    logger.warning("Hybrid retrieval not available (rank-bm25 not installed)")
+
+try:
+    from app.reranker import create_reranker
+    RERANKER_AVAILABLE = True
+except ImportError:
+    RERANKER_AVAILABLE = False
+    logger.warning("Reranker not available (FlagEmbedding or cohere not installed)")
+
+try:
+    from app.query_expansion import get_contextual_query
+    QUERY_EXPANSION_AVAILABLE = True
+except ImportError:
+    QUERY_EXPANSION_AVAILABLE = False
+    logger.warning("Query expansion not available")
+
 
 # Intent tags describing how a query should be routed through retrieval.
 INTENT_PROGRAMME = "programme"            # a specific programme is mentioned
@@ -187,16 +208,6 @@ def _score_chunk(
         config.SCORE_CAP,
     )
 
-    # A chunk containing the user's exact multi-word phrase is definitionally
-    # on-topic. The embedding ranker can still score it low (legal boilerplate
-    # routinely outscores the correct chunk), so phrase-matched chunks are
-    # guaranteed to clear the relevance floor instead of being dropped as
-    # noise. Without this, genuinely-correct answers such as "Placement
-    # Assistance" in home.md or "technical support" in ciqa.md would never be
-    # retrieved.
-    if phrase_matched and final < config.MIN_RELEVANCE_SCORE:
-        final = config.MIN_RELEVANCE_SCORE
-
     return final, keyword_bonus, proximity_bonus, phrase_bonus, authority_bonus
 
 
@@ -206,7 +217,7 @@ class RAGRetriever:
     The pipeline is deliberately general:
 
     1. a wide candidate pool is fetched from the vector store (programme-scoped
-       when a programme is detected);
+       when a programme is detected) using hybrid retrieval (semantic + BM25);
     2. every candidate receives a small, bounded set of bonuses on top of its
        semantic score (keyword match, value proximity, source authority);
     3. near-duplicates are removed and per-(source, page) diversity is capped;
@@ -222,6 +233,39 @@ class RAGRetriever:
         self.last_phrases: List[str] = []
         self.last_pool: List[Tuple[Document, float]] = []
         self._policy_sources_cache: Optional[Set[str]] = None
+        self._hybrid_retriever: Optional[HybridRetriever] = None
+        self._reranker = None
+        self.conversation_history: List[Tuple[str, str]] = []  # Store conversation history for query expansion
+
+        # Initialize hybrid retriever if available
+        if HYBRID_AVAILABLE:
+            try:
+                # Load all documents for BM25 indexing
+                all_docs = []
+                try:
+                    data = self.vector_store.get(include=["documents", "metadatas"])
+                    for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+                        if doc_text and doc_text.strip():
+                            all_docs.append(Document(page_content=doc_text, metadata=meta))
+                except Exception as exc:
+                    logger.warning("Failed to load documents for hybrid retrieval: %s", exc)
+
+                if all_docs:
+                    self._hybrid_retriever = HybridRetriever(vector_store, all_docs)
+                    logger.info("Hybrid retrieval initialized with %d documents", len(all_docs))
+            except Exception as exc:
+                logger.warning("Failed to initialize hybrid retriever: %s", exc)
+
+        # Initialize reranker if available and enabled
+        if RERANKER_AVAILABLE and config.RERANKER_ENABLED:
+            try:
+                self._reranker = create_reranker(
+                    reranker_type=config.RERANKER_TYPE,
+                    model_name=config.RERANKER_MODEL,
+                )
+                logger.info("Reranker initialized: %s (%s)", config.RERANKER_TYPE, config.RERANKER_MODEL)
+            except Exception as exc:
+                logger.warning("Failed to initialize reranker: %s", exc)
 
     # ------------------------------------------------------------------
     # Policy source discovery
@@ -344,6 +388,19 @@ class RAGRetriever:
         if policy_sources:
             conditions.append({"source": {"$in": sorted(policy_sources)}})
         filter_args: Dict[str, object] = {"$or": conditions}
+
+        # Use hybrid retrieval if available
+        if self._hybrid_retriever:
+            try:
+                results = self._hybrid_retriever.hybrid_search(
+                    query, k=config.CANDIDATE_POOL_SIZE, filter=filter_args
+                )
+                if results:
+                    return results
+            except Exception as exc:
+                logger.warning("Hybrid search failed (%s): %s", filter_args, exc)
+
+        # Fallback to semantic search
         try:
             results = self.vector_store.similarity_search_with_relevance_scores(
                 query, k=config.CANDIDATE_POOL_SIZE, filter=filter_args
@@ -373,15 +430,29 @@ class RAGRetriever:
             prog_candidates: List[Tuple[Document, float]] = []
             for p in all_progs:
                 try:
-                    p_res = self.vector_store.similarity_search_with_relevance_scores(
-                        query, k=5, filter={"program_name": p}
-                    )
+                    # Use hybrid retrieval if available
+                    if self._hybrid_retriever:
+                        p_res = self._hybrid_retriever.hybrid_search(
+                            query, k=5, filter={"program_name": p}
+                        )
+                    else:
+                        p_res = self.vector_store.similarity_search_with_relevance_scores(
+                            query, k=5, filter={"program_name": p}
+                        )
                     prog_candidates.extend(p_res)
                 except Exception:
                     pass
-            gen_results = self.vector_store.similarity_search_with_relevance_scores(
-                query, k=config.CANDIDATE_POOL_SIZE
-            )
+
+            # Use hybrid retrieval for general pool if available
+            if self._hybrid_retriever:
+                gen_results = self._hybrid_retriever.hybrid_search(
+                    query, k=config.CANDIDATE_POOL_SIZE
+                )
+            else:
+                gen_results = self.vector_store.similarity_search_with_relevance_scores(
+                    query, k=config.CANDIDATE_POOL_SIZE
+                )
+
             seen: Dict[str, Tuple[Document, float]] = {}
             for doc, score in (prog_candidates + gen_results):
                 doc_id = doc.page_content.strip()[:100]
@@ -416,11 +487,19 @@ class RAGRetriever:
         ]
         for group in groups:
             try:
-                results = self.vector_store.similarity_search_with_relevance_scores(
-                    query,
-                    k=config.GENERIC_POOL_PER_GROUP,
-                    filter={"program_name": group},
-                )
+                # Use hybrid retrieval if available
+                if self._hybrid_retriever:
+                    results = self._hybrid_retriever.hybrid_search(
+                        query,
+                        k=config.GENERIC_POOL_PER_GROUP,
+                        filter={"program_name": group},
+                    )
+                else:
+                    results = self.vector_store.similarity_search_with_relevance_scores(
+                        query,
+                        k=config.GENERIC_POOL_PER_GROUP,
+                        filter={"program_name": group},
+                    )
             except Exception as exc:
                 logger.warning("Group search failed for %r: %s", group, exc)
                 continue
@@ -487,6 +566,18 @@ class RAGRetriever:
     # Public API
     # ------------------------------------------------------------------
 
+    def update_conversation_history(self, user_query: str, assistant_response: str) -> None:
+        """Update conversation history for query expansion.
+
+        Args:
+            user_query: User's query
+            assistant_response: Assistant's response
+        """
+        self.conversation_history.append((user_query, assistant_response))
+        # Keep only last 10 turns to avoid memory bloat
+        if len(self.conversation_history) > 10:
+            self.conversation_history = self.conversation_history[-10:]
+
     def retrieve(self, query: str) -> List[Tuple[Document, float]]:
         self.last_query = query
         self.last_program, self.last_intent = _analyze_query(query)
@@ -494,9 +585,20 @@ class RAGRetriever:
         self.last_phrases = _query_phrases(query)
         program_name = self.last_program
 
-        pool = self._candidate_search(query, program_name)
+        # Apply query expansion if available and we have history
+        search_query = query
+        if QUERY_EXPANSION_AVAILABLE and self.conversation_history:
+            try:
+                search_query = get_contextual_query(query, self.conversation_history)
+                if search_query != query:
+                    logger.info("Query expansion applied: %s -> %s", query, search_query)
+            except Exception as exc:
+                logger.warning("Query expansion failed: %s", exc)
+                search_query = query
+
+        pool = self._candidate_search(search_query, program_name)
         if not pool:
-            logger.warning("No candidates retrieved for query: %s", query)
+            logger.warning("No candidates retrieved for query: %s", search_query)
             return []
 
         scored: List[Tuple[Document, float]] = []
@@ -507,6 +609,18 @@ class RAGRetriever:
             scored.append((doc, final))
 
         scored.sort(key=lambda item: item[1], reverse=True)
+
+        # Apply cross-encoder reranking if available
+        if self._reranker and scored:
+            try:
+                scored = self._reranker.rerank(
+                    search_query,
+                    scored,
+                    top_k=config.RERANKER_TOP_K,
+                )
+                logger.info("Reranking applied: %d documents reranked", len(scored))
+            except Exception as exc:
+                logger.warning("Reranking failed: %s", exc)
 
         if self.last_intent == INTENT_OVERVIEW:
             scored = self._overview_boost_and_diversify(scored)

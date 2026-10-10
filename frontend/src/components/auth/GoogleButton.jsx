@@ -9,7 +9,6 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export default function GoogleButton({ onCredential, disabled, label = "Continue with Google" }) {
   const divRef = useRef(null);
-  const initialized = useRef(false);
 
   const handleCredentialResponse = useCallback(
     (response) => {
@@ -21,35 +20,47 @@ export default function GoogleButton({ onCredential, disabled, label = "Continue
   );
 
   useEffect(() => {
-    if (!GOOGLE_CLIENT_ID || initialized.current) return;
+    if (!GOOGLE_CLIENT_ID) return;
 
-    // Load Google Identity Services script
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (window.google?.accounts?.id) {
+    const setupGoogle = () => {
+      if (!window.google?.accounts?.id || !divRef.current) return;
+      try {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: handleCredentialResponse,
         });
-        if (divRef.current) {
-          window.google.accounts.id.renderButton(divRef.current, {
-            theme: "filled_black",
-            size: "large",
-            shape: "pill",
-            width: "100%",
-            text: "continue_with",
-          });
-        }
-        initialized.current = true;
+        divRef.current.innerHTML = "";
+        window.google.accounts.id.renderButton(divRef.current, {
+          theme: "filled_black",
+          size: "large",
+          shape: "pill",
+          width: 340,
+          text: "continue_with",
+        });
+      } catch (err) {
+        console.warn("Failed to initialize Google Sign-In button:", err);
       }
     };
-    document.head.appendChild(script);
+
+    if (window.google?.accounts?.id) {
+      setupGoogle();
+      return;
+    }
+
+    let script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+    if (!script) {
+      script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+
+    const handleLoad = () => setupGoogle();
+    script.addEventListener("load", handleLoad);
 
     return () => {
-      // Cleanup handled by page unload
+      script.removeEventListener("load", handleLoad);
     };
   }, [handleCredentialResponse]);
 

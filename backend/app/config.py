@@ -11,7 +11,7 @@ KNOWLEDGE_BASE_DIR = BASE_DIR / "knowledge_base"
 VECTOR_DB_DIR = BASE_DIR / "vector_db"
 PDF_DIR = KNOWLEDGE_BASE_DIR / "pdfs"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
-FALLBACK_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+FALLBACK_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 CHUNK_SIZE = 600
 CHUNK_OVERLAP = 100
 PDF_CHUNK_SIZE = 800
@@ -19,6 +19,14 @@ PDF_TABLE_CHUNK_SIZE = 3600
 SCRAPE_START_URL = "https://charusat.online/"
 SCRAPE_MAX_PAGES = 250
 CRAWL_DELAY = 0.5
+USE_PLAYWRIGHT_SCRAPER = False  # Enable Playwright for JavaScript-heavy pages
+
+# ---------------------------------------------------------------------------
+# Multilingual support
+# ---------------------------------------------------------------------------
+MULTILINGUAL_ENABLED = True
+SUPPORTED_LANGUAGES = ["en", "hi", "gu"]  # English, Hindi, Gujarati
+DEFAULT_LANGUAGE = "en"
 
 load_dotenv(BASE_DIR / ".env")
 
@@ -294,6 +302,14 @@ LLM_BACKOFF_FACTOR = 1.5     # multiplier applied to the delay between retries
 LLM_TIMEOUT = 15             # per-attempt timeout in seconds (fast fail)
 LLM_TEMPERATURE = 0.2
 LLM_COOLDOWN_SECONDS = 300   # circuit-breaker: skip Gemini for 5 mins after a full failure sweep
+
+# ---------------------------------------------------------------------------
+# Reranker configuration
+# ---------------------------------------------------------------------------
+RERANKER_ENABLED = False     # Disabled: bge-reranker-base degrades domain policy retrieval and induces regressions
+RERANKER_TYPE = "bge"        # "bge" for local BGE, "cohere" for Cohere API
+RERANKER_MODEL = "BAAI/bge-reranker-base"  # Model name for BGE reranker
+RERANKER_TOP_K = 10          # Number of results to rerank
 
 
 # Preferred Gemini models in priority order (exact names from the API).

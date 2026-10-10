@@ -26,7 +26,13 @@ class FastEmbeddings(Embeddings):
             from fastembed import TextEmbedding
             print_info(f"Loading FastEmbed (ONNX) model: {self.model_name}")
             logger.info("Loading FastEmbed (ONNX) model: %s", self.model_name)
-            self._model = TextEmbedding(model_name=self.model_name)
+            try:
+                self._model = TextEmbedding(model_name=self.model_name)
+            except Exception as exc:
+                print_warning(f"FastEmbed model {self.model_name} failed to load ({exc}); falling back to {FALLBACK_EMBEDDING_MODEL}")
+                logger.warning("FastEmbed model %s failed to load (%s); falling back to %s", self.model_name, exc, FALLBACK_EMBEDDING_MODEL)
+                self.model_name = FALLBACK_EMBEDDING_MODEL
+                self._model = TextEmbedding(model_name=FALLBACK_EMBEDDING_MODEL)
         return self._model
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
@@ -45,7 +51,9 @@ class EmbeddingStore:
 
     def _load_embedding_model(self) -> Embeddings:
         try:
-            return FastEmbeddings(model_name=EMBEDDING_MODEL)
+            emb = FastEmbeddings(model_name=EMBEDDING_MODEL)
+            _ = emb.model
+            return emb
         except Exception as exc:
             print_warning(f"FastEmbed unavailable ({exc}); attempting HuggingFace fallback...")
             logger.warning("FastEmbed unavailable (%s); attempting HuggingFace fallback", exc)

@@ -27,7 +27,7 @@ Annual Fee
 
 ## Eligibility Criteria
 
-Candidate should have passed Bachelorâs degree (or equivalent) any stream with English as a subject is eligible for admission to the MCA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
+Candidate should have passed Bachelor’s degree (or equivalent) any stream with English as a subject is eligible for admission to the MCA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
 
 Rankings & Accreditations
 
@@ -244,9 +244,9 @@ The contemporary curriculum of MCA is designed to provide necessary software ski
 
 Mandatory Documents:
 
-Proof of identity* â Any one from this (Aadhaar card, passport, voterâs ID, PAN card with photograph, any other Govt.-issued photo identity card)
+Proof of identity* – Any one from this (Aadhaar card, passport, voter’s ID, PAN card with photograph, any other Govt.-issued photo identity card)
 
-Proof of address* â Any one from this (Aadhaar card, passport, voterâs ID, gas bill, bank statement, Electricity Bill)
+Proof of address* – Any one from this (Aadhaar card, passport, voter’s ID, gas bill, bank statement, Electricity Bill)
 
 Class 10 marksheet
 

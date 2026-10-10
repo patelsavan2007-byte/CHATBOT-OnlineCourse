@@ -259,12 +259,17 @@ async def dev_login():
             detail="ADMIN_EMAIL is not configured",
         )
 
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable. Cannot perform dev auto-login.",
+        )
+
     # Seed the admin user if needed
     user = seed_dev_admin()
     if not user:
-        db = get_db()
-        if db:
-            user = find_user_by_email(db, admin_email)
+        user = find_user_by_email(db, admin_email)
 
     if not user:
         raise HTTPException(

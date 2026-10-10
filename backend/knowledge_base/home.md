@@ -30,7 +30,7 @@ IMG NAV WHITE
 
 ## About University
 
-Charotar University of Science and Technology â CHARUSAT has been conceived by Shri Charotar Moti Sattavis Patidar Kelavani Mandal to put India on global education map by making Charotar â the Land of Sardar Patel, a Global Education Hub.
+Charotar University of Science and Technology – CHARUSAT has been conceived by Shri Charotar Moti Sattavis Patidar Kelavani Mandal to put India on global education map by making Charotar – the Land of Sardar Patel, a Global Education Hub.
 
 Kelavani Mandal, established in 1994, is a non-profit premier trust of India that works with the aim to provide social service through education. The organization has a social lineage of more than 125 years.
 
@@ -61,7 +61,7 @@ Candidate should have passed 12th standard (or equivalent) any stream with Engli
 
 ##### Online MCA
 
-Candidate should have passed Bachelorâs degree (or equivalent) any stream with English as a subject is eligible for admission to the MCA/MBA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
+Candidate should have passed Bachelor’s degree (or equivalent) any stream with English as a subject is eligible for admission to the MCA/MBA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
 
 Online MBA
 
@@ -379,7 +379,7 @@ Grateful to begin my journey as a BBA student at CHARUSAT. Excited to dive into 
 
 ###### Aishwarya Gurnani
 
-Studying online BCA at CMPICA, CHARUSAT University has been a transformative experience for me. The flexible learning environment, combined with highly supportive faculty, has allowed me to balance my studies with my personal responsibilities. The course content is well-structured, industry-relevant, and delivered through an engaging LMS that makes learning interactive and effective. Regular quizzes, assignments, and insightful case studies have really helped me strengthen my foundation in computer science. I truly feel prepared for my career ahead, and Iâm proud to be a part of the CHARUSAT family!
+Studying online BCA at CMPICA, CHARUSAT University has been a transformative experience for me. The flexible learning environment, combined with highly supportive faculty, has allowed me to balance my studies with my personal responsibilities. The course content is well-structured, industry-relevant, and delivered through an engaging LMS that makes learning interactive and effective. Regular quizzes, assignments, and insightful case studies have really helped me strengthen my foundation in computer science. I truly feel prepared for my career ahead, and I’m proud to be a part of the CHARUSAT family!
 
 ###### Om Patel
 

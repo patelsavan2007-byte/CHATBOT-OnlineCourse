@@ -222,6 +222,8 @@ def create_message(
         "content": content,
         "sources": sources or [],
         "suggested_questions": suggested_questions or [],
+        "feedback": None,  # thumbs_up, thumbs_down, or None
+        "user_correction": None,  # User-provided correction if applicable
         "created_at": now,
     }
     result = db.messages.insert_one(doc)
@@ -263,3 +265,128 @@ def generate_conversation_title(question: str) -> str:
             truncated = truncated[:last_space]
         clean = truncated + "..."
     return clean or "New Chat"
+
+
+# ---------------------------------------------------------------------------
+# Feedback
+# ---------------------------------------------------------------------------
+
+def add_message_feedback(
+    db: Database,
+    message_id: str,
+    feedback: str,  # "thumbs_up" or "thumbs_down"
+) -> Optional[Dict[str, Any]]:
+    """Add feedback to a message.
+
+    Args:
+        db: Database instance
+        message_id: Message ID
+        feedback: Feedback type ("thumbs_up" or "thumbs_down")
+
+    Returns:
+        Updated message document or None if not found
+    """
+    try:
+        result = db.messages.update_one(
+            {"_id": _oid(message_id)},
+            {"$set": {"feedback": feedback}},
+        )
+        if result.modified_count > 0:
+            logger.info("Added feedback %s to message %s", feedback, message_id)
+            return get_message_by_id(db, message_id)
+        return None
+    except Exception as exc:
+        logger.error("Failed to add feedback to message %s: %s", message_id, exc)
+        return None
+
+
+def add_user_correction(
+    db: Database,
+    message_id: str,
+    correction: str,
+) -> Optional[Dict[str, Any]]:
+    """Add user correction to a message.
+
+    Args:
+        db: Database instance
+        message_id: Message ID
+        correction: User's corrected answer
+
+    Returns:
+        Updated message document or None if not found
+    """
+    try:
+        result = db.messages.update_one(
+            {"_id": _oid(message_id)},
+            {"$set": {"user_correction": correction}},
+        )
+        if result.modified_count > 0:
+            logger.info("Added user correction to message %s", message_id)
+            return get_message_by_id(db, message_id)
+        return None
+    except Exception as exc:
+        logger.error("Failed to add user correction to message %s: %s", message_id, exc)
+        return None
+
+
+def get_message_by_id(
+    db: Database,
+    message_id: str,
+) -> Optional[Dict[str, Any]]:
+    """Get a message by ID.
+
+    Args:
+        db: Database instance
+        message_id: Message ID
+
+    Returns:
+        Message document or None if not found
+    """
+    try:
+        doc = db.messages.find_one({"_id": _oid(message_id)})
+        return serialize_doc(doc)
+    except Exception:
+        return None
+
+
+def get_feedback_stats(
+    db: Database,
+    user_id: Optional[str] = None,
+) -> Dict[str, Any]:
+    """Get feedback statistics.
+
+    Args:
+        db: Database instance
+        user_id: Optional user ID to filter by
+
+    Returns:
+        Dictionary with feedback statistics
+    """
+    try:
+        # Build filter
+        filter_query = {"role": "assistant"}
+        if user_id:
+            # Get conversation IDs for this user
+            conversations = db.conversations.find({"user_id": user_id}, {"_id": 1})
+            conv_ids = [c["_id"] for c in conversations]
+            filter_query["conversation_id"] = {"$in": conv_ids}
+
+        # Count feedback
+        thumbs_up = db.messages.count_documents({**filter_query, "feedback": "thumbs_up"})
+        thumbs_down = db.messages.count_documents({**filter_query, "feedback": "thumbs_down"})
+        total = db.messages.count_documents(filter_query)
+
+        return {
+            "total_messages": total,
+            "thumbs_up": thumbs_up,
+            "thumbs_down": thumbs_down,
+            "feedback_rate": (thumbs_up + thumbs_down) / total if total > 0 else 0.0,
+        }
+    except Exception as exc:
+        logger.error("Failed to get feedback stats: %s", exc)
+        return {
+            "total_messages": 0,
+            "thumbs_up": 0,
+            "thumbs_down": 0,
+            "feedback_rate": 0.0,
+        }

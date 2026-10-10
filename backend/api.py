@@ -22,6 +22,7 @@ ROOT = Path(__file__).resolve().parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from app import config
 from app.config import ensure_directories
 from app.utils import logger, print_info, print_warning
 
@@ -67,6 +68,27 @@ try:
         llm_client = LLMClient()
         rag_chain = RAGChain(retriever, llm_client)
         _rag_ready = True
+
+        # Check and log reranker status on startup
+        _r_inst = getattr(retriever, "_reranker", None)
+        _reranker_active = False
+        _reranker_error = None
+        if config.RERANKER_ENABLED:
+            if _r_inst is None:
+                _reranker_error = "Reranker instance was not initialized on retriever"
+                logger.error("RERANKER STARTUP ERROR: %s", _reranker_error)
+            elif _r_inst.model is None:
+                _reranker_error = getattr(_r_inst, "load_error", "Failed to load reranker model")
+                logger.error("RERANKER STARTUP ERROR: %s", _reranker_error)
+            else:
+                _reranker_active = True
+                logger.info(
+                    "Reranker startup check PASSED: active=%s (type=%s, model=%s)",
+                    _reranker_active,
+                    config.RERANKER_TYPE,
+                    config.RERANKER_MODEL,
+                )
+        print_info(f"Reranker startup: active={_reranker_active}, error={_reranker_error}")
 except Exception as rag_exc:
     print_warning(f"RAG pipeline init failed: {rag_exc}. Chatbot will be unavailable.")
 
@@ -155,6 +177,8 @@ class HealthResponse(BaseModel):
     """Response from ``GET /health``."""
     status: str
     vector_store_documents: int
+    reranker_active: bool = False
+    reranker_error: str | None = None
 
 
 # -----------------------------------------------------------------------
@@ -199,7 +223,17 @@ async def health() -> HealthResponse:
     except Exception:
         count = -1
 
+    reranker_active = False
+    reranker_error = None
+    if _rag_ready and hasattr(rag_chain, "retriever"):
+        r = getattr(rag_chain.retriever, "_reranker", None)
+        if r:
+            reranker_active = bool(getattr(r, "model", None))
+            reranker_error = getattr(r, "load_error", None) if not reranker_active else None
+
     return HealthResponse(
         status="ok",
         vector_store_documents=count,
+        reranker_active=reranker_active,
+        reranker_error=reranker_error,
     )

@@ -290,7 +290,7 @@ Grateful to begin my journey as a BBA student at CHARUSAT. Excited to dive into 
 
 A- Charusat's Online BBA programme is entirely online. Teaching and learning happen using a Learning Management System (LMS), which can be accessed by every enrolled student.
 
-A- Charusatâs online BBA programme focuses on individualized learning with the help of video lectures and other self-paced learning resources like reading material, e-books, quizzes, and assignments. Furthermore, students can also directly interact with the faculty with the help of live online lectures.
+A- Charusat’s online BBA programme focuses on individualized learning with the help of video lectures and other self-paced learning resources like reading material, e-books, quizzes, and assignments. Furthermore, students can also directly interact with the faculty with the help of live online lectures.
 
 A- Dedicated course mentors and coordinators will be assigned to each student at Charusat to help them along the way. These course mentors can be easily contacted via instant messaging on the Learning Management System (LMS), and discussion forums. Students can also get their doubts cleared during live webinars.
 

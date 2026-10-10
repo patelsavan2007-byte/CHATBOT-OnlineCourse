@@ -15,6 +15,14 @@ from bs4.element import NavigableString, Tag
 from app.config import CRAWL_DELAY, KNOWLEDGE_BASE_DIR, SCRAPE_MAX_PAGES, SCRAPE_START_URL
 from app.utils import logger, print_info, print_warning
 
+# Try to import Playwright for JavaScript-heavy pages
+try:
+    from playwright.sync_api import sync_playwright
+    PLAYWRIGHT_AVAILABLE = True
+except ImportError:
+    PLAYWRIGHT_AVAILABLE = False
+    logger.warning("Playwright not available. Install with: pip install playwright && playwright install chromium")
+
 
 class ScrapingError(RuntimeError):
     """Raised when a remote page cannot be fetched or parsed."""
@@ -299,8 +307,24 @@ def extract_clean_markdown(html: str, source_url: str) -> str:
     return markdown
 
 
-def _fetch_url(url: str) -> str:
-    """Fetch a URL and return the raw HTML as a string."""
+def _fetch_url(url: str, use_playwright: bool = False) -> str:
+    """Fetch a URL and return the raw HTML as a string.
+
+    Args:
+        url: URL to fetch
+        use_playwright: Whether to use Playwright for JavaScript-heavy pages
+
+    Returns:
+        Raw HTML content
+    """
+    if use_playwright and PLAYWRIGHT_AVAILABLE:
+        return _fetch_url_playwright(url)
+    else:
+        return _fetch_url_requests(url)
+
+
+def _fetch_url_requests(url: str) -> str:
+    """Fetch a URL using requests library (for simple HTML pages)."""
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                        "(KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 CHARUSAT-RAG/2.0",
@@ -312,16 +336,43 @@ def _fetch_url(url: str) -> str:
     return response.text
 
 
+def _fetch_url_playwright(url: str) -> str:
+    """Fetch a URL using Playwright (for JavaScript-heavy pages)."""
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page()
+            page.goto(url, wait_until="networkidle", timeout=30000)
+            html = page.content()
+            browser.close()
+            return html
+    except Exception as exc:
+        logger.warning("Playwright fetch failed for %s: %s, falling back to requests", url, exc)
+        return _fetch_url_requests(url)
+
+
 def crawl_internal_pages(
     start_url: str = SCRAPE_START_URL,
     max_pages: int = SCRAPE_MAX_PAGES,
     output_dir: Optional[Path] = None,
+    use_playwright: Optional[bool] = None,
 ) -> List[Path]:
     """Crawl all internal pages starting from *start_url* and save each as
     a separate Markdown file.
 
+    Args:
+        start_url: Starting URL for crawling
+        max_pages: Maximum number of pages to crawl
+        output_dir: Directory to save markdown files
+        use_playwright: Whether to use Playwright for JS-heavy pages (defaults to config)
+
     Returns the list of written file paths.
     """
+    from app.config import USE_PLAYWRIGHT_SCRAPER
+
+    if use_playwright is None:
+        use_playwright = USE_PLAYWRIGHT_SCRAPER
+
     output_dir = output_dir or KNOWLEDGE_BASE_DIR
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -332,6 +383,7 @@ def crawl_internal_pages(
 
     print_info(f"Starting crawl from: {start_url}")
     print_info(f"Max pages: {max_pages}")
+    print_info(f"Using Playwright: {use_playwright}")
 
     while queue and len(written_files) < max_pages:
         url = queue.pop(0)
@@ -350,7 +402,7 @@ def crawl_internal_pages(
             continue
 
         try:
-            html = _fetch_url(normalized)
+            html = _fetch_url(normalized, use_playwright=use_playwright)
         except requests.RequestException as exc:
             print_warning(f"Skipping {normalized}: {exc}")
             continue

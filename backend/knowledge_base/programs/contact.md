@@ -5,7 +5,7 @@ Last Scraped: 2026-09-20T05:20:38.976062+00:00
 
 # Contact Details
 
-## Contact Details â Online Degree Programmes
+## Contact Details – Online Degree Programmes
 
 | # | Service | Contact Person | Email | Mobile No |
 | --- | ------- | -------------- | ----- | --------- |
@@ -21,5 +21,3 @@ Last Scraped: 2026-09-20T05:20:38.976062+00:00
 | Mr. Ravi Patel (BCA/MCA) | [email protected] | 7574945238 |
 | 6 | Accounts & Payments | Mr. Darshit Patel | [email protected] | 7434055553 |
 | Mr. Kirti Patel | [email protected] | 7600257365 |
-
-=

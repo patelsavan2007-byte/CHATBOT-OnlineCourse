@@ -16,7 +16,14 @@ from pymongo import MongoClient
 from pymongo.database import Database
 from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
 
+from dotenv import load_dotenv
+from pathlib import Path
+
 from app.utils import logger, print_info, print_warning
+
+# Ensure .env is loaded
+_env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(_env_path)
 
 # ---------------------------------------------------------------------------
 # Module-level singleton
@@ -48,8 +55,8 @@ def init_mongodb() -> Optional[Database]:
     try:
         _client = MongoClient(
             uri,
-            serverSelectionTimeoutMS=5000,
-            connectTimeoutMS=5000,
+            serverSelectionTimeoutMS=10000,
+            connectTimeoutMS=10000,
         )
         # Verify connectivity
         _client.admin.command("ping")
@@ -73,7 +80,13 @@ def init_mongodb() -> Optional[Database]:
 
 
 def get_db() -> Optional[Database]:
-    """Return the current MongoDB database reference, or None."""
+    """Return the current MongoDB database reference, or None.
+    
+    Lazily attempts initialisation if not already connected.
+    """
+    global _db
+    if _db is None:
+        _db = init_mongodb()
     return _db
 
 

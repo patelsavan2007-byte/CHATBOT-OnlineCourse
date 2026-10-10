@@ -5,8 +5,10 @@ from typing import Dict, List, Tuple
 from langchain_core.documents import Document
 
 from app import config
+from app.cache import get_cache
 from app.conflict import detect_conflicts_from_documents, format_conflict_notice
 from app.llm import LLMClient, LLMStatus, NOT_FOUND_ANSWER, build_not_found_answer, strip_internal_references
+from app.multilingual import detect_language
 from app.prompt import build_prompt
 from app.retriever import RAGRetriever
 from app.utils import logger
@@ -15,23 +17,56 @@ from app.utils import logger
 class RAGChain:
     """Compose retrieval -> conflict detection -> context -> LLM answer."""
 
-    def __init__(self, retriever: RAGRetriever, llm_client: LLMClient) -> None:
+    def __init__(self, retriever: RAGRetriever, llm_client: LLMClient, use_cache: bool = True) -> None:
         self.retriever = retriever
         self.llm_client = llm_client
+        self.use_cache = use_cache
+        self.cache = get_cache() if use_cache else None
         self.last_status: str = LLMStatus.FALLBACK
         self.last_conflicts: List[dict] = []
         self.last_timing: Dict[str, float] = {}
 
     @staticmethod
-    def _fallback_answer(reason: str) -> Tuple[str, str]:
+    def _fallback_answer(reason: str, question: str = "") -> Tuple[str, str]:
         """Return the safe not-found answer when no evidence was retrieved."""
-        return build_not_found_answer(), reason
+        return build_not_found_answer(question), reason
 
     def answer(self, question: str) -> Tuple[str, List[Tuple[Document, float]]]:
         import time
         t_start = time.time()
 
         logger.info("[RAG] Processing query: %r", question)
+
+        # Check cache first
+        if self.cache:
+            cached_result = self.cache.get(question)
+            if cached_result is not None:
+                cached_answer, cached_sources = cached_result
+                self.last_status = "cached"
+                self.last_timing = {
+                    "retrieval_s": 0.0,
+                    "llm_generation_s": 0.0,
+                    "total_s": round(time.time() - t_start, 3),
+                }
+                logger.info("[RAG] Cache hit, returning cached answer")
+                return cached_answer, []
+
+        # Detect language for multilingual support
+        language = detect_language(question)
+        logger.info("[RAG] Detected language: %s", language)
+
+        # Fix 6: Check for vague query with no programme context
+        from app.query_expansion import is_vague_query, vague_clarification_message, detect_programme_context
+        prog_context = detect_programme_context(self.retriever.conversation_history) if self.retriever.conversation_history else None
+        if is_vague_query(question) and not prog_context:
+            answer = vague_clarification_message()
+            self.last_status = "vague_clarification"
+            self.last_timing = {
+                "retrieval_s": 0.0,
+                "total_s": round(time.time() - t_start, 3),
+            }
+            self.retriever.update_conversation_history(question, answer)
+            return answer, []
 
         t_ret = time.time()
         retrieved = self.retriever.retrieve(question)
@@ -42,7 +77,7 @@ class RAGChain:
         program_name = getattr(self.retriever, "last_program", "")
 
         if not retrieved:
-            answer, status = self._fallback_answer("no_chunks_above_threshold")
+            answer, status = self._fallback_answer("no_chunks_above_threshold", question)
             self.last_status = LLMStatus.EMPTY
             self.last_timing = {
                 "retrieval_s": round(ret_time, 3),
@@ -55,7 +90,7 @@ class RAGChain:
         self.last_conflicts = conflicts
 
         context = self._build_context(retrieved, conflicts)
-        prompt = build_prompt(context=context, question=question)
+        prompt = build_prompt(context=context, question=question, language=language)
 
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
         t_llm = time.time()
@@ -68,10 +103,10 @@ class RAGChain:
 
         answer = strip_internal_references(response_text)
         if not answer:
-            answer = build_not_found_answer()
+            answer = build_not_found_answer(question)
             status = f"{status}|no_content_after_sanitize"
         elif any(phrase in answer.lower() for phrase in ("couldn't find", "could not find", "not found", "no information in the available")):
-            answer = build_not_found_answer()
+            answer = build_not_found_answer(question)
             status = f"{status}|not_found_after_sanitize"
 
         self.last_status = status
@@ -82,6 +117,22 @@ class RAGChain:
             "total_s": round(total_time, 3),
         }
         logger.info("RAG pipeline timing: ret=%.3fs, llm=%.3fs, total=%.3fs, status=%s", ret_time, llm_time, total_time, status)
+
+        # Cache the result
+        if self.cache:
+            sources_list = [
+                {
+                    "source": doc.metadata.get("source", ""),
+                    "page": doc.metadata.get("page"),
+                    "score": score,
+                }
+                for doc, score in retrieved
+            ]
+            self.cache.set(question, answer, sources_list)
+
+        # Update conversation history for query expansion
+        self.retriever.update_conversation_history(question, answer)
+
         return answer, retrieved
 
 

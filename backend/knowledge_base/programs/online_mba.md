@@ -23,7 +23,7 @@ Annual Fee:
 
 ## Eligibility Criteria
 
-Candidate should have passed Bachelorâs degree (or equivalent) any stream with English as a subject is eligible for admission to the MBA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
+Candidate should have passed Bachelor’s degree (or equivalent) any stream with English as a subject is eligible for admission to the MBA Programme and according to the regulations for admission decided by regulatory authorities and CHARUSAT from time to time.
 
 Rankings & Accreditations
 
@@ -61,17 +61,17 @@ Semester III
 - Data Visualization
 - Logistics and Supply Chain Management
 - Entrepreneurship and MSMEs
-- Specialization Course â 1
-- Specialization Course â 2
-- Specialization Course â 3
-- Specialization Course â 4
+- Specialization Course – 1
+- Specialization Course – 2
+- Specialization Course – 3
+- Specialization Course – 4
 
 Semester IV
 
 - Comprehensive Project - Industrial Training
 - Managerial Effectiveness
-- Specialization Course â 5
-- Specialization Course â 6
+- Specialization Course – 5
+- Specialization Course – 6
 
 SPECIALIZATION COURSES
 
@@ -277,7 +277,7 @@ Grateful to begin my journey as a mba student at CHARUSAT. Excited to dive into 
 
 A- Charusat's Online MBA programme is entirely online. Teaching and learning happen using a Learning Management System (LMS), which can be accessed by every enrolled student.
 
-A- Charusatâs online MBA programme focuses on individualized learning with the help of video lectures and other self-paced learning resources like reading material, e-books, quizzes, and assignments. Furthermore, students can also directly interact with the faculty with the help of live online lectures.
+A- Charusat’s online MBA programme focuses on individualized learning with the help of video lectures and other self-paced learning resources like reading material, e-books, quizzes, and assignments. Furthermore, students can also directly interact with the faculty with the help of live online lectures.
 
 A- Dedicated course mentors and coordinators will be assigned to each student at Charusat to help them along the way. These course mentors can be easily contacted via instant messaging on the Learning Management System (LMS), and discussion forums. Students can also get their doubts cleared during live webinars.
 

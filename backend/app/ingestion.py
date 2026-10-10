@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 from pathlib import Path
 from typing import Any, Dict, List
@@ -11,6 +12,39 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from app.config import CHUNK_OVERLAP, CHUNK_SIZE, KNOWLEDGE_BASE_DIR, VECTOR_DB_DIR
 from app.scraper import crawl_internal_pages
 from app.utils import logger, print_info, print_warning
+
+
+def is_valid_chunk(text: str) -> bool:
+    """Return False if chunk has no real meaningful text (<80 chars, <40 alnum chars, or empty table)."""
+    clean = text.strip()
+    if len(clean) < 80:
+        return False
+    # Check alphanumeric characters
+    alnum = re.sub(r"[^a-zA-Z0-9]", "", clean)
+    if len(alnum) < 40:
+        return False
+    # Check if empty table (lines starting and ending with |, but only spaces inside)
+    table_lines = [l.strip() for l in clean.splitlines() if l.strip().startswith("|") and l.strip().endswith("|")]
+    if table_lines and len(table_lines) == len([l for l in clean.splitlines() if l.strip()]):
+        non_pipe = re.sub(r"[\|\s\-\:]+", "", clean)
+        if len(non_pipe) < 20:
+            return False
+    return True
+
+
+def deduplicate_chunks(chunks: List[Document]) -> List[Document]:
+    """Remove exact and near-exact duplicates at ingestion time."""
+    seen = {}
+    deduped = []
+    for c in chunks:
+        norm = re.sub(r"\s+", " ", c.page_content.strip().lower())
+        prog = c.metadata.get("program_name", "")
+        key = (prog, norm[:250])
+        if key in seen:
+            continue
+        seen[key] = True
+        deduped.append(c)
+    return deduped
 
 
 class KnowledgeBaseIngester:
@@ -157,11 +191,14 @@ class KnowledgeBaseIngester:
         for doc in documents:
             doc_chunks = splitter.split_documents([doc])
             for index, chunk in enumerate(doc_chunks, start=1):
+                if not is_valid_chunk(chunk.page_content):
+                    continue
                 metadata = dict(doc.metadata)
                 metadata["chunk_id"] = index
                 chunk.metadata = metadata
                 chunks.append(chunk)
 
+        chunks = deduplicate_chunks(chunks)
         print_info(f"Chunks created: {len(chunks)}")
         logger.info("Chunks created: %s", len(chunks))
         return chunks

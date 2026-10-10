@@ -30,17 +30,23 @@ def main() -> None:
     # Chunk documents
     chunks = ingester.split_documents(documents)
 
-    # Reset and rebuild vector store
+    # Reset and rebuild vector store with Markdown documents
     ingester.reset_vector_store()
     embedding_store = EmbeddingStore()
     vector_store = embedding_store.build_vector_store(chunks)
     ingester.write_source_manifest()
 
+    # Ingest PDF documents into the newly built vector store
+    from app.pdf_ingestion import ingest_pdfs_to_vectordb
+    pdf_chunks_count = ingest_pdfs_to_vectordb()
+
+    total_chunks = len(chunks) + pdf_chunks_count
     print_info("")
     print_info("=" * 50)
-    print_info(f"Markdown Files Created: {len(documents)}")
-    print_info(f"Chunks Generated: {len(chunks)}")
-    print_info(f"Embeddings Generated: {len(chunks)}")
+    print_info(f"Markdown Files Loaded: {len(documents)}")
+    print_info(f"Markdown Chunks: {len(chunks)}")
+    print_info(f"PDF Chunks Added: {pdf_chunks_count}")
+    print_info(f"Total Chunks Generated: {total_chunks}")
     print_info("ChromaDB Rebuilt Successfully")
     print_info("=" * 50)
 
