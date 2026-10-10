@@ -551,10 +551,8 @@ def _process_chat_turn(
         answer_text = converse(question, history=history, llm_client=llm_client)
         return answer_text, [], []
 
-    if "I couldn't find this information in the official programme documents." in answer_text or "not_found" in str(getattr(rag_chain, "last_status", "")).lower():
-        sources = []
-    else:
-        sources = _extract_sources(retrieved)
+    from app.citations import extract_citations
+    sources = extract_citations(retrieved, answer_text=answer_text)
     suggestions = _generate_suggestions(question, answer_text, history)
     return answer_text, sources, suggestions
 
