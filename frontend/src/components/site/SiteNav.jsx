@@ -37,6 +37,14 @@ export default function SiteNav() {
           </span>
         </Link>
 
+        {/* Section links */}
+        <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-[var(--text-tertiary)]" aria-label="Main Navigation">
+          <a href="#programmes" className="transition hover:text-[var(--text-primary)]">Programmes</a>
+          <a href="#topics" className="transition hover:text-[var(--text-primary)]">Topics</a>
+          <a href="#how-it-works" className="transition hover:text-[var(--text-primary)]">How It Works</a>
+          <a href="#contacts" className="transition hover:text-[var(--text-primary)]">Helpline</a>
+        </nav>
+
         {/* CTA */}
         <div className="flex items-center gap-3">
           {!user && (

@@ -43,7 +43,10 @@ export default function SiteFooter() {
             <ul className="grid grid-cols-2 gap-x-8 gap-y-2">
               {PROGRAM_LABELS.map((label) => (
                 <li key={label}>
-                  <Link to="/chat" className="text-sm text-[var(--text-tertiary)] transition hover:text-[var(--text-primary)]">
+                  <Link
+                    to={`/chat?q=${encodeURIComponent(`What are the eligibility and fee details for ${label}?`)}`}
+                    className="text-sm text-[var(--text-tertiary)] transition hover:text-[var(--text-primary)]"
+                  >
                     {label}
                   </Link>
                 </li>
