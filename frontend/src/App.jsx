@@ -17,6 +17,7 @@ import Signup        from "./pages/Signup.jsx";
 import Chat          from "./pages/Chat.jsx";
 import Settings      from "./pages/Settings.jsx";
 const Admin          = React.lazy(() => import("./pages/Admin.jsx"));
+const AdminLogin     = React.lazy(() => import("./pages/AdminLogin.jsx"));
 
 // UI & Auth guard
 import ErrorBoundary from "./components/ui/ErrorBoundary.jsx";
@@ -94,6 +95,7 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="/admin/login" element={<AdminLogin />} />
           <Route
             path="/admin"
             element={

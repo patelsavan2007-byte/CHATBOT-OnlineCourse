@@ -12,6 +12,15 @@ export async function login(email, password) {
   return data.user;
 }
 
+export async function adminLogin(email, password) {
+  const data = await apiFetch("/api/admin/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  setAuthToken(data.token);
+  return data.user;
+}
+
 export async function signup(name, email, password) {
   const data = await apiFetch("/api/auth/signup", {
     method: "POST",

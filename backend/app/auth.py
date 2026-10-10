@@ -68,13 +68,14 @@ def verify_password(plain: str, hashed: str) -> bool:
 # JWT tokens
 # ---------------------------------------------------------------------------
 
-def create_token(user_id: str, role: str = "user") -> str:
+def create_token(user_id: str, role: str = "user", expiration_hours: Optional[int] = None) -> str:
     """Create a JWT token for the given user."""
     secret = _get_jwt_secret()
+    hours = expiration_hours if expiration_hours is not None else (2 if role == "admin" else JWT_EXPIRATION_HOURS)
     payload = {
         "sub": user_id,
         "role": role,
-        "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=hours),
         "iat": datetime.now(timezone.utc),
     }
     return jwt.encode(payload, secret, algorithm=JWT_ALGORITHM)
@@ -197,21 +198,24 @@ def seed_dev_admin() -> Optional[Dict[str, Any]]:
         logger.warning("Cannot seed dev admin: MongoDB not available")
         return None
 
+    admin_pass = os.getenv("ADMIN_PASSWORD", "admin123")
     existing = find_user_by_email(db, email)
     if existing:
-        # Ensure admin role
-        if existing.get("role") != "admin":
-            from app.models import update_user
-            update_user(db, existing["id"], {"role": "admin"})
-            logger.info("Updated existing user to admin: %s", email)
+        # Ensure admin role and sync password if ADMIN_PASSWORD configured
+        updates = {"role": "admin"}
+        if os.getenv("ADMIN_PASSWORD"):
+            updates["password_hash"] = hash_password(admin_pass)
+        from app.models import update_user
+        update_user(db, existing["id"], updates)
+        logger.info("Updated existing user to admin: %s", email)
         return find_user_by_email(db, email)
 
-    # Create the admin user with a default password
+    # Create the admin user with configured password
     user = create_user(
         db,
         name="Admin",
         email=email,
-        password_hash=hash_password("admin123"),
+        password_hash=hash_password(admin_pass),
         role="admin",
     )
     logger.info("Seeded development admin user: %s", email)

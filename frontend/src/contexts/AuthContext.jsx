@@ -71,6 +71,12 @@ export function AuthProvider({ children }) {
     return me;
   }, []);
 
+  const adminLogin = useCallback(async (email, password) => {
+    const me = await authService.adminLogin(email, password);
+    setUser(me);
+    return me;
+  }, []);
+
   const signup = useCallback(async (name, email, password) => {
     const me = await authService.signup(name, email, password);
     setUser(me);
@@ -117,6 +123,7 @@ export function AuthProvider({ children }) {
       isGuest: !user,
       isAdmin: user?.role === "admin",
       login,
+      adminLogin,
       signup,
       googleLogin,
       logout,
@@ -127,7 +134,7 @@ export function AuthProvider({ children }) {
       resetGuestCount,
       isGuestLimitReached,
     }),
-    [user, loading, login, signup, googleLogin, logout, getGuestMessageCount, incrementGuestCount, resetGuestCount, isGuestLimitReached],
+    [user, loading, login, adminLogin, signup, googleLogin, logout, getGuestMessageCount, incrementGuestCount, resetGuestCount, isGuestLimitReached],
   );
 
   return (

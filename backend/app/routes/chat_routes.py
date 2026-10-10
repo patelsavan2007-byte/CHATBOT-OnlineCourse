@@ -22,6 +22,7 @@ import asyncio
 import json
 import os
 import re
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -233,6 +234,51 @@ def _process_chat_turn(
     return answer_text, sources
 
 
+def _log_chat_event(
+    db: Any,
+    question: str,
+    answer: str,
+    rag_chain: Any,
+    user: Optional[Dict[str, Any]] = None,
+    conversation_id: Optional[str] = None,
+    message_id: Optional[str] = None,
+):
+    """Record an interaction event in db.chat_events for admin analytics."""
+    if db is None:
+        return
+    try:
+        from app.conversation import analyze_turn
+        plan = analyze_turn(question, history=None)
+        status_val = getattr(rag_chain, "last_status", "unknown") if rag_chain else "unknown"
+        status_str = str(status_val).lower()
+        is_gap = (
+            "not_found" in status_str
+            or "missing" in status_str
+            or "no_content" in status_str
+            or "fallback" in status_str
+            or "couldn't find" in answer.lower()
+        )
+        latency = getattr(rag_chain, "last_timing", {}).get("total_s", 0.0) if rag_chain else 0.0
+
+        event = {
+            "timestamp": datetime.now(timezone.utc),
+            "question": question,
+            "answer_preview": (answer[:250] + "...") if len(answer) > 250 else answer,
+            "status": str(status_val),
+            "programmes": getattr(plan, "programmes", []),
+            "topic": getattr(plan, "topic", "general"),
+            "year": getattr(plan, "year", None),
+            "user_id": user.get("id") if user else None,
+            "conversation_id": conversation_id,
+            "message_id": message_id,
+            "latency_s": round(latency, 3),
+            "is_gap": is_gap,
+            "feedback": None,
+        }
+        db.chat_events.insert_one(event)
+    except Exception as exc:
+        logger.warning("Failed to log chat event: %s", exc)
+
 
 @router.post("", response_model=ChatMessageResponse)
 async def chat_message(
@@ -266,14 +312,16 @@ async def chat_message(
             detail="Failed to generate answer",
         ) from exc
 
-    # For guests, return without persistence
+    db = get_db()
+
+    # For guests, return without persistence (but log event)
     if user is None:
+        _log_chat_event(db, request.question, answer_text, rag_chain, user=None)
         return ChatMessageResponse(
             answer=answer_text,
         )
 
     # For authenticated users, persist to MongoDB
-    db = get_db()
     if db is None:
         # MongoDB unavailable — return answer without persistence
         return ChatMessageResponse(
@@ -310,6 +358,16 @@ async def chat_message(
         content=answer_text,
         sources=sources,
         suggested_questions=[],
+    )
+
+    _log_chat_event(
+        db,
+        request.question,
+        answer_text,
+        rag_chain,
+        user=user,
+        conversation_id=conversation_id,
+        message_id=assistant_msg["id"],
     )
 
     return ChatMessageResponse(
@@ -475,6 +533,14 @@ async def add_feedback(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Message not found",
         )
+
+    try:
+        db.chat_events.update_one(
+            {"message_id": request.message_id},
+            {"$set": {"feedback": request.feedback}},
+        )
+    except Exception:
+        pass
 
     return {"status": "success", "message": "Feedback added successfully", "updated_message": updated_message}
 
