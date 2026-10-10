@@ -83,7 +83,7 @@ export default function Chat() {
       .then((data) => {
         if (!cancelled) {
           setMessages(data.messages.map((m) => ({
-            id: m.id, role: m.role, content: m.content, sources: m.sources,
+            id: m.id, role: m.role, content: m.content,
             suggested_questions: m.suggested_questions || [],
             timestamp: m.created_at,
           })));
@@ -131,7 +131,7 @@ export default function Chat() {
   async function migrateGuestMessages(msgs) {
     try {
       const result = await chatService.migrateGuestConversation(
-        msgs.map((m) => ({ role: m.role, content: m.content, sources: m.sources }))
+        msgs.map((m) => ({ role: m.role, content: m.content }))
       );
       sessionStorage.removeItem(GUEST_MESSAGES_KEY);
       guestMessagesRef.current = [];
@@ -179,7 +179,6 @@ export default function Chat() {
         id:      response.message_id || localId(),
         role:    "assistant",
         content: response.answer,
-        sources: response.sources || [],
         suggested_questions: response.suggested_questions || [],
         timestamp: nowIso(),
       };

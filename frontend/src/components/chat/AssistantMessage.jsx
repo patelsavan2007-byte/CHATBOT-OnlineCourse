@@ -113,7 +113,6 @@ function FeedbackButtons({ messageId }) {
 
 export default function AssistantMessage({
   content,
-  sources,
   isError,
   timestamp,
   suggestions,
@@ -122,8 +121,6 @@ export default function AssistantMessage({
   onDisableSuggestions,
   onRetry,
 }) {
-  const pdfSources = (sources || []).filter((s) => /\.pdf$/i.test(String(s?.source || "")));
-
   return (
     <div className="flex gap-3 animate-fade-up">
       {/* Avatar */}
@@ -162,48 +159,6 @@ export default function AssistantMessage({
             <div className="prose-chat">
               <RichText text={content} />
             </div>
-
-            {/* Source chips (PDFs and official Web pages) */}
-            {(sources || []).filter((s) => s && (s.source || s.url)).slice(0, 3).length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1.5">
-                {(sources || []).filter((s) => s && (s.source || s.url)).slice(0, 3).map((src, idx) => {
-                  const hasUrl = Boolean(src?.url);
-                  if (hasUrl) {
-                    return (
-                      <a
-                        key={idx}
-                        href={src.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-primary)] bg-[var(--surface-hover)] px-2 py-0.5 text-[11px] text-[var(--accent-primary)] hover:border-[var(--accent-primary)] hover:underline"
-                        title={src.score ? `Relevance: ${Math.round(src.score * 100)}%` : undefined}
-                      >
-                        <svg className="h-3 w-3 text-[var(--accent-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                          <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
-                          <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
-                        </svg>
-                        {src.source || "Official Webpage"}
-                      </a>
-                    );
-                  }
-
-                  return (
-                    <span
-                      key={idx}
-                      className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border-primary)] bg-[var(--surface-hover)] px-2 py-0.5 text-[11px] text-[var(--text-tertiary)]"
-                      title={src.score ? `Relevance: ${Math.round(src.score * 100)}%` : undefined}
-                    >
-                      <svg className="h-3 w-3 text-[var(--accent-primary)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                        <polyline points="14 2 14 8 20 8" />
-                      </svg>
-                      {src.source}
-                      {src.page != null && <span className="text-[var(--text-muted)]"> p.{src.page}</span>}
-                    </span>
-                  );
-                })}
-              </div>
-            )}
 
             {/* Actions — copy + feedback + timestamp */}
             <div className="mt-2 flex items-center gap-1">

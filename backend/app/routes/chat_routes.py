@@ -65,7 +65,6 @@ class ChatMessageResponse(BaseModel):
     answer: str
     conversation_id: Optional[str] = None
     message_id: Optional[str] = None
-    sources: List[Dict[str, Any]] = []
     suggested_questions: List[str] = []
 
 
@@ -131,6 +130,7 @@ def _persist_turn(
     assistant_answer: str,
     assmt_suggestions: List[str],
     user_id: Optional[str] = None,
+    sources: Optional[List[Dict[str, Any]]] = None,
 ) -> tuple:
     """Save user + assistant messages; returns the assistant message and conversation_id."""
     if db is None or user is None:
@@ -154,7 +154,7 @@ def _persist_turn(
         conversation_id=conversation_id,
         role="assistant",
         content=assistant_answer,
-        sources=[],
+        sources=sources or [],
         suggested_questions=assmt_suggestions,
     )
     return assistant_msg, conversation_id
@@ -281,7 +281,6 @@ async def chat_message(
     if user is None:
         return ChatMessageResponse(
             answer=answer_text,
-            sources=sources,
             suggested_questions=suggestions,
         )
 
@@ -291,7 +290,6 @@ async def chat_message(
         # MongoDB unavailable — return answer without persistence
         return ChatMessageResponse(
             answer=answer_text,
-            sources=sources,
             suggested_questions=suggestions,
         )
 
@@ -331,7 +329,6 @@ async def chat_message(
         answer=answer_text,
         conversation_id=conversation_id,
         message_id=assistant_msg["id"],
-        sources=sources,
         suggested_questions=suggestions,
     )
 
@@ -371,14 +368,15 @@ async def chat_message_stream(
             await asyncio.sleep(0.015)
 
         db = get_db()
-        assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
+        assistant_msg, conv_id = _persist_turn(
+            db, user, conversation_id, request.question, answer_text, suggestions, sources=sources
+        )
 
         final_data = {
             "type": "done",
             "answer": answer_text,
             "conversation_id": conv_id,
             "message_id": assistant_msg["id"] if assistant_msg else None,
-            "sources": sources,
             "suggested_questions": suggestions,
         }
         yield f"data: {json.dumps(final_data)}\n\n"

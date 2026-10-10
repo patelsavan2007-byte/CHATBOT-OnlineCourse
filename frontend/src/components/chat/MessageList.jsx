@@ -76,7 +76,6 @@ export default function MessageList({
               <AssistantMessage
                 key={msg.id}
                 content={msg.content}
-                sources={msg.sources}
                 isError={msg.isError}
                 timestamp={msg.timestamp}
                 suggestions={msg.suggested_questions}
