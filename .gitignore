@@ -30,3 +30,4 @@ deployment/.env
 
 .vercel
 .env*
+backend/chroma_db/
