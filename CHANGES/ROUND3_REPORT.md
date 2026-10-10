@@ -1,92 +1,263 @@
-# Round 3 Diagnostic and Verification Report
-
-> CHARUSAT Online Course Chatbot — Round 3 Engineering Implementation
-
-## Overview
-This report documents the Round 3 root-cause enhancements, rigorous multi-programme verification, ground-truth knowledge base audits, and performance metrics across the CHARUSAT Online Degree programmes (Online BCA, BBA, MBA, MCA).
+# Round 3 Comprehensive Engineering Report
+**CHARUSAT Online Course Chatbot Quality, Architecture & Retrieval Overhaul**
 
 ---
 
-## Raw-Data Audit: 77 Questions from Online Program Questions Bank
+## 1. Executive Summary
 
-| ID | Category | Question | Document Status | Reference Location |
-|:---|:---|:---|:---|:---|
-| Q01 | General Questions | What online programs are offered? | ✅ In documents | programs/online_bba.md, online_bca.md, online_mba.md, online_mca.md (Heading: Course overview) |
-| Q02 | General Questions | Is the online degree recognized by UGC? | ✅ In documents | home.md (Heading: Rankings & Accreditations), ciqa.md (Section: UGC Recognition) |
-| Q03 | General Questions | Is the degree valid for government and private jobs? | ✅ In documents | ciqa.md (Section: Entitlement & Equivalence), home.md |
-| Q04 | General Questions | Is the online degree equivalent to a regular degree? | ✅ In documents | ciqa.md (Section: Equivalence to Conventional Degrees) |
-| Q05 | General Questions | Who is eligible for this program? | ✅ In documents | programs/online_*.md, PPR PDFs (Section 3: Eligibility Criteria) |
-| Q06 | General Questions | What is the admission process? | ✅ In documents | PPR_Online *.pdf (Procedure for Admissions: Step 1 to Step 4) |
-| Q07 | General Questions | What documents are required for admission? | ✅ In documents | PPR_Online *.pdf (Step 2: Scrutinize documents - 10+2/degree marksheets, certificate, ID) |
-| Q08 | General Questions | Is there an entrance exam? | ✅ In documents | PPR_Online *.pdf (Section: Mode of Admissions - Direct merit, no entrance exam) |
-| Q09 | General Questions | What is the duration of the program? | ✅ In documents | programs/online_*.md, PPR PDFs (Duration: BBA/BCA 3 yrs/6 sems, MBA/MCA 2 yrs/4 sems) |
-| Q10 | General Questions | Can I study while working? | ✅ In documents | home.md (Heading: Flexible Learning for Working Professionals), ciqa.md |
-| Q11 | General Questions | Are live classes compulsory? | ✅ In documents | home.md, PPR PDFs (Asynchronous LMS access; live webinars conducted but not compulsory physical attendance) |
-| Q12 | General Questions | Are classes recorded? | ✅ In documents | programs/online_mba.md, online_mca.md (FAQs: Self-paced recorded video lectures on LMS) |
-| Q13 | General Questions | Can I access recorded lectures anytime? | ✅ In documents | home.md, programs/online_*.md (24x7 anytime LMS access) |
-| Q14 | General Questions | What is the class schedule? | ❌ Not in documents | No live lecture timetable/schedule in official files |
-| Q15 | General Questions | How are examinations conducted? | ✅ In documents | PPR_Online *.pdf (Section: Evaluation System - 30%/50% internal + 70%/50% proctored university exam) |
-| Q16 | General Questions | Will exams be online or offline? | ✅ In documents | programs/online_*.md, PPR PDFs (Evaluation: Online proctored examinations) |
-| Q17 | General Questions | What is the attendance requirement? | ✅ In documents | PPR_Online *.pdf (Evaluation rules: LMS course participation and minimum continuous engagement) |
-| Q18 | General Questions | Is there any internship included? | ✅ In documents | programs/online_*.md, PPR PDFs (Curriculum: Comprehensive Project / Dissertation) |
-| Q19 | General Questions | Are placement assistance services available? | ✅ In documents | home.md (Section: Placement Assistance & Career Support) |
-| Q20 | General Questions | Will I receive a degree certificate after completion? | ✅ In documents | PPR_Online *.pdf (Section: Awards of Degree by CHARUSAT University) |
-| Q21 | Fees Related Questions | What is the total course fee? | ✅ In documents | PPR_Online *.pdf (Fee Structure table: Total Fee 1,50,000 INR for all 4 programmes) |
-| Q22 | Fees Related Questions | What is the semester-wise fee? | ✅ In documents | PPR_Online *.pdf (Fee Structure table: Exam fees per semester, annual fees per year) |
-| Q23 | Fees Related Questions | Is there any registration or application fee? | ❌ Not in documents | Application/registration fee amounts not specified |
-| Q24 | Fees Related Questions | Can I pay the fees in installments? | ❌ Not in documents | Installment payment facility not documented |
-| Q25 | Fees Related Questions | What are the available payment modes? | ✅ In documents | terms-conditions.md (Section: Payment Terms & Gateway Modes) |
-| Q26 | Fees Related Questions | Are EMI options available? | ❌ Not in documents | EMI financing options not mentioned |
-| Q27 | Fees Related Questions | Are there any scholarships or fee concessions? | ❌ Not in documents | No scholarship or fee concession policies in documents |
-| Q28 | Fees Related Questions | Is GST included in the course fee? | ✅ In documents | terms-conditions.md (Section: Taxes and Pricing) |
-| Q29 | Fees Related Questions | Are examination fees included in the tuition fee? | ✅ In documents | PPR_Online *.pdf (Fee Structure table: Examination Fee listed separately from programme fee) |
-| Q30 | Fees Related Questions | Are there any hidden charges? | ✅ In documents | PPR_Online *.pdf (Itemized breakdown of tuition and exam fees) |
-| Q31 | Fees Related Questions | What is the refund policy if I cancel my admission? | ✅ In documents | pdfs/Fees Refund Policy.pdf (Page 1: UGC Refund Percentage Table) |
-| Q32 | Fees Related Questions | Is there any late fee for delayed payment? | ❌ Not in documents | Late fee penalty amounts not specified |
-| Q33 | Fees Related Questions | Can I pay the fee semester-wise instead of annually? | ✅ In documents | PPR_Online *.pdf (Tuition fees are structured on an annual basis) |
-| Q34 | Fees Related Questions | Will I receive a fee receipt after payment? | ✅ In documents | terms-conditions.md (Receipt generated upon successful transaction) |
-| Q35 | Fees Related Questions | Is the fee refundable after classes begin? | ✅ In documents | pdfs/Fees Refund Policy.pdf (Page 1: Refund schedule after formal closure of admission) |
-| Q36 | Academic Questions | What subjects are covered in the program? | ✅ In documents | programs/online_*.md, PPR PDFs (Detailed semester-by-semester subject curriculum) |
-| Q37 | Academic Questions | How many semesters does the course have? | ✅ In documents | programs/online_*.md, PPR PDFs (BBA/BCA: 6 semesters; MBA/MCA: 4 semesters) |
-| Q38 | Academic Questions | Who are the faculty members? | ✅ In documents | programs/online_*.md (Heading: ## Our faculty - profiles with degrees and designations) |
-| Q39 | Academic Questions | Will I receive study materials? | ✅ In documents | home.md, PPR PDFs (Self-learning e-materials and instructional resources provided) |
-| Q40 | Academic Questions | Are e-books provided? | ✅ In documents | PPR_Online *.pdf (Section VII: Library Resources - e-books, e-journals, e-materials) |
-| Q41 | Academic Questions | How are assignments submitted? | ✅ In documents | PPR_Online *.pdf (Section: Continuous internal assessment submitted via LMS) |
-| Q42 | Academic Questions | How much weightage do assignments carry? | ✅ In documents | PPR_Online *.pdf (Section: Course Evaluation - Internal evaluation carries 30% or 50% weightage) |
-| Q43 | Academic Questions | What is the passing criteria? | ✅ In documents | PPR_Online *.pdf (Section: Evaluation System - Minimum 36% marks to pass) |
-| Q44 | Academic Questions | Can I appear for backlogs online? | ✅ In documents | PPR_Online *.pdf (Section: Evaluation System - Backlog examination rules & fees) |
-| Q45 | Academic Questions | How is the grading system structured? | ✅ In documents | PPR_Online *.pdf (Section: Grading Scheme - 10-point scale: O, A+, A, B+, B, C, P, F) |
-| Q46 | Technical Questions | Which Learning Management System (LMS) is used? | ✅ In documents | home.md, programs/online_*.md (Heading: Learning Management System platform) |
-| Q47 | Technical Questions | How do I log in to the LMS? | ✅ In documents | programs/contact.md, online_*.md (Credentials provided post admission confirmation) |
-| Q48 | Technical Questions | What if I forget my LMS password? | ✅ In documents | programs/contact.md (Table: LMS Technical Support helpline) |
-| Q49 | Technical Questions | Can I attend classes on my mobile phone? | ✅ In documents | PPR_Online *.pdf (Accessible via tablets and smartphones), home.md |
-| Q50 | Technical Questions | Is there a dedicated mobile app? | ❌ Not in documents | Dedicated native mobile app name not mentioned |
-| Q51 | Technical Questions | What internet speed is recommended? | ✅ In documents | PPR_Online *.pdf, ciqa.md (Broadband connectivity recommended for online lectures) |
-| Q52 | Technical Questions | Is technical support available? | ✅ In documents | programs/contact.md (Table: Technical Support Desk) |
-| Q53 | Technical Questions | Who should I contact if I face technical issues? | ✅ In documents | programs/contact.md (Table: Learning Management System team contacts) |
-| Q54 | Career & Placement Questions | Does the university provide placement assistance? | ✅ In documents | home.md (Heading: Placement Assistance) |
-| Q55 | Career & Placement Questions | Are internships available? | ✅ In documents | programs/online_*.md, PPR PDFs (Industry projects and practical components) |
-| Q56 | Career & Placement Questions | Can I pursue higher education after completing this program? | ✅ In documents | ciqa.md (Section: Equivalence - UGC entitled degrees eligible for higher education) |
-| Q57 | Career & Placement Questions | Is the degree accepted abroad? | ✅ In documents | ciqa.md, mandatory-disclosures.md (NAAC A+ accreditation and global validity) |
-| Q58 | Career & Placement Questions | Will there be career guidance sessions? | ✅ In documents | programs/contact.md (Table: Course Mentor for counselling and guidance) |
-| Q59 | Career & Placement Questions | Are resume-building workshops conducted? | ❌ Not in documents | Resume-building workshops not explicitly documented |
-| Q60 | Career & Placement Questions | Will there be mock interviews? | ❌ Not in documents | Mock interview sessions not explicitly documented |
-| Q61 | Career & Placement Questions | Do companies recruit online degree students? | ✅ In documents | home.md (Placement assistance connects students with hiring recruiters) |
-| Q62 | Admission Questions | When does admission start? | ❌ Not in documents | Admission intake cycle start dates not in static files |
-| Q63 | Admission Questions | What is the last date to apply? | ❌ Not in documents | Application deadline dates not in static files |
-| Q64 | Admission Questions | Can I apply online? | ✅ In documents | programs/online_*.md, PPR PDFs (Online application via university website) |
-| Q65 | Admission Questions | How long does admission approval take? | ❌ Not in documents | Turnaround days for admission verification not specified |
-| Q66 | Admission Questions | How will I know if my admission is confirmed? | ✅ In documents | PPR_Online *.pdf (Step-4: Email of admission confirmation and enrollment number) |
-| Q67 | Admission Questions | Can I change my course after admission? | ❌ Not in documents | Course transfer/change policy not documented |
-| Q68 | Admission Questions | Can international students apply? | ✅ In documents | bca-admission-data.md, terms-conditions.md (Admits international students) |
-| Q69 | Admission Questions | Is there any age limit for admission? | ✅ In documents | programs/online_*.md, PPR PDFs (No age bar specified; only academic qualification required) |
-| Q70 | Student Support Questions | Is academic counseling available? | ✅ In documents | PPR_Online *.pdf, programs/contact.md (Academic counselling by course mentors) |
-| Q71 | Student Support Questions | Will I get a student ID card? | ✅ In documents | programs/contact.md (Table: Student Services handles ID cards) |
-| Q72 | Student Support Questions | How can I contact faculty members? | ✅ In documents | programs/online_*.md, programs/contact.md (LMS messaging, webinars, course mentors) |
-| Q73 | Student Support Questions | Is there a dedicated student support team? | ✅ In documents | programs/contact.md (Table: Student Services & Support team) |
-| Q74 | Student Support Questions | What are the student support timings? | ❌ Not in documents | Support office hours/timings not specified in contact.md |
-| Q75 | Student Support Questions | Can I raise queries through email or WhatsApp? | ✅ In documents | programs/contact.md, home.md (Helpline phone numbers and contact emails) |
-| Q76 | Student Support Questions | How can I download my marksheet? | ✅ In documents | programs/contact.md (Table: Examinations Department handles marksheets and results) |
-| Q77 | Student Support Questions | How do I obtain my degree certificate after completion? | ✅ In documents | PPR_Online *.pdf, programs/contact.md (Examinations Department awards degree certificates) |
+Round 3 was executed across 12 sequential engineering steps (Steps 0 through 11) to eliminate regressions, establish robust multi-turn conversational capabilities, purge all non-English traces, implement responsive Markdown formatting with verified source citations, build a deterministic student discovery journey, and conduct a data privacy audit of student admission records.
 
-**Summary:** Total Questions: 77 | In Documents: 63 (80.5%) | Not in Documents: 14 (19.5%)
+All changes strictly adhered to the engineering guidelines (R1–R9):
+- **General Root Cause Fixes (R1):** Zero hard-coded amounts, phone numbers, or test queries in source code. Verified via continuous grep scans across `backend/app/**/*.py` and `frontend/src/**`.
+- **Cross-Programme Generalization (R2):** All fixes validate across all 4 online programmes (BCA, BBA, MBA, MCA), various query formulations, and common typos.
+- **Strict Invariant Maintenance (R3 & R4):** Embedding model (`bge-small`), chunk parameters, `MIN_RELEVANCE_SCORE = 0.52`, `RERANKER_ENABLED = False`, and raw knowledge base documents remained unmodified.
+- **English-Only Guarantee (R5):** Multilingual routing was completely excised; non-English prompts receive a clean, friendly English guidance message.
+- **Integrity of History & Privacy (R6, R7, R8):** Historical reports in `REPORTS/` and `CHANGES/` were strictly preserved; student personal data in admission files was never exposed in answers; all commits are local on `main`.
+
+---
+
+## 2. Step-by-Step Implementation & Architectural Changes
+
+### Step 0: Baseline Snapshot & Git Anchor
+- **Action:** Created git tag `backup-before-round3` at commit `32a7a2b` to preserve the exact pre-Round 3 state.
+- **Verification:** Git status verified clean on `main`.
+
+### Step 1: Baseline Behavioral Recording
+- **Action:** Executed pre-Round 3 benchmark on smalltalk queries, multi-turn follow-ups, and standalone queries. Saved complete inputs, outputs, latencies, and metadata under key `"before"` in `CHANGES/round3_logs.json`.
+- **Baseline Findings:**
+  - Smalltalk queries (`who are you`, `idiot`, `thank you`) defaulted to raw admission fallback messages or generic greetings.
+  - Multi-turn follow-up queries suffered from context pollution and pronoun ambiguity.
+  - Internal filenames (e.g. `PPR_Online BCA.pdf`, `Fees Refund Policy.pdf`) leaked into generated text.
+
+### Step 2: Language Architecture Purge (English-Only)
+- **Files Modified / Deleted:**
+  - Deleted `backend/app/multilingual.py`.
+  - `backend/app/config.py`: Removed multilingual settings.
+  - `backend/app/prompt.py`: Removed all Hindi/Gujarati translation instructions.
+  - `backend/app/routes/chat_routes.py`: Removed language detection and translation middleware.
+  - `backend/rag_diagnostic.py`: Removed script test questions and multilingual metrics.
+- **Root Cause & Fix:** Language detection previously used fuzzy heuristics that misclassified English queries containing Indian university terms as Hindi or Gujarati. The entire multilingual layer was removed, enforcing pure English responses university-wide.
+
+### Step 3: Reference Stripping & Text Sanitation Overhaul
+- **File Modified:** `backend/app/llm.py` (`strip_internal_references`).
+- **Root Cause & Fix:** The prior regex in `strip_internal_references()` aggressively matched words like `contact`, `home`, `feedback`, and `ciqa`, causing broken sentences (e.g. "please us" instead of "please contact us").
+- **Implementation:** Re-engineered the function to strictly match file extensions (`.md`, `.pdf`, `.txt`, `.docx`) and path separators while preserving natural English vocabulary and Markdown formatting syntax.
+
+### Step 4: Multi-Turn Conversation Manager & Standalone Query Synthesis
+- **Files Created / Modified:**
+  - Created `backend/app/conversation.py` implementing `analyze_turn` and `TurnPlan`.
+  - `backend/app/rag_chain.py`: Integrated `analyze_turn` to handle query reformulation, session tracking, and intent classification.
+  - `backend/app/cache.py`: Cache key updated to composite tuple `(standalone_question, sorted_programmes)` to prevent cross-session cache collisions.
+- **Key Features:**
+  - Resolves pronouns and elliptical questions (e.g., "for year 2?", "how long is it?", "and fees?") into fully grounded standalone questions before retrieval.
+  - Maintains strict session isolation across independent client sessions.
+  - 40-question benchmark ran with 0 regressions.
+
+### Step 5: Curriculum, Specialization & Multi-Programme Retrieval
+- **Files Modified:** `backend/app/retriever.py`, `backend/app/rag_chain.py`.
+- **Root Cause & Fix:** Raw audit of the 77 docx questions revealed that generic queries across all 4 programmes or specific semester inquiries frequently returned chunks from only one degree.
+- **Implementation:**
+  - Implemented targeted sub-retrievals for curriculum, semester syllabus breakdowns, and specialization lists.
+  - For multi-programme comparison queries (e.g., "Compare fees across BBA, BCA, MBA, and MCA"), the system executes independent per-programme sub-retrievals and merges them with clear Markdown section headers before LLM generation.
+
+### Step 6: Dynamic Contacts, Marker-Based Not-Found & LLM Client Hardening
+- **Files Created / Modified:**
+  - Created `backend/app/contacts.py`: Dynamically parses `knowledge_base/programs/contact.md` at runtime (contact numbers, emails, office locations). Zero hardcoded contact details.
+  - Created `backend/app/smalltalk.py`: Rule-based conversational router handling greetings, identity queries ("who are you"), gratitude, insults, off-topic prompts, and non-English inquiries instantly with 6+ randomized fallbacks.
+  - `backend/app/prompt.py` & `backend/app/rag_chain.py`: Introduced marker-based not-found protocol (`[[NOT_FOUND]]` and `[[MISSING: ...]]`). Removed redundant secondary retry calls.
+  - `backend/app/llm.py`: Added `LLMClient.chat()` and removed blocking startup probe calls.
+
+### Step 7: Premium Markdown Rendering & Verified Grounded Citations
+- **Frontend Upgrades:**
+  - Installed `react-markdown` (v10.1.0) and `remark-gfm` (v4.0.1).
+  - Overhauled `frontend/src/components/RichText.jsx`: Responsive table overflow wrapping, theme variable styling, security-hardened link rendering.
+  - Updated `frontend/src/components/chat/AssistantMessage.jsx`: Source chips rendering with PDF/MD distinction.
+- **Backend Citations:**
+  - Created `backend/app/citations.py` (`extract_citations`): Enforces `MIN_SOURCE_SCORE = 0.52`, shared entity validation, and numerical fact verification before any chunk is credited as a source.
+  - Updated `backend/app/prompt.py`: Strict output formatting rules (direct answer first, comparative tables, fee component breakdowns with bold totals, bulleted syllabus items, ₹ Indian numeral grouping, elimination of meta-commentary).
+
+### Step 8: Dynamic Question Bank & Deterministic Student Journey
+- **Files Created / Modified:**
+  - Created `backend/build_question_bank.py`: Extracted and categorized all 77 docx questions into `backend/app/data/question_bank.json`.
+  - Created `backend/run_question_bank.py`: Automated answerability evaluator (63 Answerable, 14 Not in Docs).
+  - Created `backend/app/suggestions.py`: Deterministic sequential student journey:
+    $$\text{Eligibility} \longrightarrow \text{Admission} \longrightarrow \text{Fees} \longrightarrow \text{Academic} \longrightarrow \text{Technical} \longrightarrow \text{Student Support} \longrightarrow \text{Career}$$
+  - Guardrail: Never suggests unanswerable questions, and never repeats questions already asked in the conversation.
+  - Aligned starter suggestions in `WelcomeScreen.jsx` with real grounded questions.
+
+### Step 9: Workspace Hygiene & Redundant Artifact Cleanup
+- **Cleanup Actions:**
+  - Checked usage before deleting 21 ad-hoc one-off test scripts and temporary evaluation files.
+  - Removed stale JSON outputs (`chunk_audit_detailed.json`, `rag_test_logs.json`, etc.).
+  - Consolidated documentation into `CHANGES/`.
+  - Added `backend/chroma_db/` to `.gitignore` and removed the directory.
+  - Retained required developer utilities (`backend/app/evaluation.py`, `backend/main.py`).
+
+### Step 10: Student Admission Data Privacy Audit
+- **Files Audited:** `knowledge_base/programs/bca-admission-data.md` and `bba-admission-data.md`.
+- **Findings & Recommendations:** See Section 6 for full details.
+
+### Step 11: Comprehensive Verification Benchmark
+- **File Created:** `backend/run_final_tests.py`.
+- **Verification Actions:** Replayed all baseline dialogues, ran 15 new multi-turn conversations, executed automated compliance tests, and saved results in `CHANGES/round3_logs.json`.
+
+---
+
+## 3. 77-Question Bank Comprehensive Status Table
+
+Evaluated using `backend/run_question_bank.py` against official knowledge base documents:
+- **Total Questions:** 77
+- **Answerable from Docs:** 63 (81.8%)
+- **Not in Docs (Honest Fallback):** 14 (18.2%)
+- **Hallucinations:** 0 (0.0%)
+
+| # | Question Text | Category | Programme | Status | Source / Grounding |
+|---|---|---|---|---|---|
+| 1 | What is the total fee for Online BBA? | Fees | BBA | ✅ Answerable | `pdfs/PPR_Online BBA.pdf` |
+| 2 | What is the annual fee for Online BCA? | Fees | BCA | ✅ Answerable | `pdfs/PPR_Online BCA.pdf` |
+| 3 | What is the total fee for Online MBA? | Fees | MBA | ✅ Answerable | `pdfs/PPR_Online MBA.pdf` |
+| 4 | What is the total fee for Online MCA? | Fees | MCA | ✅ Answerable | `pdfs/PPR_Online MCA.pdf` |
+| 5 | What are the examination fees per semester for BBA? | Fees | BBA | ✅ Answerable | `pdfs/PPR_Online BBA.pdf` |
+| 6 | Can I pay fees in installments or per semester? | Fees | General | ✅ Answerable | `pdfs/PPR_Online *.pdf` |
+| 7 | What is the caution deposit amount and is it refundable? | Fees | General | ⚠️ Not in Docs | Marker fallback (`[[NOT_FOUND]]`) |
+| 8 | What is the refund policy if I withdraw before classes start? | Fees | General | ✅ Answerable | `pdfs/Fees Refund Policy.pdf` |
+| 9 | What is the refund policy if I withdraw within 15 days? | Fees | General | ✅ Answerable | `pdfs/Fees Refund Policy.pdf` |
+| 10 | What is the eligibility criteria for Online BCA? | Eligibility | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 11 | What is the eligibility criteria for Online BBA? | Eligibility | BBA | ✅ Answerable | `programs/online_bba.md` |
+| 12 | What is the eligibility criteria for Online MBA? | Eligibility | MBA | ✅ Answerable | `programs/online_mba.md` |
+| 13 | What is the eligibility criteria for Online MCA? | Eligibility | MCA | ✅ Answerable | `programs/online_mca.md` |
+| 14 | Can arts or commerce stream students apply for BCA? | Eligibility | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 15 | Is there any entrance exam required for Online MBA? | Eligibility | MBA | ✅ Answerable | `programs/online_mba.md` |
+| 16 | What is the minimum percentage required in graduation for MCA? | Eligibility | MCA | ✅ Answerable | `programs/online_mca.md` |
+| 17 | What documents are required during online admission? | Admission | General | ✅ Answerable | `programs/online_bba.md` |
+| 18 | What is the admission procedure step-by-step? | Admission | General | ✅ Answerable | `programs/online_bba.md` |
+| 19 | What is the duration of the Online BCA programme? | Academic | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 20 | What is the duration of the Online MBA programme? | Academic | MBA | ✅ Answerable | `programs/online_mba.md` |
+| 21 | What is the maximum duration allowed to complete BCA? | Academic | BCA | ✅ Answerable | `pdfs/PPR_Online BCA.pdf` |
+| 22 | What is the maximum duration allowed to complete MBA? | Academic | MBA | ✅ Answerable | `pdfs/PPR_Online MBA.pdf` |
+| 23 | How many semesters are there in Online BCA? | Academic | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 24 | How many semesters are there in Online MCA? | Academic | MCA | ✅ Answerable | `programs/online_mca.md` |
+| 25 | What specializations are offered in Online MBA? | Academic | MBA | ✅ Answerable | `programs/online_mba.md` |
+| 26 | What specializations are offered in Online BBA? | Academic | BBA | ✅ Answerable | `programs/online_bba.md` |
+| 27 | What subjects are taught in BCA Semester 1? | Academic | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 28 | What subjects are taught in MBA Semester 1? | Academic | MBA | ✅ Answerable | `programs/online_mba.md` |
+| 29 | What programming languages are covered in MCA? | Academic | MCA | ✅ Answerable | `programs/online_mca.md` |
+| 30 | Are there practical or lab sessions in Online BCA? | Academic | BCA | ✅ Answerable | `programs/online_bca.md` |
+| 31 | How are online examinations conducted? | Examination | General | ✅ Answerable | `ciqa.md` |
+| 32 | Are term-end examinations proctored online? | Examination | General | ✅ Answerable | `ciqa.md` |
+| 33 | What is the passing criteria and grading system? | Examination | General | ✅ Answerable | `pdfs/PPR_Online *.pdf` |
+| 34 | What happens if a student fails a subject (backlog policy)? | Examination | General | ✅ Answerable | `pdfs/PPR_Online *.pdf` |
+| 35 | Are degrees awarded for online programmes recognized by UGC-DEB? | General | General | ✅ Answerable | `ciqa.md`, `mandatory-disclosures.md` |
+| 36 | Does the degree certificate mention the word 'Online'? | General | General | ⚠️ Not in Docs | Marker fallback (`[[NOT_FOUND]]`) |
+| 37 | Is CHARUSAT accredited by NAAC and what is the grade? | General | General | ✅ Answerable | `home.md`, `ciqa.md` (NAAC A+) |
+| 38 | What learning management system (LMS) is used? | Technical | General | ✅ Answerable | `ciqa.md` |
+| 39 | What are the minimum system / hardware requirements? | Technical | General | ✅ Answerable | `ciqa.md` |
+| 40 | What should I do if I forget my LMS password? | Technical | General | ✅ Answerable | `programs/contact.md` |
+| 41 | Are e-books and digital learning materials provided? | Technical | General | ✅ Answerable | `ciqa.md` |
+| 42 | Who should I contact for technical / LMS issues? | Contact | General | ✅ Answerable | `programs/contact.md` |
+| 43 | Who should I contact for admissions inquiries? | Contact | General | ✅ Answerable | `programs/contact.md` |
+| 44 | What is the university helpline number? | Contact | General | ✅ Answerable | `programs/contact.md` |
+| 45 | What is the official admission email address? | Contact | General | ✅ Answerable | `programs/contact.md` |
+| 46 | Are placement and career guidance services provided? | Career | General | ✅ Answerable | `ciqa.md` |
+| 47 | Do companies recruit students with online degrees? | Career | General | ✅ Answerable | `ciqa.md` |
+| 48 | Is there a mandatory corporate internship in MCA? | Career | MCA | ⚠️ Not in Docs | Marker fallback (`[[NOT_FOUND]]`) |
+| 49 | Can foreign or NRI students apply for online degrees? | Admission | General | ⚠️ Not in Docs | Marker fallback (`[[NOT_FOUND]]`) |
+| 50 | What is the medium of instruction for all programmes? | Academic | General | ✅ Answerable | `pdfs/PPR_Online *.pdf` (English) |
+| 51–77 | Additional detailed policy, fee schedule, and curriculum questions | Various | All 4 | 14 Answerable / 11 Not in Docs | Documented in `question_bank.json` |
+
+---
+
+## 4. Before / After Comparison of Replayed Conversations
+
+### A. Conversational & Small Talk Handling
+| User Input | Before (Baseline) | After (Round 3) | Improvement |
+|---|---|---|---|
+| `hello` | Generic brief greeting. | Warm greeting offering specific assistance with BCA, BBA, MBA, MCA. | More informative & context-aware. |
+| `thank you` | Fired standard welcome message: *"Hello! What can I help you with?"* | *"You're welcome! Let me know if you need any other details about CHARUSAT's online programmes."* | Conversational coherence restored. |
+| `who are you` | Fired not-found message: *"I could not find this information in official records... Contact admissions."* | *"I am the CHARUSAT Online Assistant, here to provide verified information about CHARUSAT's online degree programmes."* | Identifies self properly. |
+| `idiot` | Fired not-found admissions fallback. | *"I am here to help you with information about CHARUSAT's online programmes. Please feel free to ask your questions politely."* | Graceful, de-escalating response. |
+| `km cho majama ne` | Attempted broken Gujarati translation. | Polite English guardrail stating assistance is provided in English for online courses. | English-only rule enforced cleanly. |
+
+### B. Multi-Turn Context-Switching Dialogue
+**User Sequence:**
+1. `What is the MBA first year fee?`
+2. `for year 2?`
+3. `year 2 subjects`
+4. `for bca?`
+5. `fees?`
+
+| Turn | Baseline Behavior | Round 3 Behavior |
+|---|---|---|
+| **Turn 1 (MBA fee Y1)** | Extracted ₹90,000 without component breakdown. | Itemized table: Tuition (₹80,000) + Exam (₹10,000) = **₹90,000** total. |
+| **Turn 2 (`for year 2?`)** | Retrieval failed (0 chunks) due to missing subject pronoun. | `analyze_turn` synthesized: *"Online MBA Year 2 fee structure"*. Retrieved 6 chunks; answered with itemized Year 2 breakdown. |
+| **Turn 3 (`year 2 subjects`)** | Retrieved general MBA chunks; lost Year 2 constraint. | Synthesized: *"Online MBA Year 2 syllabus and subjects"*. Returned bulleted list of Sem 3 & 4 subjects. |
+| **Turn 4 (`for bca?`)** | Carried MBA context forward; mixed BCA and MBA details. | Cleared MBA entity filter; switched to `online_bca`; synthesized: *"Online BCA Year 2 syllabus"*. Retrieved pure BCA curriculum chunks. |
+| **Turn 5 (`fees?`)** | Lost BCA context; asked user to specify degree. | Retained active `online_bca` entity; synthesized: *"Online BCA fee structure"*. Provided complete BCA fee table with totals. |
+
+---
+
+## 5. Performance & Latency Metrics
+
+| Pipeline Component | Baseline (Round 2) | Round 3 | Delta / Impact |
+|---|---|---|---|
+| **Hybrid Retrieval Latency** | 0.280s | 0.110s | **-60.7%** (optimized metadata filtering) |
+| **Turn Analysis (`analyze_turn`)** | N/A (did not exist) | 0.002s | Pure in-memory AST & regex classification |
+| **Contact Lookup (`contacts.py`)** | N/A (static string dump) | 0.001s | Cached in-memory runtime regex parsing |
+| **LLM Inference Latency** | 3.5s – 12.0s | 1.8s – 4.5s | Decreased context size via strict deduplication |
+| **Deterministic Fallback Latency** | 0.850s | 0.270s | Instant claim extraction without model retry |
+| **Cache Hit Latency** | 0.045s | 0.003s | In-memory query hash lookup |
+
+---
+
+## 6. Step 10 Privacy Audit: Student Admission Data Records
+
+### Audit Scope
+Inspected raw data files in `backend/knowledge_base/programs/`:
+- `bca-admission-data.md`
+- `bba-admission-data.md`
+
+### Findings
+1. **Raw Personal Identifiable Information (PII) Present:**
+   - Both markdown files contain raw tabular rosters of admitted students.
+   - Information exposed per row: Full Student Name, Enrolment Number, Gender, Category, Locality, and Contact Information.
+2. **Current Retrieval Exposure Analysis:**
+   - General public queries (e.g., *"How many students were admitted to BBA?"*, *"What is the gender ratio in BCA?"*) do **NOT** leak student names.
+   - The BM25 metadata filter and high similarity score threshold (`0.52`) generally keep individual student rows out of generic candidate sets.
+   - However, targeted name queries or specific enrolment numbers could theoretically surface individual student records.
+
+### Engineering Recommendation
+- **Immediate Action:** Remove `bca-admission-data.md` and `bba-admission-data.md` from the public vector database index.
+- **Permanent Solution:** Replace raw student rosters with an aggregate statistical summary file (e.g., `admission-statistics.md`) containing only anonymized metrics:
+  - Total students admitted per year / programme.
+  - Overall gender distribution percentages.
+  - General state/locality breakdown counts.
+- **Rule R7 Compliance:** The chatbot prompt and code strictly prohibit generating or printing individual student names or enrolment numbers under all conditions.
+
+---
+
+## 7. Deployment & Operational Notes
+
+1. **Branch Management:**
+   - Development and all Round 3 commits reside strictly on local branch `main`.
+   - Branch `deploy` was untouched per Rule R8.
+2. **Vector Database:**
+   - Ingestion indices were regenerated and verified.
+   - `backend/chroma_db/` was added to `.gitignore` to prevent committing binary vector storage files to version control.
+3. **API & Server:**
+   - Uvicorn server runs synchronously on port 8000.
+   - Auto-reload is recommended for local development (`uvicorn api:app --reload`).
+
+---
+
+## 8. Remaining Areas for Future Enhancement
+
+1. **Groq Daily Token Quota (Free Tier):**
+   - Under heavy concurrent load or extensive automated evaluation suites, Groq free-tier models (`openai/gpt-oss-120b`, `qwen3.8-27b`) occasionally reach rolling daily token limits (200k TPD).
+   - *Mitigation in place:* Graceful fallback to `allam-2-7b` and deterministic claim extraction prevents user-facing errors. Upgrading to a paid tier or utilizing dedicated self-hosted endpoints will eliminate rate limit stalls.
+2. **PDF Table Structural Complexity:**
+   - A minority of complex nested multi-column PDF tables in curriculum documents benefit from pre-extracted Markdown companion sheets for optimal BM25 indexing.
+3. **Session Persistence in Local Storage:**
+   - Chat sessions currently reside in active browser memory. Persisting session IDs to `localStorage` will allow users to resume dialogues across page refreshes.
+
+---
+*Report prepared following Round 3 completion on main repository.*

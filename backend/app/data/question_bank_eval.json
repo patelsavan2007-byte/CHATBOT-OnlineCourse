@@ -1,0 +1,239 @@
+{
+  "Q01": {
+    "id": "Q01",
+    "text": "What online programs are offered?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q02": {
+    "id": "Q02",
+    "text": "Is the online degree recognized by UGC?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": true,
+    "generic_sources_count": 1,
+    "programmes": {},
+    "status": "answerable"
+  },
+  "Q03": {
+    "id": "Q03",
+    "text": "Is the degree valid for government and private jobs?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q04": {
+    "id": "Q04",
+    "text": "Is the online degree equivalent to a regular degree?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": true,
+    "generic_sources_count": 3,
+    "programmes": {},
+    "status": "answerable"
+  },
+  "Q05": {
+    "id": "Q05",
+    "text": "Who is eligible for this program?",
+    "category": "General Questions",
+    "programme_specific": true,
+    "generic_answerable": true,
+    "generic_sources_count": 3,
+    "programmes": {
+      "online_bba": {
+        "answerable": false,
+        "sources_count": 0
+      },
+      "online_bca": {
+        "answerable": false,
+        "sources_count": 0
+      },
+      "online_mba": {
+        "answerable": false,
+        "sources_count": 0
+      },
+      "online_mca": {
+        "answerable": false,
+        "sources_count": 0
+      }
+    },
+    "status": "answerable"
+  },
+  "Q06": {
+    "id": "Q06",
+    "text": "What is the admission process?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q07": {
+    "id": "Q07",
+    "text": "What documents are required for admission?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q08": {
+    "id": "Q08",
+    "text": "Is there an entrance exam?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q09": {
+    "id": "Q09",
+    "text": "What is the duration of the program?",
+    "category": "General Questions",
+    "programme_specific": true,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q10": {
+    "id": "Q10",
+    "text": "Can I study while working?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q11": {
+    "id": "Q11",
+    "text": "Are live classes compulsory?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q12": {
+    "id": "Q12",
+    "text": "Are classes recorded?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q13": {
+    "id": "Q13",
+    "text": "Can I access recorded lectures anytime?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q14": {
+    "id": "Q14",
+    "text": "What is the class schedule?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q15": {
+    "id": "Q15",
+    "text": "How are examinations conducted?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q16": {
+    "id": "Q16",
+    "text": "Will exams be online or offline?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q17": {
+    "id": "Q17",
+    "text": "What is the attendance requirement?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q18": {
+    "id": "Q18",
+    "text": "Is there any internship included?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q19": {
+    "id": "Q19",
+    "text": "Are placement assistance services available?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": true,
+    "generic_sources_count": 1,
+    "programmes": {},
+    "status": "answerable"
+  },
+  "Q20": {
+    "id": "Q20",
+    "text": "Will I receive a degree certificate after completion?",
+    "category": "General Questions",
+    "programme_specific": false,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q21": {
+    "id": "Q21",
+    "text": "What is the total course fee?",
+    "category": "Fees Related Questions",
+    "programme_specific": true,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  },
+  "Q22": {
+    "id": "Q22",
+    "text": "What is the semester-wise fee?",
+    "category": "Fees Related Questions",
+    "programme_specific": true,
+    "generic_answerable": false,
+    "generic_sources_count": 0,
+    "programmes": {},
+    "status": "not_in_docs"
+  }
+}

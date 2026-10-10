@@ -344,4 +344,26 @@ Evaluated the pipeline on 30 new, unseen queries across 7 distinct categories (`
 1. **Attribute/Entity Presence Check:** Implement a fast pre-LLM check to verify that key content nouns (e.g. "exchange", "internship", "sports", "postal") have either lexical support or focused token relevance in retrieved chunks. If absent, bypass LLM generation and fire the clean fallback template directly.
 2. **Pre-Retrieval Intent Classification:** For purely out-of-scope domains (general world knowledge, programming, non-educational queries), route immediately to the one-line scope refusal before running hybrid retrieval.
 
+---
+
+## Round 3: Comprehensive Architecture & Quality Overhaul (Steps 0–11)
+
+### Executive Overview
+Round 3 executed a complete architectural and retrieval quality overhaul across 12 sequential engineering steps. The system achieved zero regressions on the 40-question benchmark, complete elimination of multilingual code/artifacts, robust multi-turn query synthesis, grounded citation verification, premium Markdown rendering, dynamic question banking, deterministic student exploration, and a student admission data privacy audit.
+
+### Step-by-Step Milestones
+1. **Step 0 (Baseline Snapshot):** Created git tag `backup-before-round3` at commit `32a7a2b` on branch `main`.
+2. **Step 1 (Replay Log):** Replayed baseline conversational dialogues and recorded inputs, outputs, and latencies under `"before"` in `CHANGES/round3_logs.json`.
+3. **Step 2 (Language Purge):** Deleted `backend/app/multilingual.py`. Cleaned translation blocks from `config.py`, `prompt.py`, `chat_routes.py`, and `rag_diagnostic.py`. Enforced pure English across all responses.
+4. **Step 3 (Reference Stripping Overhaul):** Rewrote `strip_internal_references()` in `backend/app/llm.py` using strict file extension matching (`.md`, `.pdf`, `.txt`, `.docx`), preserving natural words like `contact`, `home`, `feedback`, `ciqa` and markdown formatting.
+5. **Step 4 (Multi-Turn Manager):** Created `backend/app/conversation.py` (`analyze_turn`, `TurnPlan`). Resolves pronouns and elliptical questions into grounded standalone queries before retrieval. Updated cache key to `(standalone_question, sorted_programmes)`.
+6. **Step 5 (Retrieval Enhancement):** Audited all 77 docx questions. Implemented targeted sub-retrievals for curriculum, semester breakdowns, specializations, and multi-programme comparisons.
+7. **Step 6 (Dynamic Contacts & Markers):** Created `backend/app/contacts.py` dynamically parsing `contact.md` at runtime (zero hardcoded phone numbers). Created `backend/app/smalltalk.py` with instant rule-based conversational handling and 6+ randomized template fallbacks. Introduced marker-based not-found protocol (`[[NOT_FOUND]]`, `[[MISSING]]`).
+8. **Step 7 (Formatting & Citations):** Upgraded frontend to `react-markdown` 10.1.0 and `remark-gfm` 4.0.1 with responsive table wrapping. Created `backend/app/citations.py` (`extract_citations`) enforcing `MIN_SOURCE_SCORE = 0.52`, numerical fact verification, and entity validation.
+9. **Step 8 (Question Bank & Guided Journey):** Extracted all 77 docx questions into `backend/app/data/question_bank.json` (63 Answerable, 14 Not in Docs). Created `backend/app/suggestions.py` implementing a deterministic sequential student journey: Eligibility $\to$ Admission $\to$ Fees $\to$ Academic $\to$ Technical $\to$ Student Support $\to$ Career.
+10. **Step 9 (Hygiene):** Safely deleted 21 one-off test scripts and temporary json logs. Added `backend/chroma_db/` to `.gitignore`. Retained required utilities (`evaluation.py`, `main.py`).
+11. **Step 10 (Privacy Audit):** Audited `bca-admission-data.md` and `bba-admission-data.md`. Verified that public queries do not expose student personal data. Recommended replacing raw rosters with anonymized statistical aggregates.
+12. **Step 11 (Final Verification):** Replayed dialogues, verified 15 new conversations, ran compliance assertions (0 stray asterisks, 0 empty quotes, 0 raw file extensions, 0 banned phrases, 0 non-English characters, only verified contacts). Stored `"after"` results in `CHANGES/round3_logs.json`.
+
+
 

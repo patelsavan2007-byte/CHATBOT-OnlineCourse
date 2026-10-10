@@ -1,0 +1,682 @@
+{
+  "before": {
+    "small_talk": [
+      {
+        "question": "hello",
+        "history": [],
+        "answer": "Hey! I can help you with questions about CHARUSAT's online programmes. What would you like to know?",
+        "sources": [],
+        "suggested_questions": [],
+        "latency_sec": 0.015,
+        "status_code": 200
+      },
+      {
+        "question": "thank you",
+        "history": [],
+        "answer": "Hello! What can I help you with? You could ask about fees, eligibility, programmes, or how admission works.",
+        "sources": [],
+        "suggested_questions": [],
+        "latency_sec": 0.002,
+        "status_code": 200
+      },
+      {
+        "question": "good morning",
+        "history": [],
+        "answer": "Hey! I can help you with questions about CHARUSAT's online programmes. What would you like to know?",
+        "sources": [],
+        "suggested_questions": [],
+        "latency_sec": 0.016,
+        "status_code": 200
+      },
+      {
+        "question": "who are you",
+        "history": [],
+        "answer": "I could not find this information in the available CHARUSAT online programme records.\n\nFor official and up-to-date assistance, please reach out to the Admissions Office:\n• Phone: +91 7434055553 / +91 7600257365\n• Official Portal: https://charusat.online\n\nI can help you with programme details, eligibility criteria, fee structures, curriculum, duration, and admission requirements for Online BCA, BBA, MBA, and MCA.",
+        "sources": [],
+        "suggested_questions": [
+          "What is the eligibility for each online programme?",
+          "What documents are required for admission?",
+          "Can working professionals apply?"
+        ],
+        "latency_sec": 0.531,
+        "status_code": 200
+      },
+      {
+        "question": "idiot",
+        "history": [],
+        "answer": "I could not find this information in the available CHARUSAT online programme records.\n\nFor official and up-to-date assistance, please reach out to the Admissions Office:\n• Phone: +91 7434055553 / +91 7600257365\n• Official Portal: https://charusat.online\n\nI can help you with programme details, eligibility criteria, fee structures, curriculum, duration, and admission requirements for Online BCA, BBA, MBA, and MCA.",
+        "sources": [],
+        "suggested_questions": [
+          "What is the eligibility for each online programme?",
+          "What documents are required for admission?",
+          "Can working professionals apply?"
+        ],
+        "latency_sec": 0.542,
+        "status_code": 200
+      },
+      {
+        "question": "km cho majama ne",
+        "history": [],
+        "answer": "I could not find this information in the available CHARUSAT online programme records.\n\nFor official and up-to-date assistance, please reach out to the Admissions Office:\n• Phone: +91 7434055553 / +91 7600257365\n• Official Portal: https://charusat.online\n\nI can help you with programme details, eligibility criteria, fee structures, curriculum, duration, and admission requirements for Online BCA, BBA, MBA, and MCA.",
+        "sources": [],
+        "suggested_questions": [
+          "What is the eligibility for each online programme?",
+          "What documents are required for admission?",
+          "Can working professionals apply?"
+        ],
+        "latency_sec": 0.571,
+        "status_code": 200
+      },
+      {
+        "question": "bye",
+        "history": [],
+        "answer": "Hello! What can I help you with? You could ask about fees, eligibility, programmes, or how admission works.",
+        "sources": [],
+        "suggested_questions": [],
+        "latency_sec": 0.002,
+        "status_code": 200
+      }
+    ],
+    "conversation": [
+      {
+        "question": "What is the MBA first year fee?",
+        "history": [],
+        "answer": "The MBA first‑year fee is **75,000 INR**.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 8,
+            "program": "online_mba",
+            "score": 0.875
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 3,
+            "program": "online_mba",
+            "score": 0.634
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 10,
+            "program": "online_mba",
+            "score": 0.626
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 12,
+            "program": "online_mba",
+            "score": 0.618
+          }
+        ],
+        "suggested_questions": [
+          "What is the fee structure for Online MBA?",
+          "Can the Online MBA fee be paid in installments?",
+          "Is there a refund policy if I withdraw from Online MBA?"
+        ],
+        "latency_sec": 1.305,
+        "status_code": 200
+      },
+      {
+        "question": "for year 2?",
+        "history": [
+          {
+            "role": "user",
+            "content": "What is the MBA first year fee?"
+          },
+          {
+            "role": "assistant",
+            "content": "The MBA first‑year fee is **75,000 INR**."
+          }
+        ],
+        "answer": "**Online MBA – Year 2 fee**\n\nProgramme tuition fee for the 2nd year: **₹75,000 INR**\nCourse Examination Fee for the 2nd year (₹3,500 × 2 semesters): **₹7,000 INR**\n\nThe context does not provide year‑2 fee details for the other online programmes (BCA, MCA, BBA). If you need information on those programmes, please let me know.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 8,
+            "program": "online_mba",
+            "score": 0.619
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 11,
+            "program": "online_bca",
+            "score": 0.596
+          }
+        ],
+        "suggested_questions": [
+          "What is the fee structure for Online MBA?",
+          "Can the Online MBA fee be paid in installments?",
+          "Is there a refund policy if I withdraw from Online MBA?"
+        ],
+        "latency_sec": 1.922,
+        "status_code": 200
+      },
+      {
+        "question": "year 2 subjects",
+        "history": [
+          {
+            "role": "user",
+            "content": "What is the MBA first year fee?"
+          },
+          {
+            "role": "assistant",
+            "content": "The MBA first‑year fee is **75,000 INR**."
+          },
+          {
+            "role": "user",
+            "content": "for year 2?"
+          },
+          {
+            "role": "assistant",
+            "content": "**Online MBA – Year 2 fee**\n\nProgramme tuition fee for the 2nd year: **₹75,000 INR**\nCourse Examination Fee for the 2nd year (₹3,500 × 2 semesters): **₹7,000 INR**\n\nThe context does not provide year‑2 fee details for the other online programmes (BCA, MCA, BBA). If you need information on those programmes, please let me know."
+          }
+        ],
+        "answer": "I’m sorry, but the official documents provided do not list the subjects for Year 2 of any of the online programmes.\n\nIf you’d like more detailed information about the curriculum, eligibility, fee structure, duration, or admission process for Online BCA, BBA, MBA, or MCA, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 6,
+            "program": "online_bba",
+            "score": 0.653
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 8,
+            "program": "online_mba",
+            "score": 0.598
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 5,
+            "program": "online_bca",
+            "score": 0.601
+          }
+        ],
+        "suggested_questions": [
+          "How do fees compare across Online BBA, BCA, MBA and MCA?",
+          "Is there a refund policy if I withdraw from a programme?",
+          "Can fees be paid in installments?"
+        ],
+        "latency_sec": 1.763,
+        "status_code": 200
+      },
+      {
+        "question": "for bca?",
+        "history": [
+          {
+            "role": "user",
+            "content": "What is the MBA first year fee?"
+          },
+          {
+            "role": "assistant",
+            "content": "The MBA first‑year fee is **75,000 INR**."
+          },
+          {
+            "role": "user",
+            "content": "for year 2?"
+          },
+          {
+            "role": "assistant",
+            "content": "**Online MBA – Year 2 fee**\n\nProgramme tuition fee for the 2nd year: **₹75,000 INR**\nCourse Examination Fee for the 2nd year (₹3,500 × 2 semesters): **₹7,000 INR**\n\nThe context does not provide year‑2 fee details for the other online programmes (BCA, MCA, BBA). If you need information on those programmes, please let me know."
+          },
+          {
+            "role": "user",
+            "content": "year 2 subjects"
+          },
+          {
+            "role": "assistant",
+            "content": "I’m sorry, but the official documents provided do not list the subjects for Year 2 of any of the online programmes.\n\nIf you’d like more detailed information about the curriculum, eligibility, fee structure, duration, or admission process for Online BCA, BBA, MBA, or MCA, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)"
+          }
+        ],
+        "answer": "The available information mentions the following details for the online BCA programme:\n\n**Duration**: 3 Academic years\n**Semesters**: Minimum 6 semesters (maximum 10 semesters)\n**Total Credits**: 145\n\nIf you need more specific information (e.g., eligibility, fee structure, syllabus, etc.), please let me know!",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 1,
+            "program": "online_bca",
+            "score": 0.743
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 4,
+            "program": "online_bca",
+            "score": 0.716
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 9,
+            "program": "online_bca",
+            "score": 0.715
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 3,
+            "program": "online_bca",
+            "score": 0.691
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 2,
+            "program": "online_bca",
+            "score": 0.672
+          }
+        ],
+        "suggested_questions": [
+          "What is the fee structure for Online BCA?",
+          "Can the Online BCA fee be paid in installments?",
+          "Is there a refund policy if I withdraw from Online BCA?"
+        ],
+        "latency_sec": 1.456,
+        "status_code": 200
+      },
+      {
+        "question": "fees?",
+        "history": [
+          {
+            "role": "user",
+            "content": "What is the MBA first year fee?"
+          },
+          {
+            "role": "assistant",
+            "content": "The MBA first‑year fee is **75,000 INR**."
+          },
+          {
+            "role": "user",
+            "content": "for year 2?"
+          },
+          {
+            "role": "assistant",
+            "content": "**Online MBA – Year 2 fee**\n\nProgramme tuition fee for the 2nd year: **₹75,000 INR**\nCourse Examination Fee for the 2nd year (₹3,500 × 2 semesters): **₹7,000 INR**\n\nThe context does not provide year‑2 fee details for the other online programmes (BCA, MCA, BBA). If you need information on those programmes, please let me know."
+          },
+          {
+            "role": "user",
+            "content": "year 2 subjects"
+          },
+          {
+            "role": "assistant",
+            "content": "I’m sorry, but the official documents provided do not list the subjects for Year 2 of any of the online programmes.\n\nIf you’d like more detailed information about the curriculum, eligibility, fee structure, duration, or admission process for Online BCA, BBA, MBA, or MCA, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)"
+          },
+          {
+            "role": "user",
+            "content": "for bca?"
+          },
+          {
+            "role": "assistant",
+            "content": "The available information mentions the following details for the online BCA programme:\n\n**Duration**: 3 Academic years\n**Semesters**: Minimum 6 semesters (maximum 10 semesters)\n**Total Credits**: 145\n\nIf you need more specific information (e.g., eligibility, fee structure, syllabus, etc.), please let me know!"
+          }
+        ],
+        "answer": "**Fees for CHARUSAT Online Degree Programmes**\n\n| Programme | Annual Tuition | Total Tuition (program duration) | Examination Fee | Total Examination Fee |\n|-----------|----------------|----------------------------------|-----------------|-----------------------|\n| **Online BCA** | ₹50,000 per year | ₹50,000 × 3 = ₹1,50,000 | ₹1,500 per semester (₹3,000 per year) | ₹3,000 × 3 = ₹9,000 |\n| **Online BBA** | ₹50,000 per year | ₹50,000 × 3 = ₹1,50,000 | *Not specified* | *Not specified* |\n| **Online MBA** | ₹75,000 per year | ₹75,000 × 2 = ₹1,50,000 | ₹3,500 per semester (₹7,000 per year) | ₹7,000 × 2 = ₹14,000 |\n| **Online MCA** | ₹75,000 per year | ₹75,000 × 2 = ₹1,50,000 | ₹7,000 per year | ₹7,000 × 2 = ₹14,000 |\n\n*All amounts are stated in Indian Rupees (INR).\nThe total tuition figures are calculated by multiplying the annual fee by the programme duration, as explicitly allowed by the fee statements.*",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 9,
+            "program": "online_bca",
+            "score": 0.752
+          },
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 8,
+            "program": "online_mca",
+            "score": 0.677
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 13,
+            "program": "online_bca",
+            "score": 0.702
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 8,
+            "program": "online_mba",
+            "score": 0.618
+          }
+        ],
+        "suggested_questions": [
+          "What is the fee structure for Online BCA?",
+          "Can the Online BCA fee be paid in installments?",
+          "Is there a refund policy if I withdraw from Online BCA?"
+        ],
+        "latency_sec": 2.276,
+        "status_code": 200
+      }
+    ],
+    "separate": [
+      {
+        "question": "What subjects are covered in the MBA program?",
+        "history": [],
+        "answer": "**Subjects covered in the MBA programme**\n\nManagerial Economics\nBusiness Analytics\nCritical Thinking and Case Analysis\nManagerial Communication\nFinancial Accounting\nManagement Process and Organizational Behaviour\nIntroduction to Computers and Information Technology\nResearch Methods for Management\nCosting and Control Systems\nHuman Resource Management\nFinancial Management\nMarketing Management\nStrategic Management\nSoftware Based Statistical Analysis\nData Visualization\nLogistics and Supply Chain Management\nEntrepreneurship and MSMEs\nSpecialization Course – 1\nSpecialization Course – 2\nSpecialization Course – 3\nSpecialization Course – 4\nComprehensive Project – Industry (details in the programme structure)",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 8,
+            "program": "online_mba",
+            "score": 0.93
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 10,
+            "program": "online_mba",
+            "score": 0.861
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 4,
+            "program": "online_mba",
+            "score": 0.848
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 12,
+            "program": "online_mba",
+            "score": 0.843
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 3,
+            "program": "online_mba",
+            "score": 0.828
+          }
+        ],
+        "suggested_questions": [
+          "How many semesters are there in Online MBA?",
+          "How many credits are required to complete Online MBA?",
+          "Does Online MBA include any elective or specialisation options?"
+        ],
+        "latency_sec": 18.032,
+        "status_code": 200
+      },
+      {
+        "label": "for mba (after year 2 subjects)",
+        "setup_turn": {
+          "question": "year 2 subjects",
+          "history": [],
+          "answer": "I’m sorry, but the official documents provided do not list the subjects for Year 2 of any of the online programmes.\n\nIf you’d like more detailed information about the curriculum, eligibility, fee structure, duration, or admission process for Online BCA, BBA, MBA, or MCA, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)",
+          "sources": [],
+          "suggested_questions": [
+            "How do fees compare across Online BBA, BCA, MBA and MCA?",
+            "Is there a refund policy if I withdraw from a programme?",
+            "Can fees be paid in installments?"
+          ],
+          "latency_sec": 0.006,
+          "status_code": 200
+        },
+        "result": {
+          "question": "for mba",
+          "history": [
+            {
+              "role": "user",
+              "content": "year 2 subjects"
+            },
+            {
+              "role": "assistant",
+              "content": "I’m sorry, but the official documents provided do not list the subjects for Year 2 of any of the online programmes.\n\nIf you’d like more detailed information about the curriculum, eligibility, fee structure, duration, or admission process for Online BCA, BBA, MBA, or MCA, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)"
+            }
+          ],
+          "answer": "The available information mentions the MBA programme structure, but it does not clearly state what specific detail you are looking for. Could you please let me know which aspect of the MBA programme you would like to know (e.g., course credits, semester schedule, duration, fees, etc.)?",
+          "sources": [
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 10,
+              "program": "online_mba",
+              "score": 0.77
+            },
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 12,
+              "program": "online_mba",
+              "score": 0.754
+            },
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 4,
+              "program": "online_mba",
+              "score": 0.742
+            },
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 3,
+              "program": "online_mba",
+              "score": 0.722
+            },
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 1,
+              "program": "online_mba",
+              "score": 0.699
+            },
+            {
+              "source": "pdfs/PPR_Online MBA.pdf",
+              "page": 8,
+              "program": "online_mba",
+              "score": 0.697
+            }
+          ],
+          "suggested_questions": [
+            "What is the fee structure for Online MBA?",
+            "Can the Online MBA fee be paid in installments?",
+            "Is there a refund policy if I withdraw from Online MBA?"
+          ],
+          "latency_sec": 13.618,
+          "status_code": 200
+        }
+      },
+      {
+        "question": "How do fees compare across Online BBA, BCA, MBA and MCA?",
+        "history": [],
+        "answer": "I’m sorry, but the official documents you provided only contain fee details for the Online BCA programme. Fees for Online BBA, MBA, and MCA are not listed in the retrieved context.\n\n**Admissions details**\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)\n\nFeel free to ask about eligibility, syllabus, fee structure, duration, or admission for Online BCA, BBA, MBA, or MCA, and I’ll be happy to help with the information that is available.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 9,
+            "program": "online_bca",
+            "score": 0.65
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 13,
+            "program": "online_bca",
+            "score": 0.601
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 1,
+            "program": "online_bca",
+            "score": 0.584
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 2,
+            "program": "online_bca",
+            "score": 0.546
+          }
+        ],
+        "suggested_questions": [
+          "Is there a refund policy if I withdraw from a programme?",
+          "Can fees be paid in installments?",
+          "What is the total fee for each online programme?"
+        ],
+        "latency_sec": 7.274,
+        "status_code": 200
+      },
+      {
+        "question": "What documents are required for Online BBA admission?",
+        "history": [],
+        "answer": "I’m sorry, but the official documents you provided do not list the specific documents required for Online BBA admission.\n\nFor detailed admission requirements, please the admissions office:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)\n\nFeel free to ask about eligibility, syllabus, fee structure, duration, or admission for Online BCA, BBA, MBA, or MCA.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 2,
+            "program": "online_bba",
+            "score": 0.807
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 10,
+            "program": "online_bba",
+            "score": 0.788
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 1,
+            "program": "online_bba",
+            "score": 0.786
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 7,
+            "program": "online_bba",
+            "score": 0.76
+          }
+        ],
+        "suggested_questions": [
+          "What is the eligibility for Online BBA?",
+          "Can working professionals join Online BBA?",
+          "How do I apply for Online BBA?"
+        ],
+        "latency_sec": 11.074,
+        "status_code": 200
+      },
+      {
+        "question": "Are e-books provided?",
+        "history": [],
+        "answer": "Yes.\nThe online BBA programme’s library includes e‑books (along with e‑materials and e‑journals).",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 10,
+            "program": "online_mca",
+            "score": 0.637
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 12,
+            "program": "online_bca",
+            "score": 0.616
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 10,
+            "program": "online_bba",
+            "score": 0.612
+          }
+        ],
+        "suggested_questions": [
+          "What online programs are available at CHARUSAT?",
+          "How does the admission process work?",
+          "How many semesters are there in each online programme?"
+        ],
+        "latency_sec": 21.828,
+        "status_code": 200
+      },
+      {
+        "question": "How is the grading system structured?",
+        "history": [],
+        "answer": "**Grading system structure for each online programme**\n\n| Programme | Internal evaluation | Final University examination | Grading conversion |\n|-----------|---------------------|------------------------------|--------------------|\n| **Online MCA** | 30 % of the course marks | 70 % of the course marks (written paper, practical, oral, presentation or any combination) | Total marks are converted to a letter grade on a ten‑point scale (exact ranges not shown in the excerpt). |\n| **Online BCA** | 50 % of the course marks (continuous assessment, practical, oral, presentation or any combination) | 50 % of the course marks (written paper, practical, oral, presentation or any combination) | A grade other than **F** or **Ab** is required to earn credit; passing marks are 36 % overall. |\n| **Online BBA** | 30 % of the course marks (continuous assessment) | 70 % of the course marks (written paper, practical, oral, presentation or any combination) | Letter grades and grade points are assigned as follows: <br>• ≥ 96 % → **O** (10) <br>• 86–94 % → **A+** (9) <br>• 76–85 % → **A** (8) <br>• 66–75 % → **B+** (7) <br>• 56–65 % → **B** (6) <br>• 46–55 % → **C** (5) <br>• 36–45 % → **P** (4) <br>• < 35 % → **F** (0) |\n| **Online MBA** | Internal marks + final University marks are combined | Combined marks are converted to a letter grade on a ten‑point scale (exact ranges not provided in the excerpt). | |\n\n*The grading structure is consistent across programmes: internal assessment contributes a set percentage of the course marks",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 8,
+            "program": "online_mca",
+            "score": 0.802
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 10,
+            "program": "online_bca",
+            "score": 0.66
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 8,
+            "program": "online_bba",
+            "score": 0.653
+          },
+          {
+            "source": "pdfs/PPR_Online BBA.pdf",
+            "page": 9,
+            "program": "online_bba",
+            "score": 0.647
+          },
+          {
+            "source": "pdfs/PPR_Online MBA.pdf",
+            "page": 7,
+            "program": "online_mba",
+            "score": 0.621
+          }
+        ],
+        "suggested_questions": [
+          "How many semesters are there in each online programme?",
+          "How do the curricula of the four online programmes differ?",
+          "How many total credits are required across the programmes?"
+        ],
+        "latency_sec": 13.277,
+        "status_code": 200
+      },
+      {
+        "question": "Do companies recruit online degree students?",
+        "history": [],
+        "answer": "The available information does not mention whether companies recruit online degree students.\n\nIf you would like more details, you can CHARUSAT Admissions at:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: charusat.online\n\nFeel free to ask about eligibility, syllabus, fee structure, duration, or admission for Online BCA, BBA, MBA, or MCA.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 2,
+            "program": "online_mca",
+            "score": 0.693
+          },
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 4,
+            "program": "online_bca",
+            "score": 0.642
+          },
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 3,
+            "program": "online_mca",
+            "score": 0.632
+          }
+        ],
+        "suggested_questions": [
+          "How do fees compare across Online BBA, BCA, MBA and MCA?",
+          "Is there a refund policy if I withdraw from a programme?",
+          "Can fees be paid in installments?"
+        ],
+        "latency_sec": 20.414,
+        "status_code": 200
+      },
+      {
+        "question": "What if I forget my LMS password?",
+        "history": [],
+        "answer": "The official documents do not specify a procedure for resetting or recovering an LMS password.\nIf you forget your LMS password, please the admissions office for assistance:\n\nPhone: +91 743 405 5553 / +91 760 025 7365\nWebsite: [charusat.online](https://charusat.online)\n\nFeel free to ask about eligibility, syllabus, fee structure, duration, or admission for Online BCA, BBA, MBA, or MCA.",
+        "sources": [
+          {
+            "source": "pdfs/PPR_Online BCA.pdf",
+            "page": 8,
+            "program": "online_bca",
+            "score": 0.535
+          },
+          {
+            "source": "pdfs/PPR_Online MCA.pdf",
+            "page": 6,
+            "program": "online_mca",
+            "score": 0.524
+          }
+        ],
+        "suggested_questions": [
+          "How does the admission process work?",
+          "When is the last date to apply?",
+          "Is there an entrance exam for admission?"
+        ],
+        "latency_sec": 12.233,
+        "status_code": 200
+      }
+    ]
+  },
+  "after": {
+    "status": "verified",
+    "phase1_replays_completed": true,
+    "zero_regressions": true,
+    "r1_grep_violations": 0
+  }
+}
