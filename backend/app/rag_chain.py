@@ -1,6 +1,5 @@
-from __future__ import annotations
-
-from typing import Dict, List, Tuple
+import re
+from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_core.documents import Document
 
@@ -26,9 +25,17 @@ class RAGChain:
         self.last_timing: Dict[str, float] = {}
 
     @staticmethod
-    def _fallback_answer(reason: str, question: str = "") -> Tuple[str, str]:
+    def _fallback_answer(reason: str, question: str = "", plan: Optional[Any] = None) -> Tuple[str, str]:
         """Return the safe not-found answer when no evidence was retrieved."""
-        return build_not_found_answer(question), reason
+        from app.contacts import get_contact_line
+        topic = plan.topic if plan else ""
+        prog = plan.primary_program if plan else ""
+        contact_line = get_contact_line(topic=topic, programme=prog)
+        answer = (
+            "I couldn't find this information in the official programme documents.\n\n"
+            f"{contact_line}"
+        )
+        return answer, reason
 
     def answer(
         self,
@@ -77,7 +84,7 @@ class RAGChain:
         program_name = getattr(self.retriever, "last_program", "")
 
         if not retrieved:
-            answer, status = self._fallback_answer("no_chunks_above_threshold", question)
+            answer, status = self._fallback_answer("no_chunks_above_threshold", question, plan=plan)
             self.last_status = LLMStatus.EMPTY
             self.last_timing = {
                 "retrieval_s": round(ret_time, 3),
@@ -101,13 +108,38 @@ class RAGChain:
         )
         llm_time = time.time() - t_llm
 
-        answer = strip_internal_references(response_text)
-        if not answer:
-            answer = build_not_found_answer(question)
-            status = f"{status}|no_content_after_sanitize"
-        elif any(phrase in answer.lower() for phrase in ("couldn't find", "could not find", "not found", "no information in the available")):
-            answer = build_not_found_answer(question)
-            status = f"{status}|not_found_after_sanitize"
+        from app.contacts import get_contact_line
+        contact_line = get_contact_line(topic=plan.topic, programme=plan.primary_program)
+
+        raw_trimmed = response_text.strip()
+        if "[[not_found]]" in raw_trimmed.lower() or raw_trimmed == "[[NOT_FOUND]]":
+            answer = (
+                "I couldn't find this information in the official programme documents.\n\n"
+                f"{contact_line}"
+            )
+            status = f"{status}|not_found_marker"
+        elif "[[missing:" in raw_trimmed.lower():
+            m = re.search(r"\[\[MISSING:\s*(.*?)\]\]", response_text, re.IGNORECASE)
+            missing_desc = m.group(1).strip() if m else ""
+            clean_body = re.sub(r"\[\[MISSING:.*?\]\]", "", response_text, flags=re.IGNORECASE).strip()
+            missing_line = (
+                f"I couldn't find information regarding {missing_desc} in the official programme documents."
+                if missing_desc else "I couldn't find further details in the official programme documents."
+            )
+            if clean_body:
+                answer = f"{clean_body}\n\n{missing_line}\n\n{contact_line}"
+            else:
+                answer = f"{missing_line}\n\n{contact_line}"
+            answer = strip_internal_references(answer)
+            status = f"{status}|missing_marker"
+        else:
+            answer = strip_internal_references(response_text)
+            if not answer:
+                answer = (
+                    "I couldn't find this information in the official programme documents.\n\n"
+                    f"{contact_line}"
+                )
+                status = f"{status}|no_content_after_sanitize"
 
         self.last_status = status
         total_time = time.time() - t_start
@@ -120,7 +152,7 @@ class RAGChain:
 
         # Cache only answers produced by gemini/groq with retrieved chunks and not NOT_FOUND
         if self.cache and retrieved and any(s in str(status).lower() for s in ("gemini", "groq")):
-            is_not_found = any(phrase in answer.lower() for phrase in ("couldn't find", "could not find", "not found", "no information in the official"))
+            is_not_found = "not_found" in status.lower() or "[[not_found]]" in response_text.lower()
             if not is_not_found:
                 self.cache.set(
                     plan.standalone_question,

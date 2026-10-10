@@ -65,35 +65,14 @@ def get_available_knowledge_sources() -> List[str]:
     return files
 
 
-_UNRELATED_QUERY_RE = re.compile(
-    r"\b(?:weather|temperature|forecast|rain|joke|jokes|riddle|story|"
-    r"python\s+function|write\s+(?:a\s+)?code|sort\s+a\s+list|javascript|algorithm|"
-    r"recipe|cooking|sing\s+a\s+song|who\s+won|president\s+of|capital\s+of)\b",
-    re.IGNORECASE,
-)
+def build_not_found_answer(topic: str = "", programme: str = "") -> str:
+    """Return clean not-found message with officially routed department contact."""
+    from app.contacts import get_contact_line
 
-
-def build_not_found_answer(query: str = "") -> str:
-    """Return a helpful fallback without dumping internal file names.
-
-    For clearly unrelated questions (weather, jokes, code), returns a polite
-    one-line scope message. For course-related questions where information is
-    not present, suggests contacting admissions with official contact details
-    from programs/contact.md and mentions what the chatbot can help with.
-    """
-    if query and _UNRELATED_QUERY_RE.search(query):
-        return (
-            "I am the CHARUSAT Online Course Assistant. I can only assist with inquiries "
-            "regarding CHARUSAT's online degree programmes (BCA, BBA, MBA, and MCA)."
-        )
-
+    contact_line = get_contact_line(topic=topic, programme=programme)
     return (
-        "I could not find this information in the available CHARUSAT online programme records.\n\n"
-        "For official and up-to-date assistance, please reach out to the Admissions Office:\n"
-        "• Phone: +91 7434055553 / +91 7600257365\n"
-        "• Official Portal: https://charusat.online\n\n"
-        "I can help you with programme details, eligibility criteria, fee structures, "
-        "curriculum, duration, and admission requirements for Online BCA, BBA, MBA, and MCA."
+        "I couldn't find this information in the official programme documents.\n\n"
+        f"{contact_line}"
     )
 
 
@@ -120,25 +99,6 @@ _RESOLVED_RE = re.compile(
     re.IGNORECASE | re.MULTILINE,
 )
 _MULTI_BLANK_RE = re.compile(r"\n{3,}")
-
-# Groq 70B occasionally answers "I couldn't find this information" even when
-# the retrieved context contains a direct answer. When a model returns one of
-# these markers, we fail over to the next model instead of trusting it.
-_NOT_FOUND_MARKERS = (
-    "couldn't find",
-    "could not find",
-    "cannot find",
-    "unable to find",
-    "not found",
-    "no information in the available",
-    "do not have information",
-    "i am unable to answer",
-)
-
-
-def _says_not_found(text: str) -> bool:
-    lowered = text.lower()
-    return any(marker in lowered for marker in _NOT_FOUND_MARKERS)
 
 
 def strip_internal_references(text: str) -> str:
@@ -260,31 +220,73 @@ class LLMClient:
             logger.warning("Both Gemini and Groq unavailable; using local fallback")
 
     def _discover_models(self) -> List[str]:
-        """Discover available Gemini models and return working ones."""
+        """Discover available Gemini models."""
         if not self._client:
             return []
-
-        working_models = []
-        for model_name in config.PREFERRED_MODELS:
-            try:
-                # Test model availability with a minimal request
-                response = self._client.models.generate_content(
-                    model=model_name,
-                    contents="test",
-                    config=self._gen_config,
-                )
-                working_models.append(model_name)
-                logger.info("Gemini model %s is available", model_name)
-            except Exception as exc:
-                logger.warning("Gemini model %s not available: %s", model_name, exc)
-                continue
-
-        return working_models
+        return list(config.PREFERRED_MODELS)
 
     # ------------------------------------------------------------------
     # Generation
     # Primary: Gemini API -> Groq Failover -> Local Fallback
     # ------------------------------------------------------------------
+
+    def chat(self, system: str, user: str) -> Optional[str]:
+        """Direct conversational chat generation (no RAG prompt).
+
+        Tries Gemini first, then Groq.
+        """
+        # 1. Try Gemini
+        if self._client and not (self._quota_exhausted and time.time() < self._cooldown_until):
+            for model_name in self._working_models:
+                try:
+                    full_prompt = f"{system}\n\nUser: {user}\nAssistant:"
+                    response = self._client.models.generate_content(
+                        model=model_name,
+                        contents=full_prompt,
+                        config=self._gen_config,
+                    )
+                    text = self._extract_text(response)
+                    if text and text.strip():
+                        self._quota_exhausted = False
+                        self._last_status = LLMStatus.GEMINI
+                        return text.strip()
+                except Exception as exc:
+                    error = self._classify_error(exc)
+                    if isinstance(error, APIQuotaError):
+                        self._quota_exhausted = True
+                        self._cooldown_until = time.time() + config.LLM_COOLDOWN_SECONDS
+                        break
+                    continue
+
+        # 2. Try Groq
+        if self._groq_client:
+            groq_models = [
+                getattr(config, "GROQ_MODEL", "openai/gpt-oss-120b"),
+                "openai/gpt-oss-20b",
+                "qwen/qwen3.8-27b",
+                "allam-2-7b",
+            ]
+            for model_name in groq_models:
+                try:
+                    response = self._groq_client.chat.completions.create(
+                        model=model_name,
+                        messages=[
+                            {"role": "system", "content": system},
+                            {"role": "user", "content": user},
+                        ],
+                        temperature=config.LLM_TEMPERATURE,
+                        max_tokens=256,
+                        timeout=config.GROQ_TIMEOUT,
+                    )
+                    if response.choices and len(response.choices) > 0:
+                        text = response.choices[0].message.content
+                        if text and text.strip():
+                            self._last_status = LLMStatus.GROQ
+                            return text.strip()
+                except Exception:
+                    continue
+
+        return None
 
     def generate(
         self,
@@ -348,13 +350,6 @@ class LLMClient:
                 )
                 text = self._extract_text(response)
                 if text and text.strip():
-                    # Never trust a not-found confession when a fallback
-                    # model may still answer from the same context.
-                    if _says_not_found(text):
-                        logger.warning(
-                            "Gemini model %s answered not-found; trying failover model...", model_name
-                        )
-                        continue
                     self._quota_exhausted = False
                     return text.strip()
                 logger.warning("Gemini model %s returned an empty response", model_name)
@@ -413,13 +408,6 @@ class LLMClient:
                 if response.choices and len(response.choices) > 0:
                     text = response.choices[0].message.content
                     if text and text.strip():
-                        # Never trust a not-found confession when a fallback
-                        # model may still answer from the same context.
-                        if _says_not_found(text):
-                            logger.warning(
-                                "Groq API model %s answered not-found; trying failover model...", model_name
-                            )
-                            continue
                         return text.strip()
                 logger.warning("Groq API model %s returned an empty response", model_name)
             except Exception as exc:

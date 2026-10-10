@@ -247,62 +247,7 @@ def _detect_program_display_names(text: str) -> List[str]:
     return found
 
 
-# Warm, conversational replies for pure greetings / small talk.
-# These are short on purpose — they should feel chatty, not document-based.
-_WARM_REPLIES = [
-    "Hi there! 👋 I'm the CHARUSAT assistant. Ask me anything about our online degree programmes — "
-    "fees, eligibility, curriculum, admissions or exams.",
-    "Hello! What can I help you with? You could ask about fees, eligibility, programmes, or how admission works.",
-    "Hey! I can help you with questions about CHARUSAT's online programmes. What would you like to know?",
-]
-
-
-def _is_pure_smalltalk(question: str) -> bool:
-    """True when the message is only a greeting/pleasantry, not a real question."""
-    q = question.strip()
-    if len(q) > 60:
-        return False
-    if "?" in q and _GREETING_RE.match(q.split("?")[0].strip()):
-        # "How are you?" / "sup?" style — still small talk unless it's a real query
-        if re.search(r"\b(what|fee|cost|eligib|admiss|apply|curriculum|exam|program|bba|bca|mba|mca)\b", q, re.IGNORECASE):
-            return False
-        return True
-    if _GREETING_RE.match(q):
-        return True
-
-    # Normalised exact-phrase check covers multi-word pleasantries
-    # ("thank you so much", "good to know", "hi there", "ok great", ...).
-    norm = re.sub(r"[^a-z0-9\s'-]", "", q.lower()).strip()
-    norm = re.sub(r"\s+", " ", norm)
-
-    smalltalk_phrases = {
-        "hi", "hello", "hey", "heyy", "yo", "sup", "bye", "goodbye",
-        "ok", "okay", "sure", "great", "nice", "cool", "thanks", "thank you",
-        "thank you so much", "thank you very much", "thanks a lot", "thx",
-        "good to know", "got it", "understood", "perfect", "awesome", "fine",
-        "how are you", "how are you doing", "whats up", "good morning",
-        "good afternoon", "good evening", "good day", "hi there", "hello there",
-        "hey there", "hi charusat", "hello charusat", "hey charusat",
-        "ok great", "ok thanks", "great thanks", "cool thanks", "thanks great",
-        "perfect thanks", "alright", "ok got it", "sounds good",
-    }
-    if norm in smalltalk_phrases:
-        return True
-
-    # Strip a leading acknowledgement ("ok", "great", ...) and re-check the rest.
-    remainder = re.sub(r"^(?:ok|okay|sure|great|nice|cool|perfect|awesome|thanks|thank you|alright|good)\s+", "", norm)
-    if remainder and remainder in smalltalk_phrases:
-        return True
-
-    # If it contains a real question or a topic keyword, it's a real query.
-    if any(w in norm for w in (
-        "what", "how", "tell", "explain", "which", "can you", "who",
-        "fee", "cost", "eligib", "admiss", "apply", "curriculum",
-        "exam", "program", "bba", "bca", "mba", "mca", "duration", "semester",
-    )):
-        return False
-
-    return False
+from app.smalltalk import is_smalltalk, converse
 
 
 def _generate_suggestions(
@@ -318,7 +263,7 @@ def _generate_suggestions(
     follow-ups cover all programmes. Already-asked questions are never
     re-suggested.
     """
-    if _is_pure_smalltalk(question):
+    if is_smalltalk(question):
         return []
 
     q_lower = question.strip().lower()
@@ -586,8 +531,30 @@ def _process_chat_turn(
     """Execute a single chat turn through RAG and build answer, sources, and suggestions.
     Shared by both /api/chat and /api/chat/stream.
     """
+    from app.smalltalk import is_smalltalk, converse
+    from app.conversation import analyze_turn
+
+    plan = analyze_turn(question, history=history)
+
+    # 1. Fast path for smalltalk / conversational pleasantries / out-of-scope
+    if is_smalltalk(question):
+        llm_client = getattr(rag_chain, "llm_client", None)
+        answer_text = converse(question, history=history, llm_client=llm_client)
+        return answer_text, [], []
+
+    # 2. Execute RAG
     answer_text, retrieved = rag_chain.answer(question, history=history)
-    sources = _extract_sources(retrieved)
+
+    # 3. If RAG returned no chunks and query is not course-specific, use conversational fallback
+    if not retrieved and plan.topic == "general" and not plan.programmes:
+        llm_client = getattr(rag_chain, "llm_client", None)
+        answer_text = converse(question, history=history, llm_client=llm_client)
+        return answer_text, [], []
+
+    if "I couldn't find this information in the official programme documents." in answer_text or "not_found" in str(getattr(rag_chain, "last_status", "")).lower():
+        sources = []
+    else:
+        sources = _extract_sources(retrieved)
     suggestions = _generate_suggestions(question, answer_text, history)
     return answer_text, sources, suggestions
 
@@ -602,28 +569,8 @@ async def chat_message(
 
     For authenticated users: creates/uses a conversation, persists messages.
     For guests: just calls RAG pipeline, no persistence.
-    Greetings / small talk are answered conversationally without hitting RAG.
     """
-    import random
-
     conversation_id = request.conversation_id
-
-    # ------------------------------------------------------------------
-    # Greeting / small talk — natural conversational reply, no RAG needed.
-    # ------------------------------------------------------------------
-    if _is_pure_smalltalk(request.question):
-        answer_text = random.choice(_WARM_REPLIES)
-        suggestions: List[str] = []
-        db = get_db()
-        assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
-        return ChatMessageResponse(
-            answer=answer_text,
-            conversation_id=conv_id,
-            message_id=assistant_msg["id"] if assistant_msg else None,
-            sources=[],
-            suggested_questions=suggestions,
-        )
-
     rag_chain, rag_ready = _get_rag_chain()
 
     if not rag_ready or rag_chain is None:
@@ -632,9 +579,7 @@ async def chat_message(
             detail="Chatbot RAG pipeline is not available.",
         )
 
-    # ------------------------------------------------------------------
     # Conversation context for retrieval and suggestions
-    # ------------------------------------------------------------------
     history = _resolve_history(request.history, user, conversation_id)
 
     # Call the shared RAG turn processing
@@ -718,40 +663,7 @@ async def chat_message_stream(
     - answer chunks as they're generated
     - final sources and suggestions
     """
-    import random
-
     conversation_id = request.conversation_id
-
-    # ------------------------------------------------------------------
-    # Greeting / small talk — natural conversational reply, no RAG needed.
-    # ------------------------------------------------------------------
-    if _is_pure_smalltalk(request.question):
-        answer_text = random.choice(_WARM_REPLIES)
-        suggestions: List[str] = []
-
-        async def generate_smalltalk():
-            # Send typing indicator
-            yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
-
-            # Simulate typing delay
-            await asyncio.sleep(0.5)
-
-            # Send answer chunks
-            chunk_size = 20
-            for i in range(0, len(answer_text), chunk_size):
-                chunk = answer_text[i:i + chunk_size]
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
-                await asyncio.sleep(0.05)
-
-            # Persist the conversation
-            db = get_db()
-            assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
-
-            # Send final message
-            yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'conversation_id': conv_id, 'message_id': assistant_msg['id'] if assistant_msg else None, 'sources': [], 'suggested_questions': suggestions})}\n\n"
-
-        return StreamingResponse(generate_smalltalk(), media_type="text/event-stream")
-
     rag_chain, rag_ready = _get_rag_chain()
 
     if not rag_ready or rag_chain is None:
@@ -760,50 +672,43 @@ async def chat_message_stream(
             detail="Chatbot RAG pipeline is not available.",
         )
 
-    # ------------------------------------------------------------------
-    # Conversation context for retrieval and suggestions
-    # ------------------------------------------------------------------
     history = _resolve_history(request.history, user, conversation_id)
+    answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
 
-    async def generate_stream():
-        """Generate streaming response with typing indicator."""
-        # Send typing indicator
+    async def generate_response():
         yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
+        await asyncio.sleep(0.05)
 
-        try:
-            # Call shared RAG turn processing
-            answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
+        chunk_size = 20
+        for i in range(0, len(answer_text), chunk_size):
+            chunk = answer_text[i:i + chunk_size]
+            yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+            await asyncio.sleep(0.015)
 
-            # Simulate streaming the answer
-            chunk_size = 30
-            for i in range(0, len(answer_text), chunk_size):
-                chunk = answer_text[i:i + chunk_size]
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
-                await asyncio.sleep(0.03)
+        db = get_db()
+        assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
 
-            # For guests, return without persistence
-            if user is None:
-                yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
-                return
+        final_data = {
+            "type": "done",
+            "answer": answer_text,
+            "conversation_id": conv_id,
+            "message_id": assistant_msg["id"] if assistant_msg else None,
+            "sources": sources,
+            "suggested_questions": suggestions,
+        }
+        yield f"data: {json.dumps(final_data)}\n\n"
 
-            # For authenticated users, persist to MongoDB
-            db = get_db()
-            if db is None:
-                # MongoDB unavailable — return answer without persistence
-                yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
-                return
+    return StreamingResponse(
+        generate_response(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
-            # Persist the conversation using helper
-            nonlocal conversation_id
-            assistant_msg, conv_id = _persist_turn(db, user, conversation_id, request.question, answer_text, suggestions)
 
-            yield f"data: {json.dumps({'type': 'done', 'answer': answer_text, 'conversation_id': conv_id, 'message_id': assistant_msg['id'] if assistant_msg else None, 'sources': sources, 'suggested_questions': suggestions})}\n\n"
-
-        except Exception as exc:
-            logger.error("RAG chain failed during streaming: %s", exc)
-            yield f"data: {json.dumps({'type': 'error', 'message': 'Failed to generate answer'})}\n\n"
-
-    return StreamingResponse(generate_stream(), media_type="text/event-stream")
 
 
 @router.post("/migrate", response_model=MigrateConversationResponse)
