@@ -365,5 +365,23 @@ Round 3 executed a complete architectural and retrieval quality overhaul across 
 11. **Step 10 (Privacy Audit):** Audited `bca-admission-data.md` and `bba-admission-data.md`. Verified that public queries do not expose student personal data. Recommended replacing raw rosters with anonymized statistical aggregates.
 12. **Step 11 (Final Verification):** Replayed dialogues, verified 15 new conversations, ran compliance assertions (0 stray asterisks, 0 empty quotes, 0 raw file extensions, 0 banned phrases, 0 non-English characters, only verified contacts). Stored `"after"` results in `CHANGES/round3_logs.json`.
 
+---
+
+## Round 4: UI Overhaul, Typing Suggestions, Admin Portal & System Hardening (Steps 0–8)
+
+### Executive Overview
+Round 4 completed the full user-facing and administrative transformation of the CHARUSAT Online Course Assistant. Over 9 isolated engineering steps, the system removed intrusive source chips, added autocomplete typing suggestions backed by a 117-question validated bank, resolved desktop sidebar drawer conflicts, refactored the chat UI with modular hooks and error boundaries, repaired answer quality bugs (currency normalizer and bare programme context retention), transformed the public landing page with dynamic contact feeds, built an authenticated 5-tab admin operations portal with brute-force protection and CSV exports, and performed repo hygiene.
+
+### Step-by-Step Milestones
+1. **Step 0 (Baseline Snapshot):** Created git tag `backup-before-round4` at commit `60a564a`. Captured 15 baseline screenshots across viewports in `CHANGES/round4_screenshots/before/`.
+2. **Step 1 (Source Chips Removal):** Excised source chips from UI rendering (`AssistantMessage.jsx`) and removed `"sources"` from API response payloads (`chat_routes.py`, `api.py`). Retrieved chunk logs preserved in backend. Commit `a17d669`.
+3. **Step 2 (Typing Suggestions & Question Bank):** Validated 117 questions via `backend/build_question_bank.py` (92 FULL, 21 PARTIAL, 4 NOT_IN_DOCS). Added public endpoints `GET /api/question-bank` and `GET /api/contacts`. Built `TypingSuggestions.jsx`, `questionBank.js`, and randomized starters in `WelcomeScreen.jsx`. Commit `8466d3b`.
+4. **Step 3 (Sidebar Open/Close Bug Fix):** Diagnosed desktop sidebar header button calling `openDrawer` instead of `toggleSidebar`. Fixed viewport branching in `ChatLayout.jsx`, added `localStorage` persistence and Escape key handlers. Commit `ebad79d`.
+5. **Step 4 (Chat UI Redesign & Error Boundary):** Refactored `Chat.jsx` into `useChat.js` and `useSidebar.js`. Added `remark-breaks` in `RichText.jsx` to prevent run-together bold labels. Enhanced `prompt.py` key facts table guidelines. Added `RegenerateButton`, `ErrorBoundary.jsx`, and captured after screenshots in `CHANGES/round4_screenshots/after/`. Commit `5f8a195`.
+6. **Step 5 (Answer Quality Bugs):** Added general regex currency normalizer (`normalize_currency`) converting erratic currency strings into clean `₹50,000`. Fixed bare programme follow-up context retention in `_FOLLOWUP_SHORT_PROG_RE`. Fixed duplicate key in feedback API. Commit `8b9477d`.
+7. **Step 6 (Landing Page Redesign):** Overhauled `Landing.jsx`, `SiteNav.jsx`, and `SiteFooter.jsx`. Removed unverified statistics; built 4 programme cards, 6 topic exploration cards, 3-step learning guide, and dynamic admissions directory from `GET /api/contacts`. Commit `921592f`.
+8. **Step 7 (Admin Login & Operations Dashboard):** Built `/admin/login` portal with 5 attempts per 15-minute brute-force rate limiting and 2-hour JWT expiry. Added MongoDB `db.chat_events` logging for all chats. Implemented 5-tab admin dashboard (`Admin.jsx`) covering Overview, Knowledge Gaps + CSV export, Feedback, User Management, and System Diagnostics + Cache Purge. Commit `1c1e405`.
+9. **Step 8 (Cleanup & Verification):** Cleaned dead imports, added test caches to `.gitignore`, verified 100% pass on all offline test suites, and verified production `npm run build` succeeds in 2.6s. Commit `719735b`.
+
 
 
