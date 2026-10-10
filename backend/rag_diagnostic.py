@@ -58,7 +58,6 @@ from app.retriever import RAGRetriever, _analyze_query, _detect_query_keywords, 
 from app.reranker import create_reranker, BGEReranker
 from app.prompt import build_prompt, SYSTEM_PROMPT
 from app.llm import LLMClient, build_not_found_answer
-from app.multilingual import detect_language
 from app.conflict import detect_conflicts_from_documents, format_conflict_notice
 from app.query_expansion import is_vague_query, vague_clarification_message, detect_programme_context
 from app.rag_chain import RAGChain
@@ -121,11 +120,11 @@ TEST_QUESTIONS: List[Dict[str, Any]] = [
     {"id": "Q19", "category": "keyword_exact",
      "q": "CIQA learner support CHARUSAT"},
 
-    # --- 5. Typos / bad grammar / Hinglish (4) ---
+    # --- 5. Typos / bad grammar / noisy input (4) ---
     {"id": "Q20", "category": "noisy_input",
-     "q": "charusat onlne mba fees kitni hain"},
+     "q": "charusat onlne mba fees how much"},
     {"id": "Q21", "category": "noisy_input",
-     "q": "bca programme ki durasion kya he"},
+     "q": "bca programme durasion how many years"},
     {"id": "Q22", "category": "noisy_input",
      "q": "eligiblity for mca admision"},
     {"id": "Q23", "category": "noisy_input",
@@ -269,6 +268,7 @@ def trace_retrieval(
     hybrid_retriever: HybridRetriever,
     rag_retriever: RAGRetriever,
     k: int = CANDIDATE_POOL_SIZE,
+    history: Optional[Any] = None,
 ) -> Dict[str, Any]:
     """Run each retrieval sub-stage independently and capture results."""
     trace: Dict[str, Any] = {}
@@ -311,7 +311,7 @@ def trace_retrieval(
 
     # -- Full retriever pipeline (includes scoring, dedup, rerank, filter) --
     t0 = time.time()
-    final_docs = rag_retriever.retrieve(query)
+    final_docs = rag_retriever.retrieve(query, history=history)
     trace["retriever_latency_s"] = round(time.time() - t0, 3)
     trace["final_chunks"] = [
         {"id": d.metadata.get("chunk_id","?"),
@@ -438,9 +438,6 @@ def main() -> None:
 
         print(f"  [{qi:02d}/40] {qid} [{cat}] — {query[:70]}")
 
-        # Inject prior context for follow-up questions
-        rag_retriever.conversation_history = list(prior)
-
         log: Dict[str, Any] = {
             "id": qid,
             "category": cat,
@@ -452,19 +449,17 @@ def main() -> None:
         program, intent = _analyze_query(query)
         keywords = _detect_query_keywords(query)
         phrases  = _query_phrases(query)
-        language = detect_language(query)
         log["query_analysis"] = {
             "detected_program": program,
             "intent": intent,
             "keywords": keywords,
             "phrases": phrases,
-            "language": language,
         }
 
         # ---- Per-stage retrieval trace ----
         try:
             t_ret_start = time.time()
-            trace, final_docs = trace_retrieval(query, hybrid_retriever, rag_retriever)
+            trace, final_docs = trace_retrieval(query, hybrid_retriever, rag_retriever, history=prior)
             log["retrieval_trace"] = trace
         except Exception as exc:
             log["retrieval_trace"] = {"error": str(exc)}
@@ -494,7 +489,7 @@ def main() -> None:
                 answer = vague_clarification_message()
                 llm_status = "vague_clarification"
             elif final_docs:
-                prompt = build_prompt(context=context_str, question=query, language=language)
+                prompt = build_prompt(context=context_str, question=query)
                 evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in final_docs]
                 answer, llm_status = llm_client.generate(prompt, context_chunks=evidence, conflicts=conflicts)
             else:
@@ -520,9 +515,6 @@ def main() -> None:
             "top_chunk_source": (final_docs[0][0].metadata.get("source","") if final_docs else ""),
             "top_chunk_score": (round(final_docs[0][1], 4) if final_docs else 0.0),
         }
-
-        # Reset conversation history after each question
-        rag_retriever.conversation_history = []
 
         test_logs.append(log)
         final_cnt = 0 if log['behavior']['returned_empty_retrieval'] else trace.get('final_count', 0)
@@ -635,7 +627,7 @@ def build_report(chunk_stats: Dict[str, Any], test_logs: List[Dict[str, Any]]) -
     p("You are CHARUSAT Online Course Assistant.")
     p("Answer ONLY from retrieved context. Never invent facts.")
     p("8 rules including: numeric safety, conflict reporting,")
-    p("cross-programme answers, multilingual (en/hi/gu) support.")
+    p("cross-programme answers, English-only support.")
     p("```")
     p()
 
@@ -711,7 +703,7 @@ def build_report(chunk_stats: Dict[str, Any], test_logs: List[Dict[str, Any]]) -
             "BM25 ignores metadata filters — it searches ALL docs, so an unrelated programme's chunk can beat the correct one."
         ),
         "noisy_input": (
-            "Hinglish / typo queries still retrieved reasonable chunks when the programme acronym (bca, mba) was present for intent detection.",
+            "Typo / noisy queries still retrieved reasonable chunks when the programme acronym (bca, mba) was present for intent detection.",
             "Heavy typos in key terms (e.g. 'durasion') may reduce both BM25 and embedding similarity enough to miss the answer."
         ),
         "vague": (
@@ -865,8 +857,8 @@ def build_report(chunk_stats: Dict[str, Any], test_logs: List[Dict[str, Any]]) -
     p()
 
     h(3, "🟢 P8: Upgrade Embedding Model")
-    p("**Evidence:** `bge-small-en-v1.5` (384-dim) is a compact model. Paraphrase handling degrades for colloquial or Hinglish text.")
-    p("**Fix:** Evaluate `bge-base-en-v1.5` (768-dim) or `multilingual-e5-base` for better paraphrase coverage and Hinglish support. Rebuild the vector store after switching.")
+    p("**Evidence:** `bge-small-en-v1.5` (384-dim) is a compact model. Paraphrase handling degrades for colloquial text.")
+    p("**Fix:** Evaluate `bge-base-en-v1.5` (768-dim) for better paraphrase coverage. Rebuild the vector store after switching.")
     p()
 
     # =========================================================================

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import sys
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -161,6 +162,10 @@ class ChatRequest(BaseModel):
         min_length=1,
         description="The user's question.",
     )
+    history: Optional[List[Dict[str, Any]]] = Field(
+        default=None,
+        description="Optional conversation history for multi-turn Q&A.",
+    )
 
 
 class ChatResponse(BaseModel):
@@ -195,7 +200,7 @@ async def chat(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=503, detail="Chatbot RAG pipeline is not available.")
 
     try:
-        answer_text, _retrieved = rag_chain.answer(request.question)
+        answer_text, _retrieved = rag_chain.answer(request.question, history=request.history)
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(status_code=500, detail="Failed to generate answer") from exc

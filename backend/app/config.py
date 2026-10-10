@@ -21,13 +21,6 @@ SCRAPE_MAX_PAGES = 250
 CRAWL_DELAY = 0.5
 USE_PLAYWRIGHT_SCRAPER = False  # Enable Playwright for JavaScript-heavy pages
 
-# ---------------------------------------------------------------------------
-# Multilingual support
-# ---------------------------------------------------------------------------
-MULTILINGUAL_ENABLED = True
-SUPPORTED_LANGUAGES = ["en", "hi", "gu"]  # English, Hindi, Gujarati
-DEFAULT_LANGUAGE = "en"
-
 load_dotenv(BASE_DIR / ".env")
 
 

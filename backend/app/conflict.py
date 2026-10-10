@@ -378,7 +378,7 @@ def detect_conflicts(
     conflicts: List[Conflict] = []
     for (attribute, aspect, programme), claims in sorted(claims_by_key.items()):
         distinct = _distinct_numbers(claims)
-        # Check if values are mathematically consistent multiples (e.g. 30,000/yr x 3 yrs = 90,000 total)
+        # Check if values are mathematically consistent multiples (e.g. per-year fee x years = total fee)
         if len(distinct) == 2:
             low, high = min(distinct), max(distinct)
             if low > 0 and any(abs(high - low * m) < 1.0 for m in (2, 3, 4, 6)):

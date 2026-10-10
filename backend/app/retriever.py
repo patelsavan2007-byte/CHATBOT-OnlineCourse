@@ -33,6 +33,8 @@ except ImportError:
     logger.warning("Query expansion not available")
 
 
+from app.conversation import TurnPlan, analyze_turn, _detect_programmes_in_text
+
 # Intent tags describing how a query should be routed through retrieval.
 INTENT_PROGRAMME = "programme"            # a specific programme is mentioned
 INTENT_OVERVIEW = "programme_overview"    # asks what programmes are offered
@@ -50,14 +52,14 @@ PROGRAM_KEYWORDS: Dict[str, str] = {
 def _detect_program(query: str) -> str:
     """Detect the online programme explicitly mentioned in the query, if any.
 
-    A programme is only assigned when the user actually names one
-    (BCA/BBA/MBA/MCA, with or without dots, "online" prefix or
-    whitespace). Generic queries never inherit a default programme.
+    Returns the programme identifier if exactly one programme is mentioned.
+    If multiple programmes are named (e.g. comparison or broad question),
+    returns empty string so the search is routed across programmes rather
+    than locking onto the first dict key.
     """
-    query_lower = query.lower()
-    for pattern, program_name in PROGRAM_KEYWORDS.items():
-        if re.search(pattern, query_lower):
-            return program_name
+    progs = _detect_programmes_in_text(query)
+    if len(progs) == 1:
+        return progs[0]
     return ""
 
 
@@ -235,7 +237,6 @@ class RAGRetriever:
         self._policy_sources_cache: Optional[Set[str]] = None
         self._hybrid_retriever: Optional[HybridRetriever] = None
         self._reranker = None
-        self.conversation_history: List[Tuple[str, str]] = []  # Store conversation history for query expansion
 
         # Initialize hybrid retriever if available
         if HYBRID_AVAILABLE:
@@ -566,35 +567,37 @@ class RAGRetriever:
     # Public API
     # ------------------------------------------------------------------
 
-    def update_conversation_history(self, user_query: str, assistant_response: str) -> None:
-        """Update conversation history for query expansion.
-
-        Args:
-            user_query: User's query
-            assistant_response: Assistant's response
-        """
-        self.conversation_history.append((user_query, assistant_response))
-        # Keep only last 10 turns to avoid memory bloat
-        if len(self.conversation_history) > 10:
-            self.conversation_history = self.conversation_history[-10:]
-
-    def retrieve(self, query: str) -> List[Tuple[Document, float]]:
+    def retrieve(
+        self,
+        query: str,
+        plan: Optional[TurnPlan] = None,
+        history: Optional[Any] = None,
+    ) -> List[Tuple[Document, float]]:
         self.last_query = query
-        self.last_program, self.last_intent = _analyze_query(query)
-        self.last_keywords = _detect_query_keywords(query)
-        self.last_phrases = _query_phrases(query)
-        program_name = self.last_program
+        if plan is None:
+            plan = analyze_turn(query, history=history)
 
-        # Apply query expansion if available and we have history
-        search_query = query
-        if QUERY_EXPANSION_AVAILABLE and self.conversation_history:
-            try:
-                search_query = get_contextual_query(query, self.conversation_history)
-                if search_query != query:
-                    logger.info("Query expansion applied: %s -> %s", query, search_query)
-            except Exception as exc:
-                logger.warning("Query expansion failed: %s", exc)
-                search_query = query
+        search_query = plan.standalone_question or query
+
+        if plan.is_compare or len(plan.programmes) >= 2:
+            program_name = ""
+            self.last_program = ""
+            self.last_intent = INTENT_GENERAL
+        elif len(plan.programmes) == 1:
+            program_name = plan.programmes[0]
+            self.last_program = program_name
+            self.last_intent = INTENT_PROGRAMME
+        elif _is_programme_overview_query(search_query):
+            program_name = ""
+            self.last_program = ""
+            self.last_intent = INTENT_OVERVIEW
+        else:
+            program_name = ""
+            self.last_program = ""
+            self.last_intent = INTENT_GENERAL
+
+        self.last_keywords = _detect_query_keywords(search_query)
+        self.last_phrases = _query_phrases(search_query)
 
         pool = self._candidate_search(search_query, program_name)
         if not pool:
@@ -643,7 +646,7 @@ class RAGRetriever:
         needs_coverage = (
             self.last_intent == INTENT_GENERAL
             and not self.last_program
-            and _requires_all_program_coverage(query)
+            and _requires_all_program_coverage(search_query)
         )
 
         if needs_coverage:

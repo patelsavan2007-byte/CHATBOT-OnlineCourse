@@ -54,7 +54,7 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 _GREETING_RE = re.compile(
     r"^\s*(?:hi|hello|hey|good\s+(?:morning|afternoon|evening)|"
     r"thanks|thank\s+you|ok|okay|sure|great|nice|cool|bye|goodbye|"
-    r"how\s+are\s+you|what'?s?\s+up|sup|yo|namaste|hii+)\s*[!?.]*\s*$",
+    r"how\s+are\s+you|what'?s?\s+up|sup|yo|hii+)\s*[!?.]*\s*$",
     re.IGNORECASE,
 )
 
@@ -276,7 +276,7 @@ def _is_pure_smalltalk(question: str) -> bool:
     norm = re.sub(r"\s+", " ", norm)
 
     smalltalk_phrases = {
-        "hi", "hello", "hey", "heyy", "yo", "sup", "bye", "goodbye", "namaste",
+        "hi", "hello", "hey", "heyy", "yo", "sup", "bye", "goodbye",
         "ok", "okay", "sure", "great", "nice", "cool", "thanks", "thank you",
         "thank you so much", "thank you very much", "thanks a lot", "thx",
         "good to know", "got it", "understood", "perfect", "awesome", "fine",
@@ -535,6 +535,60 @@ def _persist_turn(
     return assistant_msg, conversation_id
 
 
+def _resolve_history(
+    request_history: Optional[List[Dict[str, Any]]],
+    user: Optional[Dict[str, Any]],
+    conversation_id: Optional[str],
+) -> Optional[List[Dict[str, Any]]]:
+    """Resolve conversation history from request or database."""
+    if request_history:
+        return request_history
+    if user is not None and conversation_id:
+        db = get_db()
+        if db is not None:
+            recent = get_conversation_messages(db, conversation_id)
+            if recent:
+                return recent[-8:]
+    return None
+
+
+def _extract_pdf_sources(retrieved: List[Any]) -> List[Dict[str, Any]]:
+    """Extract and deduplicate official PDF sources from retrieved chunks."""
+    sources = []
+    seen_source_pages = set()
+    if retrieved:
+        for doc, score in retrieved:
+            meta = doc.metadata
+            source_path = str(meta.get("source", ""))
+            if not source_path.lower().endswith(".pdf"):
+                continue
+            key = (source_path, meta.get("page"))
+            if key in seen_source_pages:
+                continue
+            seen_source_pages.add(key)
+            sources.append({
+                "source": source_path,
+                "page": meta.get("page"),
+                "program": meta.get("program_name"),
+                "score": round(score, 3),
+            })
+    return sources
+
+
+def _process_chat_turn(
+    question: str,
+    history: Optional[List[Dict[str, Any]]],
+    rag_chain: Any,
+) -> Tuple[str, List[Dict[str, Any]], List[str]]:
+    """Execute a single chat turn through RAG and build answer, sources, and suggestions.
+    Shared by both /api/chat and /api/chat/stream.
+    """
+    answer_text, retrieved = rag_chain.answer(question, history=history)
+    sources = _extract_pdf_sources(retrieved)
+    suggestions = _generate_suggestions(question, answer_text, history)
+    return answer_text, sources, suggestions
+
+
 @router.post("", response_model=ChatMessageResponse)
 async def chat_message(
     request: ChatMessageRequest,
@@ -552,8 +606,6 @@ async def chat_message(
 
     # ------------------------------------------------------------------
     # Greeting / small talk — natural conversational reply, no RAG needed.
-    # No suggestion chips here: after a greeting, quiet is more natural
-    # than pushing programme questions unprompted.
     # ------------------------------------------------------------------
     if _is_pure_smalltalk(request.question):
         answer_text = random.choice(_WARM_REPLIES)
@@ -577,52 +629,19 @@ async def chat_message(
         )
 
     # ------------------------------------------------------------------
-    # Conversation context for smarter suggestions (dedup already-asked)
+    # Conversation context for retrieval and suggestions
     # ------------------------------------------------------------------
-    history: Optional[List[Dict[str, Any]]] = None
-    if request.history:
-        history = request.history
-    elif user is not None and conversation_id:
-        db = get_db()
-        if db is not None:
-            recent = get_conversation_messages(db, conversation_id)
-            if recent:
-                history = recent[-8:]
+    history = _resolve_history(request.history, user, conversation_id)
 
-    # Call the existing RAG pipeline
+    # Call the shared RAG turn processing
     try:
-        answer_text, retrieved = rag_chain.answer(request.question)
+        answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate answer",
         ) from exc
-
-    # Extract source information from retrieved chunks (deduplicated by source and page).
-    # Only official PDF sources are reported — .md website pages are not
-    # shown as citations so the UI stays clean and trustworthy.
-    sources = []
-    seen_source_pages = set()
-    if retrieved:
-        for doc, score in retrieved:
-            meta = doc.metadata
-            source_path = str(meta.get("source", ""))
-            if not source_path.lower().endswith(".pdf"):
-                continue
-            key = (source_path, meta.get("page"))
-            if key in seen_source_pages:
-                continue
-            seen_source_pages.add(key)
-            sources.append({
-                "source": source_path,
-                "page": meta.get("page"),
-                "program": meta.get("program_name"),
-                "score": round(score, 3),
-            })
-
-    # Generate context-aware follow-up suggestions
-    suggestions = _generate_suggestions(request.question, answer_text, history)
 
     # For guests, return without persistence
     if user is None:
@@ -738,17 +757,9 @@ async def chat_message_stream(
         )
 
     # ------------------------------------------------------------------
-    # Conversation context for smarter suggestions
+    # Conversation context for retrieval and suggestions
     # ------------------------------------------------------------------
-    history: Optional[List[Dict[str, Any]]] = None
-    if request.history:
-        history = request.history
-    elif user is not None and conversation_id:
-        db = get_db()
-        if db is not None:
-            recent = get_conversation_messages(db, conversation_id)
-            if recent:
-                history = recent[-8:]
+    history = _resolve_history(request.history, user, conversation_id)
 
     async def generate_stream():
         """Generate streaming response with typing indicator."""
@@ -756,31 +767,8 @@ async def chat_message_stream(
         yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
 
         try:
-            # Call RAG pipeline (currently non-streaming, but structured for future streaming)
-            answer_text, retrieved = rag_chain.answer(request.question)
-
-            # Extract source information (deduplicated by source and page)
-            sources = []
-            seen_source_pages = set()
-            if retrieved:
-                for doc, score in retrieved:
-                    meta = doc.metadata
-                    source_path = str(meta.get("source", ""))
-                    if not source_path.lower().endswith(".pdf"):
-                        continue
-                    key = (source_path, meta.get("page"))
-                    if key in seen_source_pages:
-                        continue
-                    seen_source_pages.add(key)
-                    sources.append({
-                        "source": source_path,
-                        "page": meta.get("page"),
-                        "program": meta.get("program_name"),
-                        "score": round(score, 3),
-                    })
-
-            # Generate context-aware follow-up suggestions
-            suggestions = _generate_suggestions(request.question, answer_text, history)
+            # Call shared RAG turn processing
+            answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
 
             # Simulate streaming the answer
             chunk_size = 30

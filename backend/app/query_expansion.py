@@ -1,41 +1,16 @@
-"""Query expansion and rewrite for multi-turn retrieval.
-
-This module improves retrieval quality by:
-1. Expanding queries with relevant terms from conversation history
-2. Rewriting pronouns and context-dependent references
-3. Maintaining context across multiple conversation turns
-"""
 from __future__ import annotations
 
 import re
-from typing import List, Optional, Tuple
+from typing import Any, List, Optional, Tuple
 
+from app.conversation import analyze_turn, _detect_programmes_in_text
 from app.utils import logger
-
-
-# Pronouns and context-dependent phrases that need rewriting
-PRONOUN_PATTERNS = {
-    r"\bit\b": "it",
-    r"\bthey\b": "they",
-    r"\bthem\b": "them",
-    r"\bthis\b": "this",
-    r"\bthat\b": "that",
-    r"\bthese\b": "these",
-    r"\bthose\b": "those",
-    r"\bthe\s+(?:program|course|degree|one)\b": "the programme",
-}
 
 
 def extract_key_terms(text: str) -> List[str]:
     """Extract important terms from text for query expansion.
-
-    Args:
-        text: Input text
-
-    Returns:
-        List of key terms
+    Handles 3-letter acronyms (e.g. bca, bba, mba, mca).
     """
-    # Simple keyword extraction based on length and common stopwords
     stopwords = {
         "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
         "has", "have", "how", "i", "in", "is", "it", "its", "of", "on",
@@ -45,9 +20,9 @@ def extract_key_terms(text: str) -> List[str]:
     }
 
     words = re.findall(r"\b[a-z]{3,}\b", text.lower())
-    key_terms = [w for w in words if w not in stopwords and len(w) > 3]
+    # Keep words of 3+ letters if not in stopwords (preserves mba, bca, bba, mca, fee)
+    key_terms = [w for w in words if w not in stopwords]
 
-    # Remove duplicates while preserving order
     seen = set()
     result = []
     for term in key_terms:
@@ -80,134 +55,38 @@ def vague_clarification_message() -> str:
     )
 
 
-def detect_programme_context(history: List[Tuple[str, str]]) -> Optional[str]:
-    """Detect the programme being discussed from conversation history.
-
-    Checks user messages and assistant responses in the most recent turns.
-    """
-    programme_patterns = [
-        (re.compile(r"\b(?:online\s+)?b\.?\s*c\.?\s*a\b", re.IGNORECASE), "online_bca"),
-        (re.compile(r"\b(?:online\s+)?b\.?\s*b\.?\s*a\b", re.IGNORECASE), "online_bba"),
-        (re.compile(r"\b(?:online\s+)?m\.?\s*b\.?\s*a\b", re.IGNORECASE), "online_mba"),
-        (re.compile(r"\b(?:online\s+)?m\.?\s*c\.?\s*a\b", re.IGNORECASE), "online_mca"),
-    ]
-
-    for user_msg, asst_msg in reversed(history[-5:]):
-        combined = f"{user_msg} {asst_msg}"
-        for pattern, programme in programme_patterns:
-            if pattern.search(combined):
-                logger.info("Detected programme context from history: %s", programme)
-                return programme
-
-    return None
+def detect_programme_context(history: Optional[List[Any]]) -> Optional[str]:
+    """Detect programme context using analyze_turn."""
+    if not history:
+        return None
+    plan = analyze_turn("", history=history)
+    return plan.primary_program
 
 
-def rewrite_pronouns(query: str, history: List[Tuple[str, str]]) -> str:
-    """Rewrite pronouns and context-dependent references in the query.
-
-    Args:
-        query: Current user query
-        history: Conversation history
-
-    Returns:
-        Rewritten query with pronouns resolved
-    """
+def rewrite_pronouns(query: str, history: Optional[List[Any]] = None) -> str:
+    """Thin wrapper over analyze_turn."""
     if not history:
         return query
-
-    programme = detect_programme_context(history)
-    if programme:
-        programme_display = programme.replace("_", " ").upper()
-        q_clean = query.strip().lower().rstrip("?").strip()
-
-        # Handle purely vague follow-ups using known programme
-        if q_clean in {"fees", "fee", "cost"}:
-            return f"What is the fee structure for {programme_display}?"
-        if q_clean in {"tell me more", "more", "details"}:
-            return f"Tell me more about the {programme_display} programme."
-        if q_clean in {"it", "this", "that"}:
-            return f"Tell me about the {programme_display} programme."
-
-        # Pronoun substitution
-        rewritten = re.sub(r"\b(?:it|this|that|the programme|the course)\b", programme_display, query, flags=re.IGNORECASE)
-        if rewritten != query:
-            logger.info("Rewrote pronouns with programme: %s -> %s", query, rewritten)
-            return rewritten
-
-        # If query has attribute keywords but no programme, append programme
-        if not any(prog in query.lower() for prog in ["bba", "bca", "mba", "mca"]):
-            if any(term in query.lower() for term in ["fee", "cost", "duration", "semester", "credit", "eligib", "admiss", "curric", "exam"]):
-                rewritten = f"{query} for {programme_display}"
-                logger.info("Rewrote query with programme context: %s -> %s", query, rewritten)
-                return rewritten
-
-    return query
+    plan = analyze_turn(query, history=history)
+    return plan.standalone_question or query
 
 
-def expand_query(
-    query: str,
-    history: Optional[List[Tuple[str, str]]] = None,
-    max_terms: int = 3,
-) -> str:
-    """Expand query using key terms from the PREVIOUS TURN ONLY.
-
-    Args:
-        query: Current user query
-        history: Conversation history (list of (user, assistant) tuples)
-        max_terms: Maximum number of expansion terms to add (default 3)
-
-    Returns:
-        Expanded query
-    """
+def expand_query(query: str, history: Optional[List[Any]] = None, max_terms: int = 3) -> str:
+    """Thin wrapper over analyze_turn."""
     if not history:
         return query
-
-    # First rewrite pronouns and vague references
-    rewritten = rewrite_pronouns(query, history)
-
-    # Extract key terms from PREVIOUS TURN ONLY (history[-1])
-    all_terms = []
-    prev_turn = history[-1]
-    # Extract terms from previous user message
-    all_terms.extend(extract_key_terms(prev_turn[0]))
-
-    # Extract terms from current query
-    current_terms = extract_key_terms(query)
-
-    # Find expansion terms not already in current query
-    expansion_terms = [t for t in all_terms if t not in current_terms]
-    expansion_terms = list(dict.fromkeys(expansion_terms))[:max_terms]
-
-    if expansion_terms:
-        expanded = f"{rewritten} {' '.join(expansion_terms)}"
-        logger.info("Expanded query: %s -> %s (added terms: %s)", query, expanded, expansion_terms)
-        return expanded
-
-    return rewritten
+    plan = analyze_turn(query, history=history)
+    return plan.standalone_question or query
 
 
 def get_contextual_query(
     query: str,
-    history: Optional[List[Tuple[str, str]]] = None,
+    history: Optional[List[Any]] = None,
     enable_expansion: bool = True,
 ) -> str:
-    """Get a contextualized query for retrieval.
-
-    This combines query rewriting and expansion to improve retrieval
-    quality in multi-turn conversations.
-
-    Args:
-        query: Current user query
-        history: Conversation history
-        enable_expansion: Whether to enable query expansion
-
-    Returns:
-        Contextualized query
-    """
+    """Get a contextualized query for retrieval using analyze_turn."""
     if not history or not enable_expansion:
         return query
+    plan = analyze_turn(query, history=history)
+    return plan.standalone_question or query
 
-    # Apply expansion
-    contextual_query = expand_query(query, history)
-
-    return contextual_query

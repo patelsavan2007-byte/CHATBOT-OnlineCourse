@@ -98,26 +98,27 @@ def build_not_found_answer(query: str = "") -> str:
 
 
 _INTERNAL_REF_RE = re.compile(
-    r"^[ 	]*(?:Source|Page|Chunk ID|Score|Content Type|Document Type|Programme)\s*:.*$",
+    r"^[ \t]*(?:Source|Page|Chunk ID|Score|Content Type|Document Type|Programme)\s*:.*$",
     re.IGNORECASE | re.MULTILINE,
 )
-_SOURCE_AT_END_RE = re.compile(r"[ 	]*Source\s*:\s*[^\n]*$", re.IGNORECASE)
+_SOURCE_AT_END_RE = re.compile(r"[ \t]*Source\s*:\s*[^\n]*$", re.IGNORECASE)
 _FILE_PATH_RE = re.compile(
-    r"\b(?:programs|pdfs|knowledge_base)[/\\][^\n\r,;:()]+\.(?:md|pdf|txt|docx)\b",
+    r"\b(?:programs|pdfs|knowledge_base)[/\\][^\n\r,;:()\[\]\s]+\b",
     re.IGNORECASE,
 )
-_SPECIFIC_FILES_RE = re.compile(
-    r"\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|ciqa|feedback|home|mandatory-disclosures|privacy-policy|terms-conditions|contact|online_bba|online_bca|online_mba|online_mca)(?:\.(?:pdf|md|txt))?\b",
-    re.IGNORECASE,
-)
-_BARE_FILE_RE = re.compile(r"\b[\w\s.-]+\.(?:md|pdf|txt|docx)\b", re.IGNORECASE)
-_AS_PER_LEFTOVER_RE = re.compile(
-    r"\b(?:as\s+per|according\s+to|stated\s+in|mentioned\s+in|in\s+the\s+document|as\s+seen\s+in)\b",
+_FILE_EXT_RE = re.compile(
+    r"\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|[A-Za-z0-9_-]+)\.(?:md|pdf|txt|docx)\b",
     re.IGNORECASE,
 )
 _PAGE_REF_RE = re.compile(r"\(?\bpage\s+\d+\b\)?", re.IGNORECASE)
-_VENDOR_RE = re.compile(r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b", re.IGNORECASE)
-_RESOLVED_RE = re.compile(r"^(?:resolved|retrieved|search|source|sources)\s*[:\-].*$", re.IGNORECASE | re.MULTILINE)
+_VENDOR_RE = re.compile(
+    r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b.*$",
+    re.IGNORECASE | re.MULTILINE,
+)
+_RESOLVED_RE = re.compile(
+    r"^[ \t]*(?:resolved|retrieved|search|source|sources)\s*[:\-].*$",
+    re.IGNORECASE | re.MULTILINE,
+)
 _MULTI_BLANK_RE = re.compile(r"\n{3,}")
 
 # Groq 70B occasionally answers "I couldn't find this information" even when
@@ -141,41 +142,34 @@ def _says_not_found(text: str) -> bool:
 
 
 def strip_internal_references(text: str) -> str:
-    """Remove source/page/score references from an answer before display.
+    """Remove source lines, file paths with extensions, page numbers, and vendor tags.
 
-    The LLM is instructed never to mention internal details, but the
-    deterministic fallback and stubborn models occasionally echo them. This
-    sanitizer removes the common shapes so the production UI never shows
-    source files, page numbers, chunk IDs or scores.
+    Preserves plain words (contact, home, feedback, ciqa, Fees Refund Policy),
+    markdown structure, indentation, and list hierarchies. Never force-capitalizes.
     """
     if not text:
         return text
+
     cleaned = _INTERNAL_REF_RE.sub("", text)
     cleaned = _SOURCE_AT_END_RE.sub("", cleaned)
     cleaned = _FILE_PATH_RE.sub("", cleaned)
-    cleaned = _SPECIFIC_FILES_RE.sub("", cleaned)
-    cleaned = _BARE_FILE_RE.sub("", cleaned)
-    # Note: Do not remove natural connective phrases like 'as per', 'according to'
-    # as that corrupts valid sentences into ungrammatical fragments.
+    cleaned = _FILE_EXT_RE.sub("", cleaned)
     cleaned = _PAGE_REF_RE.sub("", cleaned)
     cleaned = _VENDOR_RE.sub("", cleaned)
     cleaned = _RESOLVED_RE.sub("", cleaned)
-    cleaned = re.sub(r"\b(?:via|generated\s+by)\s+(?:groq|gemini)\b.*$", "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
+    cleaned = re.sub(r'["“][ \t]*["”]', "", cleaned)
     cleaned = re.sub(r"\(\s*\)", "", cleaned)
     cleaned = re.sub(r"\[\s*\]", "", cleaned)
-    cleaned = re.sub(r"\s+([.,;:!?])", r"\1", cleaned)
-    cleaned = re.sub(r"^[ 	]*[,.-]\s*", "", cleaned, flags=re.MULTILINE)
-    cleaned = re.sub(r"[ 	]{2,}", " ", cleaned)
+    cleaned = re.sub(r"[ \t]+([.,;:!?])", r"\1", cleaned)
+    cleaned = re.sub(r"(?<=\S)[ \t]{2,}", " ", cleaned)
     cleaned = _MULTI_BLANK_RE.sub("\n\n", cleaned)
 
-    lines = cleaned.split("\n")
-    cleaned_lines = []
-    for line in lines:
-        l = line.strip()
-        if l and l[0].islower():
-            l = l[0].upper() + l[1:]
-        cleaned_lines.append(l)
-    return "\n".join(cleaned_lines).strip()
+    lines = [line.rstrip() for line in cleaned.splitlines()]
+    while lines and not lines[0].strip():
+        lines.pop(0)
+    while lines and not lines[-1].strip():
+        lines.pop()
+    return "\n".join(lines)
 
 
 class LLMStatus:
@@ -307,13 +301,13 @@ class LLMClient:
         gemini_text = self._try_gemini(prompt)
         if gemini_text:
             self._last_status = LLMStatus.GEMINI
-            return strip_internal_references(gemini_text), LLMStatus.GEMINI
+            return gemini_text, LLMStatus.GEMINI
 
         # Fall back to Groq
         groq_text = self._try_groq(prompt)
         if groq_text:
             self._last_status = LLMStatus.GROQ
-            return strip_internal_references(groq_text), LLMStatus.GROQ
+            return groq_text, LLMStatus.GROQ
 
         # Final fallback to deterministic local generation
         logger.warning("Both Gemini and Groq APIs unavailable or failed; using local deterministic fallback")

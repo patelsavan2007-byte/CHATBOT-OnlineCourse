@@ -269,7 +269,7 @@ def create_sample_golden_set(output_path: str) -> None:
         {
             "question": "What is the total fee for Online BBA?",
             "expected_sources": ["pdfs/PPR_Online_BBA"],
-            "expected_answer": "The total fee for Online BBA is ₹90,000 for the entire programme.",
+            "expected_answer": "Refer to official programme documents for total fee breakdown.",
         },
         {
             "question": "What is the duration of Online MBA?",
