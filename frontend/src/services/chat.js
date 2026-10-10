@@ -29,6 +29,8 @@ export async function getConversations() {
   return data.conversations;
 }
 
+export const listConversations = getConversations;
+
 /**
  * Get a single conversation with all its messages.
  */

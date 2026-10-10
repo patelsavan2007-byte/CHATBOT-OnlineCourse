@@ -6,6 +6,7 @@
  * Application:        /chat  /chat/:conversationId  /settings
  * Admin:              /admin  (protected, adminOnly)
  */
+import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "./contexts/AuthContext.jsx";
 
@@ -15,9 +16,10 @@ import Login         from "./pages/Login.jsx";
 import Signup        from "./pages/Signup.jsx";
 import Chat          from "./pages/Chat.jsx";
 import Settings      from "./pages/Settings.jsx";
-import Admin         from "./pages/Admin.jsx";
+const Admin          = React.lazy(() => import("./pages/Admin.jsx"));
 
-// Auth guard
+// UI & Auth guard
+import ErrorBoundary from "./components/ui/ErrorBoundary.jsx";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 
 /* ---- Loading screen ---- */
@@ -69,47 +71,51 @@ export default function App() {
   if (loading) return <AppLoader />;
 
   return (
-    <Routes>
-      {/* ---- Entry / landing ---- */}
-      <Route path="/"              element={<Landing />} />
+    <ErrorBoundary>
+      <Suspense fallback={<AppLoader />}>
+        <Routes>
+          {/* ---- Entry / landing ---- */}
+          <Route path="/"              element={<Landing />} />
 
-      {/* ---- Auth ---- */}
-      <Route path="/login"  element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+          {/* ---- Auth ---- */}
+          <Route path="/login"  element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-      {/* ---- Chat application — accessible to guests + authenticated ---- */}
-      <Route path="/chat"                  element={<Chat />} />
-      <Route path="/chat/:conversationId"  element={<Chat />} />
+          {/* ---- Chat application — accessible to guests + authenticated ---- */}
+          <Route path="/chat"                  element={<Chat />} />
+          <Route path="/chat/:conversationId"  element={<Chat />} />
 
-      {/* ---- Protected ---- */}
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/admin"
-        element={
-          <ProtectedRoute adminOnly>
-            <Admin />
-          </ProtectedRoute>
-        }
-      />
+          {/* ---- Protected ---- */}
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
 
-      {/* Legacy redirects */}
-      <Route path="/about"    element={<Navigate to="/" replace />} />
-      <Route path="/history"  element={<Navigate to="/chat" replace />} />
-      <Route path="/profile"  element={<Navigate to="/settings" replace />} />
-      <Route path="/programs" element={<Navigate to="/chat" replace />} />
-      <Route path="/programs/:slug" element={<Navigate to="/chat" replace />} />
-      <Route path="/how-it-works" element={<Navigate to="/chat" replace />} />
-      <Route path="/faq"      element={<Navigate to="/chat" replace />} />
+          {/* Legacy redirects */}
+          <Route path="/about"    element={<Navigate to="/" replace />} />
+          <Route path="/history"  element={<Navigate to="/chat" replace />} />
+          <Route path="/profile"  element={<Navigate to="/settings" replace />} />
+          <Route path="/programs" element={<Navigate to="/chat" replace />} />
+          <Route path="/programs/:slug" element={<Navigate to="/chat" replace />} />
+          <Route path="/how-it-works" element={<Navigate to="/chat" replace />} />
+          <Route path="/faq"      element={<Navigate to="/chat" replace />} />
 
-      {/* 404 */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+          {/* 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
+    </ErrorBoundary>
   );
 }

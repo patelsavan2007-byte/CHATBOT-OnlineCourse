@@ -7,6 +7,7 @@
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkBreaks from "remark-breaks";
 
 const markdownComponents = {
   table: ({ node, ...props }) => (
@@ -82,7 +83,7 @@ export default function RichText({ text }) {
         className="notice-conflict my-2 rounded-xl border px-4 py-3 text-sm text-[var(--text-primary)]"
         style={{ borderColor: "var(--warning-border)", backgroundColor: "var(--warning-surface)" }}
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={markdownComponents}>
           {cleanText}
         </ReactMarkdown>
       </div>
@@ -91,7 +92,7 @@ export default function RichText({ text }) {
 
   return (
     <div className="text-[15px] prose-chat">
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={markdownComponents}>
         {cleanText}
       </ReactMarkdown>
     </div>

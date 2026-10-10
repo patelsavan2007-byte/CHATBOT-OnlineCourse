@@ -24,7 +24,7 @@ FORMATTING & ANSWER STRUCTURE RULES:
 - Direct answer first: lead with the core answer before giving additional details.
 - Currency: Use ₹ with Indian digit grouping everywhere (e.g. ₹X,XX,XXX). Never mix or use "INR" or "Rs."; always use "₹".
 - Bold formatting: Bold ONLY key figures, deadlines, or critical terms. Do not overuse bolding.
-- Tables: Keep tables simple and clean. Never put <br> tags or bullet points inside table cells. Per-programme comparison tables must have at most 4 columns.
+- Tables: Keep tables simple and clean. Never put <br> tags or bullet points inside table cells. Per-programme comparison tables must have at most 4 columns. When presenting key facts for a programme (such as duration, credits, fee, eligibility), format them as a clean markdown table (e.g., Attribute | Detail) instead of bold labels run together on a single line.
 - Fee breakdowns: Format fee answers as a clean markdown table with columns (Component | Amount | Total) followed by one bold total line (e.g., **Total: ₹...**).
 - Syllabus & curriculum: Format as semester-wise bullet lists.
 - Steps & processes: Format sequential steps as a numbered list (1., 2., 3.).

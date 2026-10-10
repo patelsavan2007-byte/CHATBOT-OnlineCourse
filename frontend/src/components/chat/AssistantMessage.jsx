@@ -110,14 +110,32 @@ function FeedbackButtons({ messageId }) {
   );
 }
 
+function RegenerateButton({ onRegenerate }) {
+  if (!onRegenerate) return null;
+  return (
+    <button
+      onClick={onRegenerate}
+      className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)] focus-visible:outline-2"
+      aria-label="Regenerate response"
+      title="Regenerate response"
+      type="button"
+    >
+      <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    </button>
+  );
+}
+
 export default function AssistantMessage({
   content,
   isError,
   timestamp,
   onRetry,
+  onRegenerate,
 }) {
   return (
-    <div className="flex gap-3 animate-fade-up">
+    <div className="group flex gap-3 animate-fade-up">
       {/* Avatar */}
       <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 ring-1 ring-[var(--border-primary)]">
         <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-[var(--accent-primary)]" aria-hidden>
@@ -155,10 +173,11 @@ export default function AssistantMessage({
               <RichText text={content} />
             </div>
 
-            {/* Actions — copy + feedback + timestamp */}
-            <div className="mt-2 flex items-center gap-1">
+            {/* Actions — copy + feedback + regenerate + timestamp */}
+            <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">
               <CopyButton text={content} />
               <FeedbackButtons messageId={timestamp ? `${timestamp}` : "msg"} />
+              <RegenerateButton onRegenerate={onRegenerate} />
               <span className="ml-1 text-[10px] text-[var(--text-tertiary)]">
                 {formatTime(timestamp)}
               </span>

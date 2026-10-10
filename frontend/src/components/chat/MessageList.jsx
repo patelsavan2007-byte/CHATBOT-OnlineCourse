@@ -28,6 +28,7 @@ export default function MessageList({
   messages,
   isLoading,
   onRetry,
+  onRegenerate,
 }) {
   const scrollRef  = useRef(null);
   const bottomRef  = useRef(null);
@@ -76,6 +77,7 @@ export default function MessageList({
                 isError={msg.isError}
                 timestamp={msg.timestamp}
                 onRetry={msg.isError ? (() => onRetry?.(msg)) : undefined}
+                onRegenerate={idx === messages.length - 1 && !msg.isError ? onRegenerate : undefined}
               />
             )
           ))}

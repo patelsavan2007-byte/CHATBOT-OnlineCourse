@@ -52,16 +52,28 @@ export async function apiFetch(path, options = {}) {
 
   const url = path.startsWith("/api") ? `${API_BASE}${path}` : `${API_BASE}${path}`;
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
+  let res;
+  try {
+    res = await fetch(url, {
+      ...options,
+      headers,
+    });
+  } catch (netErr) {
+    const error = new Error("Unable to connect to the server. Please verify your connection.");
+    error.isNetworkError = true;
+    error.originalError = netErr;
+    throw error;
+  }
 
   if (!res.ok) {
     let message = `Request failed (${res.status})`;
     try {
       const body = await res.json();
-      if (typeof body.detail === "string") message = body.detail;
+      if (typeof body.detail === "string") {
+        message = body.detail;
+      } else if (Array.isArray(body.detail) && body.detail[0]?.msg) {
+        message = body.detail[0].msg;
+      }
     } catch {
       /* keep default message */
     }
