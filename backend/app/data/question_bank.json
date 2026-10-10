@@ -6,7 +6,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What online programs are offered?",
+      "bca": "What online programs are offered?",
+      "mba": "What online programs are offered?",
+      "mca": "What online programs are offered?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q02",
@@ -15,7 +30,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the online degree recognized by UGC?",
+      "bca": "Is the online degree recognized by UGC?",
+      "mba": "Is the online degree recognized by UGC?",
+      "mca": "Is the online degree recognized by UGC?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q03",
@@ -24,7 +54,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the degree valid for government and private jobs?",
+      "bca": "Is the degree valid for government and private jobs?",
+      "mba": "Is the degree valid for government and private jobs?",
+      "mca": "Is the degree valid for government and private jobs?"
+    },
+    "status": "NOT_IN_DOCS",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q04",
@@ -33,7 +78,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the online degree equivalent to a regular degree?",
+      "bca": "Is the online degree equivalent to a regular degree?",
+      "mba": "Is the online degree equivalent to a regular degree?",
+      "mca": "Is the online degree equivalent to a regular degree?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q05",
@@ -42,7 +102,22 @@
     "topics": [
       "eligibility"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the eligibility criteria for Online BBA?",
+      "bca": "What is the eligibility criteria for Online BCA?",
+      "mba": "What is the eligibility criteria for Online MBA?",
+      "mca": "What is the eligibility criteria for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q06",
@@ -51,7 +126,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the admission process?",
+      "bca": "What is the admission process?",
+      "mba": "What is the admission process?",
+      "mca": "What is the admission process?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q07",
@@ -60,7 +150,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What documents are required for admission?",
+      "bca": "What documents are required for admission?",
+      "mba": "What documents are required for admission?",
+      "mca": "What documents are required for admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q08",
@@ -69,7 +174,22 @@
     "topics": [
       "exams/grading"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there an entrance exam?",
+      "bca": "Is there an entrance exam?",
+      "mba": "Is there an entrance exam?",
+      "mca": "Is there an entrance exam?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q09",
@@ -78,7 +198,22 @@
     "topics": [
       "duration/semesters/credits"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the duration and credits of Online BBA?",
+      "bca": "What is the duration and credits of Online BCA?",
+      "mba": "What is the duration and credits of Online MBA?",
+      "mca": "What is the duration and credits of Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q10",
@@ -87,7 +222,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I study while working?",
+      "bca": "Can I study while working?",
+      "mba": "Can I study while working?",
+      "mca": "Can I study while working?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q11",
@@ -96,7 +246,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are live classes compulsory?",
+      "bca": "Are live classes compulsory?",
+      "mba": "Are live classes compulsory?",
+      "mca": "Are live classes compulsory?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q12",
@@ -105,7 +270,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are classes recorded?",
+      "bca": "Are classes recorded?",
+      "mba": "Are classes recorded?",
+      "mca": "Are classes recorded?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q13",
@@ -114,7 +294,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I access recorded lectures anytime?",
+      "bca": "Can I access recorded lectures anytime?",
+      "mba": "Can I access recorded lectures anytime?",
+      "mca": "Can I access recorded lectures anytime?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q14",
@@ -123,7 +318,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the class schedule?",
+      "bca": "What is the class schedule?",
+      "mba": "What is the class schedule?",
+      "mca": "What is the class schedule?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q15",
@@ -132,7 +342,22 @@
     "topics": [
       "exams/grading"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How are examinations conducted?",
+      "bca": "How are examinations conducted?",
+      "mba": "How are examinations conducted?",
+      "mca": "How are examinations conducted?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q16",
@@ -141,7 +366,22 @@
     "topics": [
       "exams/grading"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will exams be online or offline?",
+      "bca": "Will exams be online or offline?",
+      "mba": "Will exams be online or offline?",
+      "mca": "Will exams be online or offline?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q17",
@@ -150,7 +390,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the attendance requirement?",
+      "bca": "What is the attendance requirement?",
+      "mba": "What is the attendance requirement?",
+      "mca": "What is the attendance requirement?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q18",
@@ -159,7 +414,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there any internship included?",
+      "bca": "Is there any internship included?",
+      "mba": "Is there any internship included?",
+      "mca": "Is there any internship included?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q19",
@@ -169,7 +439,22 @@
       "placement/career",
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are placement assistance services available?",
+      "bca": "Are placement assistance services available?",
+      "mba": "Are placement assistance services available?",
+      "mca": "Are placement assistance services available?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q20",
@@ -178,7 +463,22 @@
     "topics": [
       "general"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will I receive a degree certificate after completion?",
+      "bca": "Will I receive a degree certificate after completion?",
+      "mba": "Will I receive a degree certificate after completion?",
+      "mca": "Will I receive a degree certificate after completion?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q21",
@@ -187,7 +487,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the total course fee for Online BBA?",
+      "bca": "What is the total course fee for Online BCA?",
+      "mba": "What is the total course fee for Online MBA?",
+      "mca": "What is the total course fee for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q22",
@@ -197,7 +512,22 @@
       "fees",
       "duration/semesters/credits"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the semester-wise fee for Online BBA?",
+      "bca": "What is the semester-wise fee for Online BCA?",
+      "mba": "What is the semester-wise fee for Online MBA?",
+      "mca": "What is the semester-wise fee for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q23",
@@ -207,7 +537,22 @@
       "fees",
       "lms/technical"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there any registration or application fee for Online BBA?",
+      "bca": "Is there any registration or application fee for Online BCA?",
+      "mba": "Is there any registration or application fee for Online MBA?",
+      "mca": "Is there any registration or application fee for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q24",
@@ -216,7 +561,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the fee structure for Online BBA?",
+      "bca": "What is the fee structure for Online BCA?",
+      "mba": "What is the fee structure for Online MBA?",
+      "mca": "What is the fee structure for Online MCA?"
+    },
+    "status": "NOT_IN_DOCS",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q25",
@@ -225,7 +585,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What are the available payment modes?",
+      "bca": "What are the available payment modes?",
+      "mba": "What are the available payment modes?",
+      "mca": "What are the available payment modes?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q26",
@@ -234,7 +609,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are EMI options available?",
+      "bca": "Are EMI options available?",
+      "mba": "Are EMI options available?",
+      "mca": "Are EMI options available?"
+    },
+    "status": "NOT_IN_DOCS",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q27",
@@ -243,7 +633,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are there any scholarships or fee concessions for Online BBA?",
+      "bca": "Are there any scholarships or fee concessions for Online BCA?",
+      "mba": "Are there any scholarships or fee concessions for Online MBA?",
+      "mca": "Are there any scholarships or fee concessions for Online MCA?"
+    },
+    "status": "NOT_IN_DOCS",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q28",
@@ -252,7 +657,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is GST included in the course fee for Online BBA?",
+      "bca": "Is GST included in the course fee for Online BCA?",
+      "mba": "Is GST included in the course fee for Online MBA?",
+      "mca": "Is GST included in the course fee for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q29",
@@ -262,7 +682,22 @@
       "fees",
       "exams/grading"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the fee structure for Online BBA?",
+      "bca": "What is the fee structure for Online BCA?",
+      "mba": "What is the fee structure for Online MBA?",
+      "mca": "What is the fee structure for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q30",
@@ -271,7 +706,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are there any hidden charges?",
+      "bca": "Are there any hidden charges?",
+      "mba": "Are there any hidden charges?",
+      "mca": "Are there any hidden charges?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q31",
@@ -282,7 +732,22 @@
       "admission",
       "refund"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the refund policy if I cancel my admission?",
+      "bca": "What is the refund policy if I cancel my admission?",
+      "mba": "What is the refund policy if I cancel my admission?",
+      "mca": "What is the refund policy if I cancel my admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q32",
@@ -291,7 +756,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there any late fee for delayed payment for Online BBA?",
+      "bca": "Is there any late fee for delayed payment for Online BCA?",
+      "mba": "Is there any late fee for delayed payment for Online MBA?",
+      "mca": "Is there any late fee for delayed payment for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q33",
@@ -301,7 +781,22 @@
       "fees",
       "duration/semesters/credits"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I pay the fee semester-wise instead of annually for Online BBA?",
+      "bca": "Can I pay the fee semester-wise instead of annually for Online BCA?",
+      "mba": "Can I pay the fee semester-wise instead of annually for Online MBA?",
+      "mca": "Can I pay the fee semester-wise instead of annually for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q34",
@@ -310,7 +805,22 @@
     "topics": [
       "fees"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will I receive a fee receipt after payment for Online BBA?",
+      "bca": "Will I receive a fee receipt after payment for Online BCA?",
+      "mba": "Will I receive a fee receipt after payment for Online MBA?",
+      "mca": "Will I receive a fee receipt after payment for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q35",
@@ -320,7 +830,22 @@
       "fees",
       "refund"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the fee refundable after classes begin for Online BBA?",
+      "bca": "Is the fee refundable after classes begin for Online BCA?",
+      "mba": "Is the fee refundable after classes begin for Online MBA?",
+      "mca": "Is the fee refundable after classes begin for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q36",
@@ -329,7 +854,22 @@
     "topics": [
       "subjects/syllabus"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the syllabus and curriculum for Online BBA?",
+      "bca": "What is the syllabus and curriculum for Online BCA?",
+      "mba": "What is the syllabus and curriculum for Online MBA?",
+      "mca": "What is the syllabus and curriculum for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q37",
@@ -338,7 +878,22 @@
     "topics": [
       "duration/semesters/credits"
     ],
-    "programme_specific": true
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How many semesters does the course have for Online BBA?",
+      "bca": "How many semesters does the course have for Online BCA?",
+      "mba": "How many semesters does the course have for Online MBA?",
+      "mca": "How many semesters does the course have for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q38",
@@ -347,7 +902,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Who are the faculty members?",
+      "bca": "Who are the faculty members?",
+      "mba": "Who are the faculty members?",
+      "mca": "Who are the faculty members?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q39",
@@ -356,7 +926,22 @@
     "topics": [
       "academic"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will I receive study materials?",
+      "bca": "Will I receive study materials?",
+      "mba": "Will I receive study materials?",
+      "mca": "Will I receive study materials?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q40",
@@ -365,7 +950,22 @@
     "topics": [
       "academic"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are e-books provided?",
+      "bca": "Are e-books provided?",
+      "mba": "Are e-books provided?",
+      "mca": "Are e-books provided?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q41",
@@ -374,7 +974,22 @@
     "topics": [
       "academic"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How are assignments submitted?",
+      "bca": "How are assignments submitted?",
+      "mba": "How are assignments submitted?",
+      "mca": "How are assignments submitted?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q42",
@@ -383,7 +998,22 @@
     "topics": [
       "academic"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How much weightage do assignments carry?",
+      "bca": "How much weightage do assignments carry?",
+      "mba": "How much weightage do assignments carry?",
+      "mca": "How much weightage do assignments carry?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q43",
@@ -392,7 +1022,22 @@
     "topics": [
       "eligibility"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the passing criteria?",
+      "bca": "What is the passing criteria?",
+      "mba": "What is the passing criteria?",
+      "mca": "What is the passing criteria?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q44",
@@ -401,7 +1046,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I appear for backlogs online?",
+      "bca": "Can I appear for backlogs online?",
+      "mba": "Can I appear for backlogs online?",
+      "mca": "Can I appear for backlogs online?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q45",
@@ -410,7 +1070,22 @@
     "topics": [
       "exams/grading"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How is the grading system structured?",
+      "bca": "How is the grading system structured?",
+      "mba": "How is the grading system structured?",
+      "mca": "How is the grading system structured?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q46",
@@ -419,7 +1094,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Which Learning Management System (LMS) is used?",
+      "bca": "Which Learning Management System (LMS) is used?",
+      "mba": "Which Learning Management System (LMS) is used?",
+      "mca": "Which Learning Management System (LMS) is used?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q47",
@@ -428,7 +1118,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How do I log in to the LMS?",
+      "bca": "How do I log in to the LMS?",
+      "mba": "How do I log in to the LMS?",
+      "mca": "How do I log in to the LMS?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q48",
@@ -437,7 +1142,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What if I forget my LMS password?",
+      "bca": "What if I forget my LMS password?",
+      "mba": "What if I forget my LMS password?",
+      "mca": "What if I forget my LMS password?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q49",
@@ -446,7 +1166,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I attend classes on my mobile phone?",
+      "bca": "Can I attend classes on my mobile phone?",
+      "mba": "Can I attend classes on my mobile phone?",
+      "mca": "Can I attend classes on my mobile phone?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q50",
@@ -455,7 +1190,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there a dedicated mobile app?",
+      "bca": "Is there a dedicated mobile app?",
+      "mba": "Is there a dedicated mobile app?",
+      "mca": "Is there a dedicated mobile app?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q51",
@@ -464,7 +1214,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What internet speed is recommended?",
+      "bca": "What internet speed is recommended?",
+      "mba": "What internet speed is recommended?",
+      "mca": "What internet speed is recommended?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q52",
@@ -474,7 +1239,22 @@
       "lms/technical",
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is technical support available?",
+      "bca": "Is technical support available?",
+      "mba": "Is technical support available?",
+      "mca": "Is technical support available?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q53",
@@ -484,7 +1264,22 @@
       "lms/technical",
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Who should I contact if I face technical issues?",
+      "bca": "Who should I contact if I face technical issues?",
+      "mba": "Who should I contact if I face technical issues?",
+      "mca": "Who should I contact if I face technical issues?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q54",
@@ -494,7 +1289,22 @@
       "placement/career",
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Does the university provide placement assistance?",
+      "bca": "Does the university provide placement assistance?",
+      "mba": "Does the university provide placement assistance?",
+      "mca": "Does the university provide placement assistance?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q55",
@@ -503,7 +1313,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are internships available?",
+      "bca": "Are internships available?",
+      "mba": "Are internships available?",
+      "mca": "Are internships available?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q56",
@@ -512,7 +1337,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I pursue higher education after completing this program?",
+      "bca": "Can I pursue higher education after completing this program?",
+      "mba": "Can I pursue higher education after completing this program?",
+      "mca": "Can I pursue higher education after completing this program?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q57",
@@ -521,7 +1361,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the degree accepted abroad?",
+      "bca": "Is the degree accepted abroad?",
+      "mba": "Is the degree accepted abroad?",
+      "mca": "Is the degree accepted abroad?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q58",
@@ -530,7 +1385,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will there be career guidance sessions?",
+      "bca": "Will there be career guidance sessions?",
+      "mba": "Will there be career guidance sessions?",
+      "mca": "Will there be career guidance sessions?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q59",
@@ -539,7 +1409,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are resume-building workshops conducted?",
+      "bca": "Are resume-building workshops conducted?",
+      "mba": "Are resume-building workshops conducted?",
+      "mca": "Are resume-building workshops conducted?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q60",
@@ -548,7 +1433,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will there be mock interviews?",
+      "bca": "Will there be mock interviews?",
+      "mba": "Will there be mock interviews?",
+      "mca": "Will there be mock interviews?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q61",
@@ -557,7 +1457,22 @@
     "topics": [
       "placement/career"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Do companies recruit online degree students?",
+      "bca": "Do companies recruit online degree students?",
+      "mba": "Do companies recruit online degree students?",
+      "mca": "Do companies recruit online degree students?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q62",
@@ -566,7 +1481,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "When does admission start?",
+      "bca": "When does admission start?",
+      "mba": "When does admission start?",
+      "mca": "When does admission start?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q63",
@@ -576,7 +1506,22 @@
       "admission",
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the last date to apply?",
+      "bca": "What is the last date to apply?",
+      "mba": "What is the last date to apply?",
+      "mca": "What is the last date to apply?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q64",
@@ -586,7 +1531,22 @@
       "admission",
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I apply online?",
+      "bca": "Can I apply online?",
+      "mba": "Can I apply online?",
+      "mca": "Can I apply online?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q65",
@@ -597,7 +1557,22 @@
       "duration/semesters/credits",
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How long does admission approval take?",
+      "bca": "How long does admission approval take?",
+      "mba": "How long does admission approval take?",
+      "mca": "How long does admission approval take?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q66",
@@ -606,7 +1581,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How will I know if my admission is confirmed?",
+      "bca": "How will I know if my admission is confirmed?",
+      "mba": "How will I know if my admission is confirmed?",
+      "mca": "How will I know if my admission is confirmed?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q67",
@@ -615,7 +1605,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I change my course after admission?",
+      "bca": "Can I change my course after admission?",
+      "mba": "Can I change my course after admission?",
+      "mca": "Can I change my course after admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q68",
@@ -625,7 +1630,22 @@
       "admission",
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can international students apply?",
+      "bca": "Can international students apply?",
+      "mba": "Can international students apply?",
+      "mca": "Can international students apply?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q69",
@@ -634,7 +1654,22 @@
     "topics": [
       "admission"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there any age limit for admission?",
+      "bca": "Is there any age limit for admission?",
+      "mba": "Is there any age limit for admission?",
+      "mca": "Is there any age limit for admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q70",
@@ -643,7 +1678,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is academic counseling available?",
+      "bca": "Is academic counseling available?",
+      "mba": "Is academic counseling available?",
+      "mca": "Is academic counseling available?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q71",
@@ -652,7 +1702,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Will I get a student ID card?",
+      "bca": "Will I get a student ID card?",
+      "mba": "Will I get a student ID card?",
+      "mca": "Will I get a student ID card?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q72",
@@ -661,7 +1726,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How can I contact faculty members?",
+      "bca": "How can I contact faculty members?",
+      "mba": "How can I contact faculty members?",
+      "mca": "How can I contact faculty members?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q73",
@@ -670,7 +1750,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is there a dedicated student support team?",
+      "bca": "Is there a dedicated student support team?",
+      "mba": "Is there a dedicated student support team?",
+      "mca": "Is there a dedicated student support team?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q74",
@@ -679,7 +1774,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What are the student support timings?",
+      "bca": "What are the student support timings?",
+      "mba": "What are the student support timings?",
+      "mca": "What are the student support timings?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q75",
@@ -688,7 +1798,22 @@
     "topics": [
       "lms/technical"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Can I raise queries through email or WhatsApp?",
+      "bca": "Can I raise queries through email or WhatsApp?",
+      "mba": "Can I raise queries through email or WhatsApp?",
+      "mca": "Can I raise queries through email or WhatsApp?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q76",
@@ -697,7 +1822,22 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How can I download my marksheet?",
+      "bca": "How can I download my marksheet?",
+      "mba": "How can I download my marksheet?",
+      "mca": "How can I download my marksheet?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   },
   {
     "id": "Q77",
@@ -706,6 +1846,831 @@
     "topics": [
       "support/contact"
     ],
-    "programme_specific": false
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How do I obtain my degree certificate after completion?",
+      "bca": "How do I obtain my degree certificate after completion?",
+      "mba": "How do I obtain my degree certificate after completion?",
+      "mca": "How do I obtain my degree certificate after completion?"
+    },
+    "status": "PARTIAL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E01",
+    "text": "What are the subjects taught in Semester 1 of Online BCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What are the subjects taught in Semester 1 of Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E02",
+    "text": "What are the subjects taught in Semester 2 of Online BCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What are the subjects taught in Semester 2 of Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E03",
+    "text": "What are the subjects taught in Semester 3 of Online BCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What are the subjects taught in Semester 3 of Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E04",
+    "text": "What is the annual tuition fee for Online BCA?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What is the annual tuition fee for Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E05",
+    "text": "What is the eligibility criteria for Online BCA?",
+    "category": "Admission Questions",
+    "topics": [
+      "eligibility"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What is the eligibility criteria for Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E06",
+    "text": "What is the total duration and credit requirement for Online BCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What is the total duration and credit requirement for Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E07",
+    "text": "What are the career prospects after completing Online BCA?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bca"
+    ],
+    "programme_variants": {
+      "bca": "What are the career prospects after completing Online BCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E08",
+    "text": "What are the subjects taught in Semester 1 of Online BBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What are the subjects taught in Semester 1 of Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E09",
+    "text": "What are the subjects taught in Semester 2 of Online BBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What are the subjects taught in Semester 2 of Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E10",
+    "text": "What are the subjects taught in Semester 3 of Online BBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What are the subjects taught in Semester 3 of Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E11",
+    "text": "What specializations are offered in Online BBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "specializations"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What specializations are offered in Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E12",
+    "text": "What is the annual fee for Online BBA?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What is the annual fee for Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E13",
+    "text": "What is the eligibility requirement for Online BBA admission?",
+    "category": "Admission Questions",
+    "topics": [
+      "eligibility",
+      "admission"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What is the eligibility requirement for Online BBA admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E14",
+    "text": "What is the total duration and credit requirement for Online BBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba"
+    ],
+    "programme_variants": {
+      "bba": "What is the total duration and credit requirement for Online BBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E15",
+    "text": "What are the subjects taught in Semester 1 of Online MBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What are the subjects taught in Semester 1 of Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E16",
+    "text": "What are the subjects taught in Semester 2 of Online MBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What are the subjects taught in Semester 2 of Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E17",
+    "text": "What specializations are available in Online MBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "specializations"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What specializations are available in Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E18",
+    "text": "What is the annual fee for Online MBA?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What is the annual fee for Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E19",
+    "text": "What is the eligibility criteria for Online MBA?",
+    "category": "Admission Questions",
+    "topics": [
+      "eligibility"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What is the eligibility criteria for Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E20",
+    "text": "What is the total duration and credit requirement for Online MBA?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What is the total duration and credit requirement for Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E21",
+    "text": "Can working professionals pursue the Online MBA program?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "Can working professionals pursue the Online MBA program?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E22",
+    "text": "What career opportunities are available after Online MBA?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mba"
+    ],
+    "programme_variants": {
+      "mba": "What career opportunities are available after Online MBA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E23",
+    "text": "What are the subjects taught in Semester 1 of Online MCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What are the subjects taught in Semester 1 of Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E24",
+    "text": "What are the subjects taught in Semester 2 of Online MCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "subjects/syllabus",
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What are the subjects taught in Semester 2 of Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E25",
+    "text": "What is the annual fee for Online MCA?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What is the annual fee for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E26",
+    "text": "What is the eligibility requirement for Online MCA admission?",
+    "category": "Admission Questions",
+    "topics": [
+      "eligibility",
+      "admission"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What is the eligibility requirement for Online MCA admission?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E27",
+    "text": "What is the total duration and credit requirement for Online MCA?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What is the total duration and credit requirement for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E28",
+    "text": "What are the job opportunities and roles after Online MCA?",
+    "category": "Career & Placement Questions",
+    "topics": [
+      "placement/career"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "mca"
+    ],
+    "programme_variants": {
+      "mca": "What are the job opportunities and roles after Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E29",
+    "text": "What is the grading system and evaluation pattern for online examinations?",
+    "category": "Academic Questions",
+    "topics": [
+      "exams/grading"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the grading system and evaluation pattern for online examinations?",
+      "bca": "What is the grading system and evaluation pattern for online examinations?",
+      "mba": "What is the grading system and evaluation pattern for online examinations?",
+      "mca": "What is the grading system and evaluation pattern for online examinations?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E30",
+    "text": "How are internal assessments and end-semester exams conducted?",
+    "category": "Academic Questions",
+    "topics": [
+      "duration/semesters/credits",
+      "exams/grading"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How are internal assessments and end-semester exams conducted for Online BBA?",
+      "bca": "How are internal assessments and end-semester exams conducted for Online BCA?",
+      "mba": "How are internal assessments and end-semester exams conducted for Online MBA?",
+      "mca": "How are internal assessments and end-semester exams conducted for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E31",
+    "text": "What is the fee refund policy if admission is cancelled?",
+    "category": "Fees Related Questions",
+    "topics": [
+      "fees",
+      "admission",
+      "refund"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the fee structure for Online BBA?",
+      "bca": "What is the fee structure for Online BCA?",
+      "mba": "What is the fee structure for Online MBA?",
+      "mca": "What is the fee structure for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E32",
+    "text": "How can students access study materials and recorded lectures on the LMS?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How can students access study materials and recorded lectures on the LMS?",
+      "bca": "How can students access study materials and recorded lectures on the LMS?",
+      "mba": "How can students access study materials and recorded lectures on the LMS?",
+      "mca": "How can students access study materials and recorded lectures on the LMS?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E33",
+    "text": "What technical and system requirements are needed for attending online lectures?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What technical and system requirements are needed for attending online lectures?",
+      "bca": "What technical and system requirements are needed for attending online lectures?",
+      "mba": "What technical and system requirements are needed for attending online lectures?",
+      "mca": "What technical and system requirements are needed for attending online lectures?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E34",
+    "text": "What NAAC accreditation grade does CHARUSAT hold?",
+    "category": "General Questions",
+    "topics": [
+      "duration/semesters/credits",
+      "exams/grading"
+    ],
+    "programme_specific": true,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What NAAC accreditation grade does CHARUSAT hold for Online BBA?",
+      "bca": "What NAAC accreditation grade does CHARUSAT hold for Online BCA?",
+      "mba": "What NAAC accreditation grade does CHARUSAT hold for Online MBA?",
+      "mca": "What NAAC accreditation grade does CHARUSAT hold for Online MCA?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E35",
+    "text": "Is CHARUSAT ranked by NIRF and GSIRF?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is CHARUSAT ranked by NIRF and GSIRF?",
+      "bca": "Is CHARUSAT ranked by NIRF and GSIRF?",
+      "mba": "Is CHARUSAT ranked by NIRF and GSIRF?",
+      "mca": "Is CHARUSAT ranked by NIRF and GSIRF?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E36",
+    "text": "Are online degree programmes entitled by UGC?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Are online degree programmes entitled by UGC?",
+      "bca": "Are online degree programmes entitled by UGC?",
+      "mba": "Are online degree programmes entitled by UGC?",
+      "mca": "Are online degree programmes entitled by UGC?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E37",
+    "text": "How do students submit assignments and participate in forum discussions?",
+    "category": "Technical Questions",
+    "topics": [
+      "lms/technical"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "How do students submit assignments and participate in forum discussions?",
+      "bca": "How do students submit assignments and participate in forum discussions?",
+      "mba": "How do students submit assignments and participate in forum discussions?",
+      "mca": "How do students submit assignments and participate in forum discussions?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E38",
+    "text": "What is the contact information for admissions support?",
+    "category": "Student Support Questions",
+    "topics": [
+      "admission",
+      "support/contact"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the contact information for admissions support?",
+      "bca": "What is the contact information for admissions support?",
+      "mba": "What is the contact information for admissions support?",
+      "mca": "What is the contact information for admissions support?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E39",
+    "text": "What is the contact email and helpline for technical LMS support?",
+    "category": "Student Support Questions",
+    "topics": [
+      "lms/technical",
+      "support/contact"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "What is the contact email and helpline for technical LMS support?",
+      "bca": "What is the contact email and helpline for technical LMS support?",
+      "mba": "What is the contact email and helpline for technical LMS support?",
+      "mca": "What is the contact email and helpline for technical LMS support?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
+  },
+  {
+    "id": "E40",
+    "text": "Is the online degree equivalent to an on-campus degree according to UGC guidelines?",
+    "category": "General Questions",
+    "topics": [
+      "general"
+    ],
+    "programme_specific": false,
+    "programmes": [
+      "bba",
+      "bca",
+      "mba",
+      "mca"
+    ],
+    "programme_variants": {
+      "bba": "Is the online degree equivalent to an on-campus degree according to UGC guidelines?",
+      "bca": "Is the online degree equivalent to an on-campus degree according to UGC guidelines?",
+      "mba": "Is the online degree equivalent to an on-campus degree according to UGC guidelines?",
+      "mca": "Is the online degree equivalent to an on-campus degree according to UGC guidelines?"
+    },
+    "status": "FULL",
+    "validated_at": "2026-10-10T16:24:31.107439+00:00",
+    "kb_hash": "1258c1797e1fdc1f1d992a605e02949833e1d1e092f3d57d6f516d78fffbb497"
   }
 ]

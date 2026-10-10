@@ -104,8 +104,8 @@ export default function ChatSidebar({
   onSelectConversation,
   onDeleteConversation,
   onRenameConversation,
-  onToggleSuggestions,
-  suggestionsEnabled,
+  typingSuggestionsEnabled,
+  onToggleTypingSuggestions,
   onClose,
 }) {
   const { user, isGuest, logout } = useAuth();
@@ -271,27 +271,28 @@ export default function ChatSidebar({
 
       {/* Footer — preferences + user profile */}
       <div className="border-t border-[var(--border-primary)] px-3 py-3">
-        {/* Preferences row */}
+        {/* Preferences row — Typing suggestions */}
         <div className="mb-2 flex items-center justify-between rounded-lg bg-[var(--surface-hover)] px-2.5 py-1.5">
           <span className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
             <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01" />
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
-            Suggested questions
+            Typing suggestions
           </span>
           <button
             role="switch"
-            aria-checked={suggestionsEnabled}
-            aria-label="Toggle suggested questions"
-            onClick={onToggleSuggestions}
+            aria-checked={typingSuggestionsEnabled}
+            aria-label="Toggle typing suggestions"
+            onClick={onToggleTypingSuggestions}
             className={`relative h-4.5 w-8 rounded-full transition ${
-              suggestionsEnabled ? "bg-[var(--accent-primary)]" : "bg-[var(--surface-active)]"
+              typingSuggestionsEnabled ? "bg-[var(--accent-primary)]" : "bg-[var(--surface-active)]"
             }`}
             type="button"
           >
             <span
               className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white shadow transition-all ${
-                suggestionsEnabled ? "left-4" : "left-0.5"
+                typingSuggestionsEnabled ? "left-4" : "left-0.5"
               }`}
             />
           </button>

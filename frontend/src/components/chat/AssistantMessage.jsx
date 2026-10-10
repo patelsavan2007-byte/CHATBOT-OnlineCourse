@@ -5,7 +5,6 @@
  */
 import { useState, useCallback } from "react";
 import RichText from "../RichText.jsx";
-import SuggestedQuestions from "./SuggestedQuestions.jsx";
 
 function formatTime(t) {
   try {
@@ -115,10 +114,6 @@ export default function AssistantMessage({
   content,
   isError,
   timestamp,
-  suggestions,
-  onSelectSuggestion,
-  suggestionsEnabled,
-  onDisableSuggestions,
   onRetry,
 }) {
   return (
@@ -168,16 +163,6 @@ export default function AssistantMessage({
                 {formatTime(timestamp)}
               </span>
             </div>
-
-            {/* Suggested follow-ups */}
-            {!isError && suggestionsEnabled && onSelectSuggestion && (
-              <SuggestedQuestions
-                suggestions={suggestions}
-                messageId={timestamp ? `${timestamp}` : "msg"}
-                onSelect={onSelectSuggestion}
-                onDisable={onDisableSuggestions}
-              />
-            )}
           </>
         )}
       </div>

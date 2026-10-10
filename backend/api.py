@@ -242,3 +242,68 @@ async def health() -> HealthResponse:
         reranker_active=reranker_active,
         reranker_error=reranker_error,
     )
+
+
+# -----------------------------------------------------------------------
+# Public Question Bank & Contacts
+# -----------------------------------------------------------------------
+
+_cached_question_bank: Optional[List[Dict[str, Any]]] = None
+
+def get_full_question_bank() -> List[Dict[str, Any]]:
+    global _cached_question_bank
+    if _cached_question_bank is not None:
+        return _cached_question_bank
+    qb_path = ROOT / "app" / "data" / "question_bank.json"
+    if not qb_path.exists():
+        return []
+    import json
+    with open(qb_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    # Filter for FULL only, return minimal fields
+    filtered = [
+        {
+            "id": q["id"],
+            "text": q["text"],
+            "category": q["category"],
+            "topics": q.get("topics", []),
+            "programmes": q.get("programmes", ["bba", "bca", "mba", "mca"]),
+            "variants": q.get("programme_variants", {}),
+        }
+        for q in data
+        if q.get("status") == "FULL"
+    ]
+    _cached_question_bank = filtered
+    return filtered
+
+
+@app.get("/api/question-bank")
+async def get_question_bank():
+    """Return verified FULL questions from the question bank."""
+    return get_full_question_bank()
+
+
+@app.get("/api/contacts")
+async def get_contacts():
+    """Return public admissions and department contacts dynamically parsed from knowledge base."""
+    from app.contacts import get_contact_directory
+    directory = get_contact_directory()
+    admissions_entries = directory._services.get("Admissions", [])
+    accounts_entries = directory._services.get("Accounts & Payments", [])
+    lms_entries = directory._services.get("Learning Management System", [])
+    exams_entries = directory._services.get("Examinations", [])
+
+    def format_entries(entries):
+        return [
+            {"person": e.person, "phone": e.phone, "prog_tag": e.prog_tag}
+            for e in entries
+        ]
+
+    return {
+        "admissions": format_entries(admissions_entries),
+        "accounts": format_entries(accounts_entries),
+        "lms": format_entries(lms_entries),
+        "examinations": format_entries(exams_entries),
+        "admissions_line": directory.get_contact_line(topic="admission"),
+    }
+

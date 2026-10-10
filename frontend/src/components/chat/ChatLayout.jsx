@@ -14,8 +14,8 @@ export default function ChatLayout({
   onSelectConversation,
   onDeleteConversation,
   onRenameConversation,
-  onToggleSuggestions,
-  suggestionsEnabled,
+  typingSuggestionsEnabled,
+  onToggleTypingSuggestions,
   children,
 }) {
   const [sidebarOpen, setSidebarOpen]     = useState(true);
@@ -49,8 +49,8 @@ export default function ChatLayout({
     onSelectConversation: handleSelect,
     onDeleteConversation,
     onRenameConversation,
-    onToggleSuggestions,
-    suggestionsEnabled,
+    typingSuggestionsEnabled,
+    onToggleTypingSuggestions,
   };
 
   return (
@@ -90,7 +90,7 @@ export default function ChatLayout({
         <div className="flex h-11 shrink-0 items-center justify-between border-b border-[var(--border-primary)] bg-[var(--surface-primary)]/90 px-3 backdrop-blur-sm">
           {/* Left — toggle sidebar / open drawer */}
           <button
-            onClick={sidebarOpen ? toggleSidebar : openDrawer}
+            onClick={toggleSidebar}
             className="md:flex hidden h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             title={sidebarOpen ? "Close sidebar" : "Open sidebar"}
@@ -123,24 +123,8 @@ export default function ChatLayout({
             <span className="text-[13px] font-medium text-[var(--text-tertiary)]">CHARUSAT Assistant</span>
           </div>
 
-          {/* Right — suggestions toggle + theme toggle + new chat */}
+          {/* Right — theme toggle + new chat */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={onToggleSuggestions}
-              className={`flex h-7 items-center gap-1.5 rounded-lg px-2 text-[11px] font-medium transition ${
-                suggestionsEnabled
-                  ? "text-[var(--text-secondary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
-                  : "text-[var(--text-muted)] line-through hover:bg-[var(--surface-hover)]"
-              }`}
-              aria-pressed={suggestionsEnabled}
-              title={suggestionsEnabled ? "Suggested questions are on — click to hide" : "Suggested questions are off — click to show"}
-              type="button"
-            >
-              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <path d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01" />
-              </svg>
-              <span className="hidden sm:inline">Suggestions</span>
-            </button>
             <ThemeToggle />
             <button
               onClick={handleNew}

@@ -27,9 +27,6 @@ function TypingIndicator() {
 export default function MessageList({
   messages,
   isLoading,
-  onSendPrompt,
-  suggestionsEnabled,
-  onDisableSuggestions,
   onRetry,
 }) {
   const scrollRef  = useRef(null);
@@ -78,10 +75,6 @@ export default function MessageList({
                 content={msg.content}
                 isError={msg.isError}
                 timestamp={msg.timestamp}
-                suggestions={msg.suggested_questions}
-                onSelectSuggestion={onSendPrompt}
-                suggestionsEnabled={suggestionsEnabled && !msg.isError}
-                onDisableSuggestions={onDisableSuggestions}
                 onRetry={msg.isError ? (() => onRetry?.(msg)) : undefined}
               />
             )

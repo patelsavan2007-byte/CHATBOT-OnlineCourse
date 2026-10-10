@@ -17,19 +17,20 @@ import ChatComposer    from "../components/chat/ChatComposer.jsx";
 import WelcomeScreen   from "../components/chat/WelcomeScreen.jsx";
 import GuestLimitModal from "../components/chat/GuestLimitModal.jsx";
 import * as chatService from "../services/chat.js";
+import { loadQuestionBank } from "../lib/questionBank.js";
 
 let _localId = 1;
 const localId = () => `local-${_localId++}`;
 
 const GUEST_MESSAGES_KEY = "charusat_guest_messages";
-const SUGGESTIONS_KEY    = "charusat_suggestions_enabled";
+const TYPING_SUGGESTIONS_KEY = "charusat_typing_suggestions";
 
 /* "Today at 3:41 PM"-style timestamps for messages */
 function nowIso() { return new Date().toISOString(); }
 
-function loadSuggestionsPreference() {
+function loadTypingSuggestionsPreference() {
   try {
-    return localStorage.getItem(SUGGESTIONS_KEY) !== "off";
+    return localStorage.getItem(TYPING_SUGGESTIONS_KEY) !== "off";
   } catch {
     return true;
   }
@@ -41,24 +42,45 @@ export default function Chat() {
   const navigate = useNavigate();
   const { user, isGuest, isGuestLimitReached, incrementGuestCount, getGuestMessageCount, guestLimit } = useAuth();
 
-  const [conversations,        setConversations]        = useState([]);
-  const [activeConversationId, setActiveConversationId] = useState(urlConversationId || null);
-  const [messages,             setMessages]             = useState([]);
-  const [isLoading,            setIsLoading]            = useState(false);
-  const [showGuestLimit,       setShowGuestLimit]       = useState(false);
-  const [conversationsLoaded,  setConversationsLoaded]  = useState(false);
-  const [showSuggestions,      setShowSuggestions]      = useState(loadSuggestionsPreference);
+  const [conversations,            setConversations]            = useState([]);
+  const [activeConversationId,     setActiveConversationId]     = useState(urlConversationId || null);
+  const [messages,                 setMessages]                 = useState([]);
+  const [isLoading,                setIsLoading]                = useState(false);
+  const [showGuestLimit,           setShowGuestLimit]           = useState(false);
+  const [conversationsLoaded,      setConversationsLoaded]      = useState(false);
+  const [typingSuggestionsEnabled, setTypingSuggestionsEnabled] = useState(loadTypingSuggestionsPreference);
+  const [questionBank,             setQuestionBank]             = useState([]);
 
   const guestMessagesRef = useRef([]);
   const autoSentRef      = useRef(false); // prevent duplicate auto-send
 
-  const toggleSuggestions = useCallback(() => {
-    setShowSuggestions((prev) => {
+  // Load question bank for client-side suggestions and starters
+  useEffect(() => {
+    let cancelled = false;
+    loadQuestionBank().then((data) => {
+      if (!cancelled && data) setQuestionBank(data);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const toggleTypingSuggestions = useCallback(() => {
+    setTypingSuggestionsEnabled((prev) => {
       const next = !prev;
-      try { localStorage.setItem(SUGGESTIONS_KEY, next ? "on" : "off"); } catch {/* ignore */}
+      try { localStorage.setItem(TYPING_SUGGESTIONS_KEY, next ? "on" : "off"); } catch {/* ignore */}
       return next;
     });
   }, []);
+
+  // Detect currently discussed programme from messages
+  const currentProgramme = messages.reduceRight((found, m) => {
+    if (found) return found;
+    const c = m.content?.toLowerCase() || "";
+    if (/\b(bba|online bba)\b/.test(c)) return "bba";
+    if (/\b(bca|online bca)\b/.test(c)) return "bca";
+    if (/\b(mba|online mba)\b/.test(c)) return "mba";
+    if (/\b(mca|online mca)\b/.test(c)) return "mca";
+    return null;
+  }, null);
 
   // ------------------------------------------------------------------
   // Load conversations (authenticated)
@@ -278,25 +300,28 @@ export default function Chat() {
         onSelectConversation={handleSelectConversation}
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
-        onToggleSuggestions={toggleSuggestions}
-        suggestionsEnabled={showSuggestions}
+        typingSuggestionsEnabled={typingSuggestionsEnabled}
+        onToggleTypingSuggestions={toggleTypingSuggestions}
       >
         <div className="flex h-full flex-col">
           {messages.length > 0 ? (
             <MessageList
               messages={messages}
               isLoading={isLoading}
-              onSendPrompt={handleSend}
-              suggestionsEnabled={showSuggestions}
-              onDisableSuggestions={toggleSuggestions}
               onRetry={handleRetry}
             />
           ) : (
             <div className="flex-1 overflow-y-auto chat-scroll">
-              <WelcomeScreen onSendPrompt={handleSend} />
+              <WelcomeScreen onSendPrompt={handleSend} questionBank={questionBank} />
             </div>
           )}
-          <ChatComposer onSend={handleSend} disabled={isLoading} />
+          <ChatComposer
+            onSend={handleSend}
+            disabled={isLoading}
+            typingSuggestionsEnabled={typingSuggestionsEnabled}
+            currentProgramme={currentProgramme}
+            questionBank={questionBank}
+          />
         </div>
       </ChatLayout>
 

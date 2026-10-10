@@ -46,7 +46,6 @@ from app.utils import logger
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
-from app.suggestions import generate_suggestions
 from app.smalltalk import is_smalltalk, converse
 
 
@@ -65,7 +64,6 @@ class ChatMessageResponse(BaseModel):
     answer: str
     conversation_id: Optional[str] = None
     message_id: Optional[str] = None
-    suggested_questions: List[str] = []
 
 
 class StreamChatRequest(BaseModel):
@@ -128,7 +126,6 @@ def _persist_turn(
     conversation_id: Optional[str],
     question: str,
     assistant_answer: str,
-    assmt_suggestions: List[str],
     user_id: Optional[str] = None,
     sources: Optional[List[Dict[str, Any]]] = None,
 ) -> tuple:
@@ -155,7 +152,7 @@ def _persist_turn(
         role="assistant",
         content=assistant_answer,
         sources=sources or [],
-        suggested_questions=assmt_suggestions,
+        suggested_questions=[],
     )
     return assistant_msg, conversation_id
 
@@ -207,8 +204,8 @@ def _process_chat_turn(
     question: str,
     history: Optional[List[Dict[str, Any]]],
     rag_chain: Any,
-) -> Tuple[str, List[Dict[str, Any]], List[str]]:
-    """Execute a single chat turn through RAG and build answer, sources, and suggestions.
+) -> Tuple[str, List[Dict[str, Any]]]:
+    """Execute a single chat turn through RAG and build answer and sources.
     Shared by both /api/chat and /api/chat/stream.
     """
     from app.smalltalk import is_smalltalk, converse
@@ -220,8 +217,7 @@ def _process_chat_turn(
     if is_smalltalk(question):
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        suggestions = generate_suggestions(plan=plan, answer=answer_text, history=history, is_smalltalk=True)
-        return answer_text, [], suggestions
+        return answer_text, []
 
     # 2. Execute RAG
     answer_text, retrieved = rag_chain.answer(question, history=history)
@@ -230,18 +226,11 @@ def _process_chat_turn(
     if not retrieved and plan.topic == "general" and not plan.programmes:
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return answer_text, [], []
+        return answer_text, []
 
     from app.citations import extract_citations
     sources = extract_citations(retrieved, answer_text=answer_text)
-    suggestions = generate_suggestions(
-        plan=plan,
-        answer=answer_text,
-        history=history,
-        is_smalltalk=False,
-        is_unrelated=False,
-    )
-    return answer_text, sources, suggestions
+    return answer_text, sources
 
 
 
@@ -264,12 +253,12 @@ async def chat_message(
             detail="Chatbot RAG pipeline is not available.",
         )
 
-    # Conversation context for retrieval and suggestions
+    # Conversation context for retrieval
     history = _resolve_history(request.history, user, conversation_id)
 
     # Call the shared RAG turn processing
     try:
-        answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
+        answer_text, sources = _process_chat_turn(request.question, history, rag_chain)
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(
@@ -281,7 +270,6 @@ async def chat_message(
     if user is None:
         return ChatMessageResponse(
             answer=answer_text,
-            suggested_questions=suggestions,
         )
 
     # For authenticated users, persist to MongoDB
@@ -290,7 +278,6 @@ async def chat_message(
         # MongoDB unavailable — return answer without persistence
         return ChatMessageResponse(
             answer=answer_text,
-            suggested_questions=suggestions,
         )
 
     # Create new conversation if needed
@@ -322,14 +309,13 @@ async def chat_message(
         role="assistant",
         content=answer_text,
         sources=sources,
-        suggested_questions=suggestions,
+        suggested_questions=[],
     )
 
     return ChatMessageResponse(
         answer=answer_text,
         conversation_id=conversation_id,
         message_id=assistant_msg["id"],
-        suggested_questions=suggestions,
     )
 
 
@@ -343,7 +329,6 @@ async def chat_message_stream(
     Returns a Server-Sent Events (SSE) stream with:
     - typing indicator events
     - answer chunks as they're generated
-    - final sources and suggestions
     """
     conversation_id = request.conversation_id
     rag_chain, rag_ready = _get_rag_chain()
@@ -355,7 +340,7 @@ async def chat_message_stream(
         )
 
     history = _resolve_history(request.history, user, conversation_id)
-    answer_text, sources, suggestions = _process_chat_turn(request.question, history, rag_chain)
+    answer_text, sources = _process_chat_turn(request.question, history, rag_chain)
 
     async def generate_response():
         yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
@@ -369,7 +354,7 @@ async def chat_message_stream(
 
         db = get_db()
         assistant_msg, conv_id = _persist_turn(
-            db, user, conversation_id, request.question, answer_text, suggestions, sources=sources
+            db, user, conversation_id, request.question, answer_text, sources=sources
         )
 
         final_data = {
@@ -377,7 +362,6 @@ async def chat_message_stream(
             "answer": answer_text,
             "conversation_id": conv_id,
             "message_id": assistant_msg["id"] if assistant_msg else None,
-            "suggested_questions": suggestions,
         }
         yield f"data: {json.dumps(final_data)}\n\n"
 
