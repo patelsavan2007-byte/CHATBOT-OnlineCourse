@@ -31,3 +31,8 @@ deployment/.env
 .vercel
 .env*
 backend/chroma_db/
+
+# Test caches
+.pytest_cache/
+.coverage
+htmlcov/
