@@ -102,33 +102,33 @@ _MULTI_BLANK_RE = re.compile(r"\n{3,}")
 
 
 def normalize_currency(text: str) -> str:
-    """Normalize currency notations (INR, Rs., Rs, ₹ 50,000 INR) to clean ₹ amounts."""
+    """Normalize currency notations (INR, Rs., Rs, ₹ NNNNN INR) to clean ₹ amounts."""
     if not text:
         return text
-    # 1. ₹ followed by digits with trailing INR / Rs / /- (e.g. ₹50,000 INR, ₹ 50,000 INR, ₹50,000/-)
+    # 1. ₹ followed by digits with trailing INR / Rs / /- (e.g. ₹NNNNN INR, ₹ NNNNN INR, ₹NNNNN/-)
     text = re.sub(
         r"₹\s*([\d,]+(?:\.\d+)?)(?:\s*/-)?\s*(?:INR|Rs\.?|Rupees)\b",
         r"₹\1",
         text,
         flags=re.IGNORECASE,
     )
-    # 2. Leading INR / Rs. / Rs / Rupees (e.g. INR 50,000, Rs. 50,000, Rs 50,000, INR. 50,000)
+    # 2. Leading INR / Rs. / Rs / Rupees (e.g. INR NNNNN, Rs. NNNNN, Rs NNNNN, INR. NNNNN)
     text = re.sub(
         r"\b(?:INR\.?|Rs\.?|Rupees)\s*₹?\s*([\d,]+(?:\.\d+)?)(?:\s*/-)?(?:\s+(?:INR|Rs\.?|Rupees)\b)?",
         r"₹\1",
         text,
         flags=re.IGNORECASE,
     )
-    # 3. Trailing INR after number: e.g. 50,000 INR
+    # 3. Trailing INR after number: e.g. NNNNN INR
     text = re.sub(
         r"(?<=[^\w₹])([\d,]+(?:\.\d+)?)\s*(?:INR|Rupees)\b(?:\s*/-)?",
         r"₹\1",
         text,
         flags=re.IGNORECASE,
     )
-    # 4. Trailing /- after ₹ amount: e.g. ₹ 50,000/- or ₹50,000/- -> ₹50,000
+    # 4. Trailing /- after ₹ amount: e.g. ₹ NNNNN/- or ₹NNNNN/- -> ₹NNNNN
     text = re.sub(r"₹\s*([\d,]+(?:\.\d+)?)\s*/-", r"₹\1", text)
-    # 5. Space between ₹ and digits: ₹ 50,000 -> ₹50,000
+    # 5. Space between ₹ and digits: ₹ NNNNN -> ₹NNNNN
     text = re.sub(r"₹\s+([\d,]+)", r"₹\1", text)
     return text
 
