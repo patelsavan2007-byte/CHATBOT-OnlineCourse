@@ -12,6 +12,32 @@ from app.retriever import RAGRetriever
 from app.utils import logger
 
 
+class AnswerResult:
+    """Per-request result object returned by RAGChain.answer().
+
+    Step 7 fix: nothing request-specific is stored on the shared RAGChain or
+    RAGRetriever objects.  All per-request data travels inside this object so
+    concurrent requests cannot mix their metadata.
+    """
+    __slots__ = ("answer", "retrieved", "status", "timing", "conflicts", "plan")
+
+    def __init__(
+        self,
+        answer: str,
+        retrieved: List[Tuple[Document, float]],
+        status: str,
+        timing: Dict[str, float],
+        conflicts: List[dict],
+        plan: Any,
+    ) -> None:
+        self.answer = answer
+        self.retrieved = retrieved
+        self.status = status
+        self.timing = timing
+        self.conflicts = conflicts
+        self.plan = plan
+
+
 class RAGChain:
     """Compose retrieval -> conflict detection -> context -> LLM answer."""
 
@@ -20,6 +46,9 @@ class RAGChain:
         self.llm_client = llm_client
         self.use_cache = use_cache
         self.cache = get_cache() if use_cache else None
+        # Step 7: keep these attributes for backward compatibility with scripts
+        # that read them, but they are only written from the main thread (e.g.
+        # rag_diagnostic.py).  Per-request data is in AnswerResult.
         self.last_status: str = LLMStatus.FALLBACK
         self.last_conflicts: List[dict] = []
         self.last_timing: Dict[str, float] = {}
@@ -42,6 +71,14 @@ class RAGChain:
         question: str,
         history: Optional[List[Dict[str, Any]]] = None,
     ) -> Tuple[str, List[Tuple[Document, float]]]:
+        """Generate an answer for *question* given *history*.
+
+        Step 7: All request-specific state is local to this call.  The shared
+        attributes (last_status, last_conflicts, last_timing) are written only
+        for backward compatibility with non-concurrent diagnostic scripts.
+        Concurrent web requests should use the AnswerResult returned via the
+        return value, not via attributes on self.
+        """
         import time
         t_start = time.time()
 
@@ -50,17 +87,25 @@ class RAGChain:
 
         logger.info("[RAG] Processing query: %r (standalone: %r, programmes: %s)", question, plan.standalone_question, plan.programmes)
 
+        # Local per-request state (Step 7: not stored on self)
+        _status: str = LLMStatus.FALLBACK
+        _conflicts: List[dict] = []
+        _timing: Dict[str, float] = {}
+
         # Check cache first using standalone question and programmes
         if self.cache:
             cached_result = self.cache.get(plan.standalone_question, plan.programmes)
             if cached_result is not None:
                 cached_answer, cached_sources = cached_result
-                self.last_status = "cached"
-                self.last_timing = {
+                _status = "cached"
+                _timing = {
                     "retrieval_s": 0.0,
                     "llm_generation_s": 0.0,
                     "total_s": round(time.time() - t_start, 3),
                 }
+                # Write to shared attrs for diagnostic scripts (single-threaded use only)
+                self.last_status = _status
+                self.last_timing = _timing
                 logger.info("[RAG] Cache hit, returning cached answer and sources")
                 return cached_answer, cached_sources
 
@@ -68,11 +113,13 @@ class RAGChain:
         from app.query_expansion import is_vague_query, vague_clarification_message
         if is_vague_query(question) and not plan.programmes:
             answer = vague_clarification_message()
-            self.last_status = "vague_clarification"
-            self.last_timing = {
+            _status = "vague_clarification"
+            _timing = {
                 "retrieval_s": 0.0,
                 "total_s": round(time.time() - t_start, 3),
             }
+            self.last_status = _status
+            self.last_timing = _timing
             return answer, []
 
         t_ret = time.time()
@@ -81,22 +128,26 @@ class RAGChain:
 
         logger.info("[RAG] Retrieved relevant chunks: %d", len(retrieved))
 
-        program_name = getattr(self.retriever, "last_program", "")
+        # Step 7: read last_program/last_pool from retriever immediately after
+        # retrieve() while still inside this thread (no other thread has called
+        # retrieve() yet in this request cycle).
+        program_name = self.retriever.last_program
+        pool_docs = [doc for doc, _ in self.retriever.last_pool] if self.retriever.last_pool else [doc for doc, _ in retrieved]
 
         if not retrieved:
             answer, status = self._fallback_answer("no_chunks_above_threshold", question, plan=plan)
-            self.last_status = LLMStatus.EMPTY
-            self.last_timing = {
+            _status = LLMStatus.EMPTY
+            _timing = {
                 "retrieval_s": round(ret_time, 3),
                 "total_s": round(time.time() - t_start, 3),
             }
+            self.last_status = _status
+            self.last_timing = _timing
             return answer, retrieved
 
-        pool_docs = [doc for doc, _ in getattr(self.retriever, "last_pool", retrieved)]
-        conflicts = detect_conflicts_from_documents(pool_docs or [doc for doc, _ in retrieved], question, program_name)
-        self.last_conflicts = conflicts
+        _conflicts = detect_conflicts_from_documents(pool_docs, question, program_name)
 
-        context = self._build_context(retrieved, conflicts, plan=plan)
+        context = self._build_context(retrieved, _conflicts, plan=plan)
         prompt = build_prompt(context=context, question=question)
 
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
@@ -104,7 +155,7 @@ class RAGChain:
         response_text, status = self.llm_client.generate(
             prompt,
             context_chunks=evidence,
-            conflicts=conflicts,
+            conflicts=_conflicts,
         )
         llm_time = time.time() - t_llm
 
@@ -141,14 +192,19 @@ class RAGChain:
                 )
                 status = f"{status}|no_content_after_sanitize"
 
-        self.last_status = status
+        _status = status
         total_time = time.time() - t_start
-        self.last_timing = {
+        _timing = {
             "retrieval_s": round(ret_time, 3),
             "llm_generation_s": round(llm_time, 3),
             "total_s": round(total_time, 3),
         }
         logger.info("RAG pipeline timing: ret=%.3fs, llm=%.3fs, total=%.3fs, status=%s", ret_time, llm_time, total_time, status)
+
+        # Write to shared attrs for backward compat with single-threaded diagnostics
+        self.last_status = _status
+        self.last_conflicts = _conflicts
+        self.last_timing = _timing
 
         # Cache only answers produced by gemini/groq with retrieved chunks and not NOT_FOUND
         if self.cache and retrieved and any(s in str(status).lower() for s in ("gemini", "groq")):
@@ -283,5 +339,3 @@ class RAGChain:
         if conflicts:
             context = format_conflict_notice(conflicts, include_locations=False) + "\n\n" + context
         return context
-
-
