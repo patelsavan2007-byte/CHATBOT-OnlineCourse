@@ -278,13 +278,17 @@ class RAGChain:
             m = re.search(r"\[\[MISSING:\s*(.*?)\]\]", response_text, re.IGNORECASE)
             missing_desc = m.group(1).strip() if m else ""
             clean_body = re.sub(r"\[\[MISSING:.*?\]\]", "", response_text, flags=re.IGNORECASE).strip()
-            missing_line = (
-                f"I couldn't find information regarding {missing_desc} in the official programme documents."
-                if missing_desc else "I couldn't find further details in the official programme documents."
-            )
-            if clean_body:
-                answer = f"{clean_body}\n\n{missing_line}\n\n{contact_line}"
+            if clean_body and len(clean_body) > 30:
+                note_line = (
+                    f"Note: Details regarding {missing_desc} are not specified in the official programme documents."
+                    if missing_desc else ""
+                )
+                answer = f"{clean_body}\n\n{note_line}".strip() if note_line else clean_body
             else:
+                missing_line = (
+                    f"I couldn't find information regarding {missing_desc} in the official programme documents."
+                    if missing_desc else "I couldn't find this information in the official programme documents."
+                )
                 answer = f"{missing_line}\n\n{contact_line}"
             answer = strip_internal_references(answer)
             status = f"{status}|missing_marker"

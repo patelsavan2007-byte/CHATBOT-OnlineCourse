@@ -41,10 +41,7 @@ from app import config
 from app.conflict import extract_claims, focus_attributes
 from app.utils import logger, print_info, print_warning
 
-NOT_FOUND_ANSWER = (
-    "I couldn't find this information in the available CHARUSAT Online "
-    "Programme information. You may contact the university for the latest details."
-)
+NOT_FOUND_ANSWER = "[[NOT_FOUND]]"
 
 
 def get_available_knowledge_sources() -> List[str]:
@@ -737,8 +734,10 @@ class LLMClient:
                 lowered = stripped.lower()
                 if stripped.startswith("# ") and len(tokens) > 1:
                     continue
-                if any(token in lowered for token in tokens):
-                    relevant.append(stripped)
+            min_matches = min(2, len(tokens))
+            matched_count = sum(1 for token in tokens if token in lowered)
+            if matched_count >= min_matches:
+                relevant.append(stripped)
 
         if relevant:
             answer = "\n".join(relevant[:6])
@@ -746,17 +745,4 @@ class LLMClient:
                 answer = answer[:1400]
             return answer
 
-        # No token matched: fall back to a short excerpt of the top chunks.
-        excerpt = []
-        for content, _metadata in chunks:
-            for line in content.splitlines():
-                stripped = line.strip()
-                if stripped and not stripped.startswith(("# ", "|")):
-                    excerpt.append(stripped)
-                if len(excerpt) >= 6:
-                    break
-            if len(excerpt) >= 6:
-                break
-        if excerpt:
-            return ' '.join(excerpt)[:1400]
         return NOT_FOUND_ANSWER
