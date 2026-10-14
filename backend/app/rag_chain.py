@@ -124,7 +124,8 @@ class RAGChain:
         self,
         question: str,
         history: Optional[List[Dict[str, Any]]] = None,
-    ) -> Tuple[str, List[Tuple[Document, float]]]:
+        use_cache: Optional[bool] = None,
+    ) -> AnswerResult:
         """Generate an answer for *question* given *history*.
 
         Step 7: All request-specific state is local to this call.  The shared
@@ -147,7 +148,7 @@ class RAGChain:
         _timing: Dict[str, float] = {}
 
         # Check cache first using standalone question and programmes
-        if self.cache:
+        if self.cache and (use_cache is not False):
             cached_result = self.cache.get(plan.standalone_question, plan.programmes)
             if cached_result is not None:
                 cached_answer, cached_sources = cached_result
@@ -328,7 +329,7 @@ class RAGChain:
         self.last_timing = _timing
 
         # Cache only answers produced by gemini/groq with retrieved chunks and not NOT_FOUND
-        if self.cache and retrieved and any(s in str(status).lower() for s in ("gemini", "groq")):
+        if self.cache and (use_cache is not False) and retrieved and any(s in str(status).lower() for s in ("gemini", "groq")):
             is_not_found = "not_found" in status.lower() or "[[not_found]]" in response_text.lower()
             if not is_not_found:
                 self.cache.set(

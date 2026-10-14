@@ -59,6 +59,7 @@ class ChatMessageRequest(BaseModel):
     question: str = Field(..., min_length=1)
     conversation_id: Optional[str] = None
     history: Optional[List[Dict[str, Any]]] = None
+    use_cache: Optional[bool] = True
 
 
 class ChatMessageResponse(BaseModel):
@@ -205,6 +206,7 @@ def _process_chat_turn(
     question: str,
     history: Optional[List[Dict[str, Any]]],
     rag_chain: Any,
+    use_cache: Optional[bool] = True,
 ) -> Tuple[str, List[Dict[str, Any]], Optional[Any]]:
     """Execute a single chat turn through RAG and build answer and sources.
     Shared by both /api/chat and /api/chat/stream.
@@ -221,7 +223,7 @@ def _process_chat_turn(
         return answer_text, [], None
 
     # 2. Execute RAG
-    res = rag_chain.answer(question, history=history)
+    res = rag_chain.answer(question, history=history, use_cache=use_cache)
     answer_text = res.answer
     retrieved = res.retrieved
 
@@ -308,7 +310,9 @@ async def chat_message(
 
     # Call the shared RAG turn processing
     try:
-        answer_text, sources, rag_result = _process_chat_turn(request.question, history, rag_chain)
+        answer_text, sources, rag_result = _process_chat_turn(
+            request.question, history, rag_chain, use_cache=request.use_cache
+        )
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(

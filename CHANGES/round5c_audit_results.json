@@ -1,0 +1,2054 @@
+{
+  "timestamp": "2026-10-14T08:53:32Z",
+  "benchmark_questions": 77,
+  "pass_a_single_chat_cache_on": {
+    "summary": {
+      "CORRECT": 39,
+      "CORRECT_REFUSAL": 19,
+      "WRONG_DATA_EXISTS": 19,
+      "ERROR": 0
+    },
+    "latencies": {
+      "p50": 0.714,
+      "p90": 0.836,
+      "max": 2.549
+    },
+    "results": [
+      {
+        "id": "Q01",
+        "question": "What online programs are offered?",
+        "classification": "CORRECT",
+        "elapsed_s": 2.549,
+        "answer": "| Programme |\n|-----------|\n| Online BBA |\n| Online BCA |\n| Online MBA |\n| Online MCA |\n\nTell me which programme and I w...",
+        "error": null
+      },
+      {
+        "id": "Q02",
+        "question": "Is the online degree recognized by UGC?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.953,
+        "answer": "CHARUASAT recognized by UGC.\nCHARUASAT recognized by UGC.",
+        "error": null
+      },
+      {
+        "id": "Q03",
+        "question": "Is the degree valid for government and private jobs?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.809,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q04",
+        "question": "Is the online degree equivalent to a regular degree?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.836,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q05",
+        "question": "Who is eligible for this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.551,
+        "answer": "Eligibility: Students who have successfully completed the Undergraduate Program (UG) pattern or equivalent are eligible ...",
+        "error": null
+      },
+      {
+        "id": "Q06",
+        "question": "What is the admission process?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.526,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q07",
+        "question": "What documents are required for admission?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.533,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q08",
+        "question": "Is there an entrance exam?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.901,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q09",
+        "question": "What is the duration of the program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.474,
+        "answer": "Duration: 2. Duration of Programme",
+        "error": null
+      },
+      {
+        "id": "Q10",
+        "question": "Can I study while working?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 1.019,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q11",
+        "question": "Are live classes compulsory?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.868,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q12",
+        "question": "Are classes recorded?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.759,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q13",
+        "question": "Can I access recorded lectures anytime?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.808,
+        "answer": "Choosing the online BCA program at CMPICA, CHARUSAT was the best decision for my career. The LMS is user-friendly and ma...",
+        "error": null
+      },
+      {
+        "id": "Q14",
+        "question": "What is the class schedule?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.79,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q15",
+        "question": "How are examinations conducted?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.569,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q16",
+        "question": "Will exams be online or offline?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.521,
+        "answer": "support. Online and face-to-face counselling will be provided by academic counsellors\ncontacting the helpdesk number. Th...",
+        "error": null
+      },
+      {
+        "id": "Q17",
+        "question": "What is the attendance requirement?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.799,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q18",
+        "question": "Is there any internship included?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.591,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q19",
+        "question": "Are placement assistance services available?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.708,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q20",
+        "question": "Will I receive a degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.786,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q21",
+        "question": "What is the total course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.447,
+        "answer": "Total programme fee: ₹1,50,000",
+        "error": null
+      },
+      {
+        "id": "Q22",
+        "question": "What is the semester-wise fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.475,
+        "answer": "| | Course | No. of Semesters | Fee for 1st Year | Fee for 2nd Year | Fee for 3rd Year | Total Fee (for the entire progr...",
+        "error": null
+      },
+      {
+        "id": "Q23",
+        "question": "Is there any registration or application fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.462,
+        "answer": "Total programme fee: ₹1,50,000\nYear-wise fee: ₹75,000\nNote: The retrieved documents contain conflicting values for \"Exam...",
+        "error": null
+      },
+      {
+        "id": "Q24",
+        "question": "Can I pay the fees in installments?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.528,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q25",
+        "question": "What are the available payment modes?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.55,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q26",
+        "question": "Are EMI options available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.724,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q27",
+        "question": "Are there any scholarships or fee concessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.736,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fee: 50000\n- Annual Fee: 75000",
+        "error": null
+      },
+      {
+        "id": "Q28",
+        "question": "Is GST included in the course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.783,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q29",
+        "question": "Are examination fees included in the tuition fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.463,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Examination fee\":\n- ₹3000\n- ₹9000\n- ₹7000\n- ₹14000",
+        "error": null
+      },
+      {
+        "id": "Q30",
+        "question": "Are there any hidden charges?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.737,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q31",
+        "question": "What is the refund policy if I cancel my admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.775,
+        "answer": "Fees Refund Policy\nCancellation of Admission:\n1. For the cancellation of admission, a candidate has to apply in the pres...",
+        "error": null
+      },
+      {
+        "id": "Q32",
+        "question": "Is there any late fee for delayed payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.515,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q33",
+        "question": "Can I pay the fee semester-wise instead of annually?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.813,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q34",
+        "question": "Will I receive a fee receipt after payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.521,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q35",
+        "question": "Is the fee refundable after classes begin?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.744,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q36",
+        "question": "What subjects are covered in the program?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.445,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q37",
+        "question": "How many semesters does the course have?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.492,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q38",
+        "question": "Who are the faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.487,
+        "answer": "• Course curriculum will be designed by well-trained faculty members with relevant\n6. Facilitate mentorship and guidance...",
+        "error": null
+      },
+      {
+        "id": "Q39",
+        "question": "Will I receive study materials?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.732,
+        "answer": "in which case, the End User information will be processed by Charusat. \"End User\" means an organisation’s employee who i...",
+        "error": null
+      },
+      {
+        "id": "Q40",
+        "question": "Are e-books provided?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.838,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q41",
+        "question": "How are assignments submitted?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.47,
+        "answer": "you are at least 18 years of age. If you use this site from locations other than India, you are responsible for complian...",
+        "error": null
+      },
+      {
+        "id": "Q42",
+        "question": "How much weightage do assignments carry?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.48,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q43",
+        "question": "What is the passing criteria?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.488,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q44",
+        "question": "Can I appear for backlogs online?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.5,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q45",
+        "question": "How is the grading system structured?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.491,
+        "answer": "grading system.",
+        "error": null
+      },
+      {
+        "id": "Q46",
+        "question": "Which Learning Management System (LMS) is used?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.842,
+        "answer": "A- Charusat's Online MBA programme is entirely online. Teaching and learning happen using a Learning Management System (...",
+        "error": null
+      },
+      {
+        "id": "Q47",
+        "question": "How do I log in to the LMS?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.729,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q48",
+        "question": "What if I forget my LMS password?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.768,
+        "answer": "To use certain Services, you will need Access Credentials (username and password), you also agree that Access Credential...",
+        "error": null
+      },
+      {
+        "id": "Q49",
+        "question": "Can I attend classes on my mobile phone?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.733,
+        "answer": "programme as per their convenience. It allows students to attend classes from anywhere,\naccess online resources and lear...",
+        "error": null
+      },
+      {
+        "id": "Q50",
+        "question": "Is there a dedicated mobile app?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.703,
+        "answer": "| OBCA330 | Basics of Mobile Applications | 4 | - | 4 | 4 | 30 | 70 | - | - | 100 |\n| OBCA330 P | Basics of Mobile Appli...",
+        "error": null
+      },
+      {
+        "id": "Q51",
+        "question": "What internet speed is recommended?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.711,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q52",
+        "question": "Is technical support available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.689,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q53",
+        "question": "Who should I contact if I face technical issues?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.761,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q54",
+        "question": "Does the university provide placement assistance?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.725,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q55",
+        "question": "Are internships available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.469,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q56",
+        "question": "Can I pursue higher education after completing this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.808,
+        "answer": "professionals, enabling them to pursue higher education without career interruptions.\nThe objective of establishment of ...",
+        "error": null
+      },
+      {
+        "id": "Q57",
+        "question": "Is the degree accepted abroad?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.714,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q58",
+        "question": "Will there be career guidance sessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.719,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q59",
+        "question": "Are resume-building workshops conducted?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.73,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q60",
+        "question": "Will there be mock interviews?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.729,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q61",
+        "question": "Do companies recruit online degree students?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.735,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q62",
+        "question": "When does admission start?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.473,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q63",
+        "question": "What is the last date to apply?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.596,
+        "answer": "1. For the cancellation of admission, a candidate has to apply in the prescribed form",
+        "error": null
+      },
+      {
+        "id": "Q64",
+        "question": "Can I apply online?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.561,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q65",
+        "question": "How long does admission approval take?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.48,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q66",
+        "question": "How will I know if my admission is confirmed?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.507,
+        "answer": "admission will be confirmed, and an enrollment number will be issued to the student.\n• For admission to BBA programme th...",
+        "error": null
+      },
+      {
+        "id": "Q67",
+        "question": "Can I change my course after admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.528,
+        "answer": "modifying any content thereon and you agree to abide by the most current version of the Terms, as revised Terms will sup...",
+        "error": null
+      },
+      {
+        "id": "Q68",
+        "question": "Can international students apply?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.73,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q69",
+        "question": "Is there any age limit for admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.487,
+        "answer": "Students who have successfully completed the secondary examination (10+2) pattern or equivalent are eligible to apply fo...",
+        "error": null
+      },
+      {
+        "id": "Q70",
+        "question": "Is academic counseling available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.723,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q71",
+        "question": "Will I get a student ID card?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.701,
+        "answer": "The contemporary curriculum of BCA is designed to provide necessary software skills and industry exposure to students th...",
+        "error": null
+      },
+      {
+        "id": "Q72",
+        "question": "How can I contact faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.723,
+        "answer": "I am thrilled to be a part of the BBA General Program at IIIM of CHARUSAT. The expertise and enthusiasm of the faculty m...",
+        "error": null
+      },
+      {
+        "id": "Q73",
+        "question": "Is there a dedicated student support team?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.754,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q74",
+        "question": "What are the student support timings?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.725,
+        "answer": "- Dedicated Student Support for continuous guidance",
+        "error": null
+      },
+      {
+        "id": "Q75",
+        "question": "Can I raise queries through email or WhatsApp?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.77,
+        "answer": "The admissions staff of the Charusat thoroughly reviews all submitted applications for the online BCA degree to determin...",
+        "error": null
+      },
+      {
+        "id": "Q76",
+        "question": "How can I download my marksheet?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.527,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q77",
+        "question": "How do I obtain my degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.683,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      }
+    ]
+  },
+  "pass_b_single_chat_cache_off": {
+    "summary": {
+      "CORRECT": 38,
+      "CORRECT_REFUSAL": 19,
+      "WRONG_DATA_EXISTS": 20,
+      "ERROR": 0
+    },
+    "latencies": {
+      "p50": 0.684,
+      "p90": 0.772,
+      "max": 0.938
+    },
+    "results": [
+      {
+        "id": "Q01",
+        "question": "What online programs are offered?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.691,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q02",
+        "question": "Is the online degree recognized by UGC?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.716,
+        "answer": "CHARUASAT recognized by UGC.\nCHARUASAT recognized by UGC.",
+        "error": null
+      },
+      {
+        "id": "Q03",
+        "question": "Is the degree valid for government and private jobs?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.701,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q04",
+        "question": "Is the online degree equivalent to a regular degree?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.788,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q05",
+        "question": "Who is eligible for this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.489,
+        "answer": "Eligibility: Students who have successfully completed the Undergraduate Program (UG) pattern or equivalent are eligible ...",
+        "error": null
+      },
+      {
+        "id": "Q06",
+        "question": "What is the admission process?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.477,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q07",
+        "question": "What documents are required for admission?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.505,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q08",
+        "question": "Is there an entrance exam?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.694,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q09",
+        "question": "What is the duration of the program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.412,
+        "answer": "Duration: 2. Duration of Programme",
+        "error": null
+      },
+      {
+        "id": "Q10",
+        "question": "Can I study while working?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.716,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q11",
+        "question": "Are live classes compulsory?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.709,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q12",
+        "question": "Are classes recorded?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.691,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q13",
+        "question": "Can I access recorded lectures anytime?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.716,
+        "answer": "Choosing the online BCA program at CMPICA, CHARUSAT was the best decision for my career. The LMS is user-friendly and ma...",
+        "error": null
+      },
+      {
+        "id": "Q14",
+        "question": "What is the class schedule?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.775,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q15",
+        "question": "How are examinations conducted?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.45,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q16",
+        "question": "Will exams be online or offline?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.437,
+        "answer": "support. Online and face-to-face counselling will be provided by academic counsellors\ncontacting the helpdesk number. Th...",
+        "error": null
+      },
+      {
+        "id": "Q17",
+        "question": "What is the attendance requirement?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.678,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q18",
+        "question": "Is there any internship included?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.938,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q19",
+        "question": "Are placement assistance services available?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.684,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q20",
+        "question": "Will I receive a degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.714,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q21",
+        "question": "What is the total course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.437,
+        "answer": "Total programme fee: ₹1,50,000",
+        "error": null
+      },
+      {
+        "id": "Q22",
+        "question": "What is the semester-wise fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.494,
+        "answer": "| | Course | No. of Semesters | Fee for 1st Year | Fee for 2nd Year | Fee for 3rd Year | Total Fee (for the entire progr...",
+        "error": null
+      },
+      {
+        "id": "Q23",
+        "question": "Is there any registration or application fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.498,
+        "answer": "Total programme fee: ₹1,50,000\nYear-wise fee: ₹75,000\nNote: The retrieved documents contain conflicting values for \"Exam...",
+        "error": null
+      },
+      {
+        "id": "Q24",
+        "question": "Can I pay the fees in installments?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.502,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q25",
+        "question": "What are the available payment modes?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.475,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q26",
+        "question": "Are EMI options available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.691,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q27",
+        "question": "Are there any scholarships or fee concessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.718,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fee: 50000\n- Annual Fee: 75000",
+        "error": null
+      },
+      {
+        "id": "Q28",
+        "question": "Is GST included in the course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.771,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q29",
+        "question": "Are examination fees included in the tuition fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.51,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Examination fee\":\n- ₹3000\n- ₹9000\n- ₹7000\n- ₹14000",
+        "error": null
+      },
+      {
+        "id": "Q30",
+        "question": "Are there any hidden charges?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.812,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q31",
+        "question": "What is the refund policy if I cancel my admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.746,
+        "answer": "Fees Refund Policy\nCancellation of Admission:\n1. For the cancellation of admission, a candidate has to apply in the pres...",
+        "error": null
+      },
+      {
+        "id": "Q32",
+        "question": "Is there any late fee for delayed payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.538,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q33",
+        "question": "Can I pay the fee semester-wise instead of annually?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.629,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q34",
+        "question": "Will I receive a fee receipt after payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.507,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q35",
+        "question": "Is the fee refundable after classes begin?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.682,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q36",
+        "question": "What subjects are covered in the program?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.444,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q37",
+        "question": "How many semesters does the course have?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.452,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q38",
+        "question": "Who are the faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.438,
+        "answer": "• Course curriculum will be designed by well-trained faculty members with relevant\n6. Facilitate mentorship and guidance...",
+        "error": null
+      },
+      {
+        "id": "Q39",
+        "question": "Will I receive study materials?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.758,
+        "answer": "in which case, the End User information will be processed by Charusat. \"End User\" means an organisation’s employee who i...",
+        "error": null
+      },
+      {
+        "id": "Q40",
+        "question": "Are e-books provided?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.668,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q41",
+        "question": "How are assignments submitted?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.526,
+        "answer": "you are at least 18 years of age. If you use this site from locations other than India, you are responsible for complian...",
+        "error": null
+      },
+      {
+        "id": "Q42",
+        "question": "How much weightage do assignments carry?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.521,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q43",
+        "question": "What is the passing criteria?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.452,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q44",
+        "question": "Can I appear for backlogs online?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.475,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q45",
+        "question": "How is the grading system structured?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.493,
+        "answer": "grading system.",
+        "error": null
+      },
+      {
+        "id": "Q46",
+        "question": "Which Learning Management System (LMS) is used?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.818,
+        "answer": "A- Charusat's Online MBA programme is entirely online. Teaching and learning happen using a Learning Management System (...",
+        "error": null
+      },
+      {
+        "id": "Q47",
+        "question": "How do I log in to the LMS?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.747,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q48",
+        "question": "What if I forget my LMS password?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.454,
+        "answer": "To use certain Services, you will need Access Credentials (username and password), you also agree that Access Credential...",
+        "error": null
+      },
+      {
+        "id": "Q49",
+        "question": "Can I attend classes on my mobile phone?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.722,
+        "answer": "programme as per their convenience. It allows students to attend classes from anywhere,\naccess online resources and lear...",
+        "error": null
+      },
+      {
+        "id": "Q50",
+        "question": "Is there a dedicated mobile app?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.686,
+        "answer": "| OBCA330 | Basics of Mobile Applications | 4 | - | 4 | 4 | 30 | 70 | - | - | 100 |\n| OBCA330 P | Basics of Mobile Appli...",
+        "error": null
+      },
+      {
+        "id": "Q51",
+        "question": "What internet speed is recommended?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.731,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q52",
+        "question": "Is technical support available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.671,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q53",
+        "question": "Who should I contact if I face technical issues?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.712,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q54",
+        "question": "Does the university provide placement assistance?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.772,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q55",
+        "question": "Are internships available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.467,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q56",
+        "question": "Can I pursue higher education after completing this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.787,
+        "answer": "professionals, enabling them to pursue higher education without career interruptions.\nThe objective of establishment of ...",
+        "error": null
+      },
+      {
+        "id": "Q57",
+        "question": "Is the degree accepted abroad?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.739,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q58",
+        "question": "Will there be career guidance sessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.708,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q59",
+        "question": "Are resume-building workshops conducted?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.727,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q60",
+        "question": "Will there be mock interviews?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.731,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q61",
+        "question": "Do companies recruit online degree students?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.767,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q62",
+        "question": "When does admission start?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.471,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q63",
+        "question": "What is the last date to apply?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.532,
+        "answer": "1. For the cancellation of admission, a candidate has to apply in the prescribed form",
+        "error": null
+      },
+      {
+        "id": "Q64",
+        "question": "Can I apply online?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.437,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q65",
+        "question": "How long does admission approval take?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.526,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q66",
+        "question": "How will I know if my admission is confirmed?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.514,
+        "answer": "admission will be confirmed, and an enrollment number will be issued to the student.\n• For admission to BBA programme th...",
+        "error": null
+      },
+      {
+        "id": "Q67",
+        "question": "Can I change my course after admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.577,
+        "answer": "modifying any content thereon and you agree to abide by the most current version of the Terms, as revised Terms will sup...",
+        "error": null
+      },
+      {
+        "id": "Q68",
+        "question": "Can international students apply?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.703,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q69",
+        "question": "Is there any age limit for admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.562,
+        "answer": "Students who have successfully completed the secondary examination (10+2) pattern or equivalent are eligible to apply fo...",
+        "error": null
+      },
+      {
+        "id": "Q70",
+        "question": "Is academic counseling available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.662,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q71",
+        "question": "Will I get a student ID card?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.738,
+        "answer": "The contemporary curriculum of BCA is designed to provide necessary software skills and industry exposure to students th...",
+        "error": null
+      },
+      {
+        "id": "Q72",
+        "question": "How can I contact faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.717,
+        "answer": "I am thrilled to be a part of the BBA General Program at IIIM of CHARUSAT. The expertise and enthusiasm of the faculty m...",
+        "error": null
+      },
+      {
+        "id": "Q73",
+        "question": "Is there a dedicated student support team?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.765,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q74",
+        "question": "What are the student support timings?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.75,
+        "answer": "- Dedicated Student Support for continuous guidance",
+        "error": null
+      },
+      {
+        "id": "Q75",
+        "question": "Can I raise queries through email or WhatsApp?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.784,
+        "answer": "The admissions staff of the Charusat thoroughly reviews all submitted applications for the online BCA degree to determin...",
+        "error": null
+      },
+      {
+        "id": "Q76",
+        "question": "How can I download my marksheet?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.5,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q77",
+        "question": "How do I obtain my degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.724,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      }
+    ]
+  },
+  "pass_c_fresh_chat": {
+    "summary": {
+      "CORRECT": 38,
+      "CORRECT_REFUSAL": 19,
+      "WRONG_DATA_EXISTS": 20,
+      "ERROR": 0
+    },
+    "latencies": {
+      "p50": 0.687,
+      "p90": 0.792,
+      "max": 0.85
+    },
+    "results": [
+      {
+        "id": "Q01",
+        "question": "What online programs are offered?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.064,
+        "answer": "| Programme |\n|-----------|\n| Online BBA |\n| Online BCA |\n| Online MBA |\n| Online MCA |\n\nTell me which programme and I w...",
+        "error": null
+      },
+      {
+        "id": "Q02",
+        "question": "Is the online degree recognized by UGC?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.738,
+        "answer": "CHARUASAT recognized by UGC.\nCHARUASAT recognized by UGC.",
+        "error": null
+      },
+      {
+        "id": "Q03",
+        "question": "Is the degree valid for government and private jobs?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.704,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q04",
+        "question": "Is the online degree equivalent to a regular degree?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.748,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q05",
+        "question": "Who is eligible for this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.809,
+        "answer": "Eligibility: Students who have successfully completed the Undergraduate Program (UG) pattern or equivalent are eligible ...",
+        "error": null
+      },
+      {
+        "id": "Q06",
+        "question": "What is the admission process?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.486,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q07",
+        "question": "What documents are required for admission?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.702,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q08",
+        "question": "Is there an entrance exam?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.762,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q09",
+        "question": "What is the duration of the program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.415,
+        "answer": "Duration: 2. Duration of Programme",
+        "error": null
+      },
+      {
+        "id": "Q10",
+        "question": "Can I study while working?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.673,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q11",
+        "question": "Are live classes compulsory?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.716,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q12",
+        "question": "Are classes recorded?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.674,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q13",
+        "question": "Can I access recorded lectures anytime?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.719,
+        "answer": "Choosing the online BCA program at CMPICA, CHARUSAT was the best decision for my career. The LMS is user-friendly and ma...",
+        "error": null
+      },
+      {
+        "id": "Q14",
+        "question": "What is the class schedule?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.698,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q15",
+        "question": "How are examinations conducted?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.662,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q16",
+        "question": "Will exams be online or offline?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.476,
+        "answer": "support. Online and face-to-face counselling will be provided by academic counsellors\ncontacting the helpdesk number. Th...",
+        "error": null
+      },
+      {
+        "id": "Q17",
+        "question": "What is the attendance requirement?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.727,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q18",
+        "question": "Is there any internship included?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.493,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q19",
+        "question": "Are placement assistance services available?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.699,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q20",
+        "question": "Will I receive a degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.735,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q21",
+        "question": "What is the total course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.432,
+        "answer": "Total programme fee: ₹1,50,000",
+        "error": null
+      },
+      {
+        "id": "Q22",
+        "question": "What is the semester-wise fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.541,
+        "answer": "| | Course | No. of Semesters | Fee for 1st Year | Fee for 2nd Year | Fee for 3rd Year | Total Fee (for the entire progr...",
+        "error": null
+      },
+      {
+        "id": "Q23",
+        "question": "Is there any registration or application fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.499,
+        "answer": "Total programme fee: ₹1,50,000\nYear-wise fee: ₹75,000\nNote: The retrieved documents contain conflicting values for \"Exam...",
+        "error": null
+      },
+      {
+        "id": "Q24",
+        "question": "Can I pay the fees in installments?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.47,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q25",
+        "question": "What are the available payment modes?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.472,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q26",
+        "question": "Are EMI options available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.665,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q27",
+        "question": "Are there any scholarships or fee concessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.714,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fee: 50000\n- Annual Fee: 75000",
+        "error": null
+      },
+      {
+        "id": "Q28",
+        "question": "Is GST included in the course fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.845,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q29",
+        "question": "Are examination fees included in the tuition fee?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.502,
+        "answer": "Note: The retrieved documents contain conflicting values for \"Examination fee\":\n- ₹3000\n- ₹9000\n- ₹7000\n- ₹14000",
+        "error": null
+      },
+      {
+        "id": "Q30",
+        "question": "Are there any hidden charges?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.728,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts &...",
+        "error": null
+      },
+      {
+        "id": "Q31",
+        "question": "What is the refund policy if I cancel my admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.85,
+        "answer": "Fees Refund Policy\nCancellation of Admission:\n1. For the cancellation of admission, a candidate has to apply in the pres...",
+        "error": null
+      },
+      {
+        "id": "Q32",
+        "question": "Is there any late fee for delayed payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.538,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q33",
+        "question": "Can I pay the fee semester-wise instead of annually?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.54,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q34",
+        "question": "Will I receive a fee receipt after payment?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.517,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q35",
+        "question": "Is the fee refundable after classes begin?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.791,
+        "answer": "Total programme fee: ₹1,50,000\nNote: The retrieved documents contain conflicting values for \"Year-wise fee\":\n- Annual Fe...",
+        "error": null
+      },
+      {
+        "id": "Q36",
+        "question": "What subjects are covered in the program?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.413,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q37",
+        "question": "How many semesters does the course have?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.471,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q38",
+        "question": "Who are the faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.688,
+        "answer": "• Course curriculum will be designed by well-trained faculty members with relevant\n6. Facilitate mentorship and guidance...",
+        "error": null
+      },
+      {
+        "id": "Q39",
+        "question": "Will I receive study materials?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.758,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q40",
+        "question": "Are e-books provided?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.724,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q41",
+        "question": "How are assignments submitted?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.51,
+        "answer": "you are at least 18 years of age. If you use this site from locations other than India, you are responsible for complian...",
+        "error": null
+      },
+      {
+        "id": "Q42",
+        "question": "How much weightage do assignments carry?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.575,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q43",
+        "question": "What is the passing criteria?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.503,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q44",
+        "question": "Can I appear for backlogs online?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.501,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q45",
+        "question": "How is the grading system structured?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.459,
+        "answer": "grading system.",
+        "error": null
+      },
+      {
+        "id": "Q46",
+        "question": "Which Learning Management System (LMS) is used?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.762,
+        "answer": "A- Charusat's Online MBA programme is entirely online. Teaching and learning happen using a Learning Management System (...",
+        "error": null
+      },
+      {
+        "id": "Q47",
+        "question": "How do I log in to the LMS?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.83,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q48",
+        "question": "What if I forget my LMS password?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.5,
+        "answer": "To use certain Services, you will need Access Credentials (username and password), you also agree that Access Credential...",
+        "error": null
+      },
+      {
+        "id": "Q49",
+        "question": "Can I attend classes on my mobile phone?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.742,
+        "answer": "programme as per their convenience. It allows students to attend classes from anywhere,\naccess online resources and lear...",
+        "error": null
+      },
+      {
+        "id": "Q50",
+        "question": "Is there a dedicated mobile app?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.672,
+        "answer": "| OBCA330 | Basics of Mobile Applications | 4 | - | 4 | 4 | 30 | 70 | - | - | 100 |\n| OBCA330 P | Basics of Mobile Appli...",
+        "error": null
+      },
+      {
+        "id": "Q51",
+        "question": "What internet speed is recommended?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.695,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q52",
+        "question": "Is technical support available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.747,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q53",
+        "question": "Who should I contact if I face technical issues?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.805,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning M...",
+        "error": null
+      },
+      {
+        "id": "Q54",
+        "question": "Does the university provide placement assistance?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.673,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q55",
+        "question": "Are internships available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.444,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q56",
+        "question": "Can I pursue higher education after completing this program?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.785,
+        "answer": "professionals, enabling them to pursue higher education without career interruptions.\nprofessionals, enabling them to pu...",
+        "error": null
+      },
+      {
+        "id": "Q57",
+        "question": "Is the degree accepted abroad?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.843,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q58",
+        "question": "Will there be career guidance sessions?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.687,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q59",
+        "question": "Are resume-building workshops conducted?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.717,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q60",
+        "question": "Will there be mock interviews?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.672,
+        "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the a...",
+        "error": null
+      },
+      {
+        "id": "Q61",
+        "question": "Do companies recruit online degree students?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.787,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q62",
+        "question": "When does admission start?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.451,
+        "answer": "2. All new admission cancellation applications shall be processed once the academic starts.",
+        "error": null
+      },
+      {
+        "id": "Q63",
+        "question": "What is the last date to apply?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.518,
+        "answer": "1. For the cancellation of admission, a candidate has to apply in the prescribed form",
+        "error": null
+      },
+      {
+        "id": "Q64",
+        "question": "Can I apply online?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.456,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q65",
+        "question": "How long does admission approval take?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.513,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q66",
+        "question": "How will I know if my admission is confirmed?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.481,
+        "answer": "admission will be confirmed, and an enrollment number will be issued to the student.\n• For admission to BBA programme th...",
+        "error": null
+      },
+      {
+        "id": "Q67",
+        "question": "Can I change my course after admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.472,
+        "answer": "modifying any content thereon and you agree to abide by the most current version of the Terms, as revised Terms will sup...",
+        "error": null
+      },
+      {
+        "id": "Q68",
+        "question": "Can international students apply?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.792,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions...",
+        "error": null
+      },
+      {
+        "id": "Q69",
+        "question": "Is there any age limit for admission?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.538,
+        "answer": "Students who have successfully completed the secondary examination (10+2) pattern or equivalent are eligible to apply fo...",
+        "error": null
+      },
+      {
+        "id": "Q70",
+        "question": "Is academic counseling available?",
+        "classification": "CORRECT_REFUSAL",
+        "elapsed_s": 0.735,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Course Men...",
+        "error": null
+      },
+      {
+        "id": "Q71",
+        "question": "Will I get a student ID card?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.804,
+        "answer": "The contemporary curriculum of BCA is designed to provide necessary software skills and industry exposure to students th...",
+        "error": null
+      },
+      {
+        "id": "Q72",
+        "question": "How can I contact faculty members?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.79,
+        "answer": "I am thrilled to be a part of the BBA General Program at IIIM of CHARUSAT. The expertise and enthusiasm of the faculty m...",
+        "error": null
+      },
+      {
+        "id": "Q73",
+        "question": "Is there a dedicated student support team?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.757,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Se...",
+        "error": null
+      },
+      {
+        "id": "Q74",
+        "question": "What are the student support timings?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.792,
+        "answer": "- Dedicated Student Support for continuous guidance",
+        "error": null
+      },
+      {
+        "id": "Q75",
+        "question": "Can I raise queries through email or WhatsApp?",
+        "classification": "CORRECT",
+        "elapsed_s": 0.774,
+        "answer": "The admissions staff of the Charusat thoroughly reviews all submitted applications for the online BCA degree to determin...",
+        "error": null
+      },
+      {
+        "id": "Q76",
+        "question": "How can I download my marksheet?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.594,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      },
+      {
+        "id": "Q77",
+        "question": "How do I obtain my degree certificate after completion?",
+        "classification": "WRONG_DATA_EXISTS",
+        "elapsed_s": 0.73,
+        "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinatio...",
+        "error": null
+      }
+    ]
+  },
+  "stress_and_paraphrase": {
+    "paraphrases_passed": "19/20",
+    "paraphrases_latencies": {
+      "p50": 0.18,
+      "p90": 0.581,
+      "max": 0.75
+    },
+    "paraphrases": [
+      {
+        "question": "tell me the admission requirement for bba online",
+        "programme": "online_bba",
+        "ok": true,
+        "elapsed_s": 0.17,
+        "answer_snippet": "stream) with English as a subject is eligible for admission to the BBA Programme"
+      },
+      {
+        "question": "what is the total expenditure for completing bba",
+        "programme": "online_bba",
+        "ok": true,
+        "elapsed_s": 0.581,
+        "answer_snippet": "I couldn't find this information in the official programme documents.\n\nFor furth"
+      },
+      {
+        "question": "is there an internship project in final semester bba",
+        "programme": "online_bba",
+        "ok": true,
+        "elapsed_s": 0.201,
+        "answer_snippet": "• The BBA programme is structured into six semesters, consisting of online\n• Sem"
+      },
+      {
+        "question": "who is teaching business administration subjects",
+        "programme": "online_bba",
+        "ok": true,
+        "elapsed_s": 0.478,
+        "answer_snippet": "I couldn't find this information in the official programme documents.\n\nFor furth"
+      },
+      {
+        "question": "can i appear for bba term end exams from home",
+        "programme": "online_bba",
+        "ok": true,
+        "elapsed_s": 0.159,
+        "answer_snippet": "A- Applications can be submitted online through the website. The admissions staf"
+      },
+      {
+        "question": "eligibility rules for joining bca computer course",
+        "programme": "online_bca",
+        "ok": true,
+        "elapsed_s": 0.193,
+        "answer_snippet": "Eligibility: - 10+2 or equivalent"
+      },
+      {
+        "question": "full 3 year fee breakdown for bca programme",
+        "programme": "online_bca",
+        "ok": true,
+        "elapsed_s": 0.195,
+        "answer_snippet": "Year-wise fee: Annual Fee 50000\nNote: The retrieved documents contain conflictin"
+      },
+      {
+        "question": "how are bca practical assessments evaluated",
+        "programme": "online_bca",
+        "ok": true,
+        "elapsed_s": 0.147,
+        "answer_snippet": "What sets CMPICA apart is the personalized attention each student receives, even"
+      },
+      {
+        "question": "is bca certificate recognized by wes for canada",
+        "programme": "online_bca",
+        "ok": true,
+        "elapsed_s": 0.535,
+        "answer_snippet": "I couldn't find this information in the official programme documents.\n\nFor furth"
+      },
+      {
+        "question": "does bca offer campus placement assistance",
+        "programme": "online_bca",
+        "ok": false,
+        "elapsed_s": 0.75,
+        "answer_snippet": "- Placement Assistance"
+      },
+      {
+        "question": "what qualifications do i need to enroll in online mba",
+        "programme": "online_mba",
+        "ok": true,
+        "elapsed_s": 0.158,
+        "answer_snippet": "The programme aims at providing learning opportunities to a diverse group of lea"
+      },
+      {
+        "question": "total tuition fee for mba across two years",
+        "programme": "online_mba",
+        "ok": true,
+        "elapsed_s": 0.16,
+        "answer_snippet": "Total programme fee: ₹1,50,000\nYear-wise fee: ₹75,000\nNote: The retrieved docume"
+      },
+      {
+        "question": "is there a dissertation or industrial project in mba",
+        "programme": "online_mba",
+        "ok": true,
+        "elapsed_s": 0.172,
+        "answer_snippet": "| MBO604 | Comprehensive Project - Industrial Training | 8 | Practical |\n| MBO60"
+      },
+      {
+        "question": "how much weightage is given to internal marks in mba",
+        "programme": "online_mba",
+        "ok": true,
+        "elapsed_s": 0.159,
+        "answer_snippet": "I couldn't find this information in the official programme documents.\n\nFor furth"
+      },
+      {
+        "question": "can i pay mba fee through installments or emi",
+        "programme": "online_mba",
+        "ok": true,
+        "elapsed_s": 0.165,
+        "answer_snippet": "Total programme fee: ₹1,50,000\nYear-wise fee: ₹75,000\nNote: The retrieved docume"
+      },
+      {
+        "question": "can a bsc graduate apply for mca online degree",
+        "programme": "online_mca",
+        "ok": true,
+        "elapsed_s": 0.15,
+        "answer_snippet": "The online Master of Computer Applications (MCA) programme is designed to provid"
+      },
+      {
+        "question": "what is the aggregate cost for mca programme",
+        "programme": "online_mca",
+        "ok": true,
+        "elapsed_s": 0.18,
+        "answer_snippet": "Year-wise fee: Annual Fee 75000\nNote: The retrieved documents contain conflictin"
+      },
+      {
+        "question": "does mca require dissertation project work in 4th sem",
+        "programme": "online_mca",
+        "ok": true,
+        "elapsed_s": 0.144,
+        "answer_snippet": "| CAOC6 08 | Dissertation / Project Work | 2 | 28 | 30 | 30 | 200 | 200 | 400 | "
+      },
+      {
+        "question": "how are mca live lectures and webinars scheduled",
+        "programme": "online_mca",
+        "ok": true,
+        "elapsed_s": 0.549,
+        "answer_snippet": "| Course Code | Course Title | Course Credits | Course Type | Synchronous Online"
+      },
+      {
+        "question": "whom to reach out for mca degree certificate",
+        "programme": "online_mca",
+        "ok": true,
+        "elapsed_s": 0.561,
+        "answer_snippet": "I couldn't find this information in the official programme documents.\n\nFor furth"
+      }
+    ],
+    "concurrency_passed": "9/10",
+    "concurrency_latencies": {
+      "p50": 1.857,
+      "p90": 4.604,
+      "max": 4.604
+    },
+    "concurrency_wall_time_s": 4.614
+  }
+}
