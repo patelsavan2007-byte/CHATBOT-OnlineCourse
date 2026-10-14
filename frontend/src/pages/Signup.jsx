@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import GoogleButton from "../components/auth/GoogleButton.jsx";
+import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 
 function EyeIcon({ open }) {
   return open ? (
@@ -31,8 +32,8 @@ function PasswordStrength({ password }) {
     <div className="mt-2 flex gap-2">
       {checks.map(({ label, ok }) => (
         <div key={label} className="flex flex-1 flex-col gap-1">
-          <div className={`h-0.5 rounded-full transition ${ok ? "bg-emerald-500" : "bg-white/10"}`} />
-          <span className={`text-[10px] ${ok ? "text-emerald-500" : "text-slate-600"}`}>{label}</span>
+          <div className={`h-0.5 rounded-full transition ${ok ? "bg-emerald-500" : "bg-[var(--border-primary)]"}`} />
+          <span className={`text-[10px] ${ok ? "text-emerald-500" : "text-[var(--text-muted)]"}`}>{label}</span>
         </div>
       ))}
     </div>
@@ -92,16 +93,21 @@ export default function Signup() {
   };
 
   return (
-    <div className="flex min-h-dvh bg-slate-950">
+    <div className="relative flex min-h-dvh bg-[var(--surface-primary)] text-[var(--text-primary)]">
+      {/* Corner theme toggle */}
+      <div className="absolute right-4 top-4 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Left panel */}
-      <div className="hidden w-[420px] shrink-0 flex-col justify-between bg-slate-900 border-r border-white/5 px-10 py-12 lg:flex">
+      <div className="hidden w-[420px] shrink-0 flex-col justify-between bg-[var(--surface-secondary)] border-r border-[var(--border-primary)] px-10 py-12 lg:flex">
         <Link to="/" className="inline-flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800">
-            <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-indigo-400" aria-hidden>
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30">
+            <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-current" aria-hidden>
               <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
             </svg>
           </span>
-          <span className="text-sm font-semibold text-white">CHARUSAT Online</span>
+          <span className="text-sm font-semibold text-[var(--text-primary)]">CHARUSAT Online</span>
         </Link>
 
         <div className="space-y-5">
@@ -111,19 +117,19 @@ export default function Signup() {
             { icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z", text: "Free to create and use" },
           ].map(({ icon, text }) => (
             <div key={text} className="flex items-center gap-3">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/5 text-indigo-400">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] text-[var(--accent-primary)]">
                 <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
                   <path d={icon} />
                 </svg>
               </div>
-              <span className="text-sm text-slate-400">{text}</span>
+              <span className="text-sm text-[var(--text-secondary)]">{text}</span>
             </div>
           ))}
         </div>
 
-        <p className="text-xs text-slate-700">
+        <p className="text-xs text-[var(--text-muted)]">
           Already have an account?{" "}
-          <Link to="/login" className="text-slate-500 hover:text-slate-300 transition">
+          <Link to="/login" className="text-[var(--accent-primary)] hover:underline transition">
             Sign in →
           </Link>
         </p>
@@ -134,21 +140,21 @@ export default function Signup() {
         {/* Mobile logo */}
         <div className="mb-8 lg:hidden">
           <Link to="/" className="inline-flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-800">
-              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-indigo-400" aria-hidden>
+            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30">
+              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-current" aria-hidden>
                 <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
               </svg>
             </span>
-            <span className="text-sm font-semibold text-white">CHARUSAT Online</span>
+            <span className="text-sm font-semibold text-[var(--text-primary)]">CHARUSAT Online</span>
           </Link>
         </div>
 
         <div className="w-full max-w-[380px]">
           <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-white">Create account</h1>
-            <p className="mt-1.5 text-sm text-slate-400">
+            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Create account</h1>
+            <p className="mt-1.5 text-sm text-[var(--text-tertiary)]">
               Already have an account?{" "}
-              <Link to="/login" className="font-medium text-indigo-400 transition hover:text-indigo-300">
+              <Link to="/login" className="font-medium text-[var(--accent-primary)] transition hover:text-[var(--accent-primary-hover)]">
                 Sign in
               </Link>
             </p>
@@ -156,7 +162,7 @@ export default function Signup() {
 
           {/* Error */}
           {error && (
-            <div role="alert" className="mb-5 flex items-start gap-2.5 rounded-lg border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-400">
+            <div role="alert" className="mb-5 flex items-start gap-2.5 rounded-lg border border-[var(--error-border)] bg-[var(--error-surface)] px-4 py-3 text-sm text-[var(--error)]">
               <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
@@ -169,7 +175,7 @@ export default function Signup() {
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             {/* Name */}
             <div>
-              <label htmlFor="signup-name" className="mb-1.5 block text-xs font-medium text-slate-400">
+              <label htmlFor="signup-name" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Full name
               </label>
               <input
@@ -180,13 +186,13 @@ export default function Signup() {
                 placeholder="Your name"
                 required
                 autoComplete="name"
-                className="w-full rounded-lg border border-white/8 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-indigo-500/60 focus:bg-white/8 focus:ring-2 focus:ring-indigo-500/15"
+                className="w-full rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] px-3.5 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20"
               />
             </div>
 
             {/* Email */}
             <div>
-              <label htmlFor="signup-email" className="mb-1.5 block text-xs font-medium text-slate-400">
+              <label htmlFor="signup-email" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Email address
               </label>
               <input
@@ -197,13 +203,13 @@ export default function Signup() {
                 placeholder="you@example.com"
                 required
                 autoComplete="email"
-                className="w-full rounded-lg border border-white/8 bg-white/5 px-3.5 py-2.5 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-indigo-500/60 focus:bg-white/8 focus:ring-2 focus:ring-indigo-500/15"
+                className="w-full rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] px-3.5 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20"
               />
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="signup-password" className="mb-1.5 block text-xs font-medium text-slate-400">
+              <label htmlFor="signup-password" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Password
               </label>
               <div className="relative">
@@ -215,12 +221,12 @@ export default function Signup() {
                   placeholder="Minimum 8 characters"
                   required
                   autoComplete="new-password"
-                  className="w-full rounded-lg border border-white/8 bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-slate-600 outline-none transition focus:border-indigo-500/60 focus:bg-white/8 focus:ring-2 focus:ring-indigo-500/15"
+                  className="w-full rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] px-3.5 py-2.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPass((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition hover:text-[var(--text-primary)]"
                   aria-label={showPass ? "Hide password" : "Show password"}
                 >
                   <EyeIcon open={showPass} />
@@ -231,7 +237,7 @@ export default function Signup() {
 
             {/* Confirm password */}
             <div>
-              <label htmlFor="signup-confirm" className="mb-1.5 block text-xs font-medium text-slate-400">
+              <label htmlFor="signup-confirm" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
                 Confirm password
               </label>
               <div className="relative">
@@ -243,34 +249,34 @@ export default function Signup() {
                   placeholder="Repeat password"
                   required
                   autoComplete="new-password"
-                  className={`w-full rounded-lg border bg-white/5 px-3.5 py-2.5 pr-10 text-sm text-white placeholder:text-slate-600 outline-none transition focus:ring-2 focus:ring-indigo-500/15 ${
+                  className={`w-full rounded-lg border bg-[var(--surface-primary)] px-3.5 py-2.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:ring-2 focus:ring-[var(--accent-primary)]/20 ${
                     confirm && confirm !== password
-                      ? "border-rose-500/40 focus:border-rose-500/60"
-                      : "border-white/8 focus:border-indigo-500/60 focus:bg-white/8"
+                      ? "border-[var(--error-border)] focus:border-[var(--error)]"
+                      : "border-[var(--border-primary)] focus:border-[var(--accent-primary)]"
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConf((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-300"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition hover:text-[var(--text-primary)]"
                   aria-label={showConf ? "Hide confirm password" : "Show confirm password"}
                 >
                   <EyeIcon open={showConf} />
                 </button>
               </div>
               {confirm && confirm !== password && (
-                <p className="mt-1.5 text-xs text-rose-400">Passwords do not match</p>
+                <p className="mt-1.5 text-xs text-[var(--error)]">Passwords do not match</p>
               )}
             </div>
 
             <button
               type="submit"
               disabled={loading || !name.trim() || !email.trim() || !password || !confirm}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? (
                 <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-t-slate-900" />
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
                   Creating account…
                 </>
               ) : (
@@ -281,15 +287,15 @@ export default function Signup() {
 
           {/* Divider */}
           <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/8" />
-            <span className="text-xs text-slate-600">or</span>
-            <div className="h-px flex-1 bg-white/8" />
+            <div className="h-px flex-1 bg-[var(--border-primary)]" />
+            <span className="text-xs text-[var(--text-muted)]">or</span>
+            <div className="h-px flex-1 bg-[var(--border-primary)]" />
           </div>
 
           <GoogleButton onCredential={handleGoogle} disabled={loading} label="Sign up with Google" />
 
           <p className="mt-8 text-center">
-            <Link to="/" className="text-xs text-slate-700 transition hover:text-slate-500">
+            <Link to="/" className="text-xs text-[var(--text-muted)] transition hover:text-[var(--text-primary)]">
               ← Back to home
             </Link>
           </p>

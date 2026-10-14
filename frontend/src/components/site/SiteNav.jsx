@@ -5,16 +5,27 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import ThemeToggle from "../ui/ThemeToggle.jsx";
 
 export default function SiteNav() {
   const [scrolled, setScrolled] = useState(false);
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } finally {
+      setLoggingOut(false);
+    }
+  };
 
   return (
     <header
@@ -45,24 +56,45 @@ export default function SiteNav() {
           <a href="#contacts" className="transition hover:text-[var(--text-primary)]">Helpline</a>
         </nav>
 
-        {/* CTA */}
-        <div className="flex items-center gap-3">
-          {!user && (
+        {/* CTA + Auth + Theme */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
+
+          {user ? (
+            <div className="flex items-center gap-2">
+              <span
+                className="hidden lg:inline-block max-w-[120px] truncate text-xs font-medium text-[var(--text-tertiary)]"
+                title={user.email}
+              >
+                {user.name || user.email}
+              </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="inline-flex items-center rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition hover:border-[var(--error-border)] hover:bg-[var(--error-surface)] hover:text-[var(--error)] disabled:opacity-50"
+                aria-label="Log out"
+              >
+                {loggingOut ? "Signing out…" : "Log Out"}
+              </button>
+            </div>
+          ) : (
             <Link
               to="/login"
-              className="hidden text-sm font-medium text-[var(--text-tertiary)] transition hover:text-[var(--text-primary)] sm:inline-block"
+              className="inline-flex items-center rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs sm:text-sm font-medium text-[var(--text-secondary)] transition hover:border-[var(--border-hover)] hover:text-[var(--text-primary)]"
             >
-              Sign In
+              Log In
             </Link>
           )}
+
           <Link
             to="/chat"
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--accent-primary)] px-4 py-2 text-sm font-medium text-white transition hover:bg-[var(--accent-primary-hover)]"
+            className="inline-flex items-center gap-1.5 sm:gap-2 rounded-lg bg-[var(--accent-primary)] px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-white transition hover:bg-[var(--accent-primary-hover)] shrink-0"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
             </svg>
-            Open Assistant
+            <span>Open Assistant</span>
           </Link>
         </div>
       </div>

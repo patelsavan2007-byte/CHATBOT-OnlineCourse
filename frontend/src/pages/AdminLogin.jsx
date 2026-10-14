@@ -5,6 +5,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 
 export default function AdminLogin() {
   const navigate = useNavigate();
@@ -35,8 +36,13 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-[var(--surface-primary)] p-4 text-[var(--text-primary)]">
-      <div className="w-full max-w-sm rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-hover)] p-8 shadow-xl">
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-[var(--surface-primary)] p-4 text-[var(--text-primary)]">
+      {/* Corner theme toggle */}
+      <div className="absolute right-4 top-4 z-20">
+        <ThemeToggle />
+      </div>
+
+      <div className="w-full max-w-sm rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-8 shadow-xl">
         {/* Brand */}
         <div className="text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--accent-primary)]/15 ring-1 ring-[var(--accent-primary)]/30 text-[var(--accent-primary)]">
