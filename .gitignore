@@ -27,12 +27,3 @@ deployment/.env
 
 # Vercel CLI
 .vercel/
-
-.vercel
-.env*
-backend/chroma_db/
-
-# Test caches
-.pytest_cache/
-.coverage
-htmlcov/
