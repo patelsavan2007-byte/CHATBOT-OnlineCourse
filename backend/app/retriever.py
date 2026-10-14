@@ -711,7 +711,7 @@ class RAGRetriever:
                 continue
             doc_lower = doc_text.lower()
             if ("fee" in doc_lower or "fees" in doc_lower or "tuition" in doc_lower) and any(
-                term in doc_lower for term in ("annual fee", "programme fee", "fee structure", "examination fee", "per year", "total fee")
+                term in doc_lower for term in ("annual fee", "programme fee", "fee structure", "examination fee", "per year", "total fee", "cost estimate", "programme fee structure", "1500 inr", "fee for 1st year")
             ):
                 if "testimonial" in doc_lower:
                     continue
@@ -857,9 +857,13 @@ class RAGRetriever:
         self.last_keywords = _detect_query_keywords(search_query)
         self.last_phrases = _query_phrases(search_query)
 
-        is_multi = plan.is_compare or len(plan.programmes) >= 2
+        is_multi = (plan.is_compare or len(plan.programmes) >= 2) if plan else False
+        from app.lexicon import is_topic_programme_independent
+        is_prog_independent = is_topic_programme_independent(plan.topic) if plan else False
 
-        if is_multi:
+        # Step 3: programme-independent topics (documents, refund, lms, placement, support)
+        # or compare questions search across all programmes
+        if is_multi or (is_prog_independent and not plan.programmes):
             program_name = ""
             self.last_program = ""
             self.last_intent = INTENT_GENERAL
@@ -875,7 +879,7 @@ class RAGRetriever:
             elif plan.topic == "specializations":
                 spec_pool = self._specialization_candidate_search(program_name)
                 pool = self._merge_targeted_pool(pool, spec_pool)
-            elif plan.topic == "fees":
+            elif plan.topic in ("fees", "refund", "taxes_hidden_charges", "emi"):
                 fee_pool = self._fee_candidate_search(program_name)
                 pool = self._merge_targeted_pool(pool, fee_pool)
         elif _is_programme_overview_query(search_query):
@@ -934,10 +938,10 @@ class RAGRetriever:
         if is_multi:
             target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
             final = self._ensure_multi_program_coverage(relevant_scored, target_progs, min_per_prog=2)
-        elif plan.topic in ("subjects", "specializations"):
+        elif plan.topic in ("subjects", "specializations", "grading", "exams_grading", "faculty"):
             kept, _removed_dup = deduplicate_results(relevant_scored)
-            kept, _removed_div = apply_diversity_cap(kept, max_per_source_page=6)
-            top_k = 8 if (plan.topic == "subjects" and not plan.year and not plan.semester) else config.TOP_K
+            kept, _removed_div = apply_diversity_cap(kept, max_per_source_page=8)
+            top_k = 12 if (plan.topic in ("subjects", "specializations", "grading", "exams_grading", "faculty") and not plan.year and not plan.semester) else config.TOP_K
             final = kept[:top_k]
         else:
             needs_coverage = (

@@ -126,6 +126,25 @@ class RAGChain:
         retrieved = self.retriever.retrieve(question, plan=plan)
         ret_time = time.time() - t_ret
 
+        # Step 3: if single inherited programme yielded no chunks or weak support, retry across all programmes
+        if (not retrieved or len(retrieved) < 2) and plan and plan.is_followup and len(plan.programmes) == 1:
+            logger.info("Inherited programme %s yielded weak/no chunks; retrying across all programmes", plan.programmes[0])
+            fallback_plan = TurnPlan(
+                raw_question=question,
+                programmes=[],
+                topic=plan.topic,
+                year=plan.year,
+                semester=plan.semester,
+                semesters_for_year=plan.semesters_for_year,
+                is_followup=True,
+                is_compare=True,
+                standalone_question=plan.standalone_question,
+            )
+            retry_retrieved = self.retriever.retrieve(question, plan=fallback_plan)
+            if retry_retrieved and len(retry_retrieved) > len(retrieved):
+                retrieved = retry_retrieved
+                plan = fallback_plan
+
         logger.info("[RAG] Retrieved relevant chunks: %d", len(retrieved))
 
         # Step 7: read last_program/last_pool from retriever immediately after
