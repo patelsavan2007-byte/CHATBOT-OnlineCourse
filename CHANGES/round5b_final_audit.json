@@ -1,0 +1,782 @@
+{
+  "timestamp": "2026-10-14T06:33:30Z",
+  "total_questions": 77,
+  "summary": {
+    "CORRECT": 35,
+    "CORRECT_REFUSAL": 15,
+    "WRONG_DATA_EXISTS": 27,
+    "ERROR": 0
+  },
+  "results": [
+    {
+      "index": 1,
+      "id": "Q01",
+      "category": "General Questions",
+      "question": "What online programs are offered?",
+      "classification": "CORRECT",
+      "answer": "Online BBA (Bachelor of Business Administration)\nOnline BCA (Bachelor of Computer Applications)\nOnline MBA (Master of Business Administration)\nOnline MCA (Master of Computer Applications)",
+      "elapsed_s": 1.37,
+      "error": null
+    },
+    {
+      "index": 2,
+      "id": "Q02",
+      "category": "General Questions",
+      "question": "Is the online degree recognized by UGC?",
+      "classification": "CORRECT",
+      "answer": "The official programme documents state that **CHARUASAT is recognized by UGC**, but they do **not** explicitly state that the online degree itself is recognized by UGC.",
+      "elapsed_s": 1.913,
+      "error": null
+    },
+    {
+      "index": 3,
+      "id": "Q03",
+      "category": "General Questions",
+      "question": "Is the degree valid for government and private jobs?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.524,
+      "error": null
+    },
+    {
+      "index": 4,
+      "id": "Q04",
+      "category": "General Questions",
+      "question": "Is the online degree equivalent to a regular degree?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.439,
+      "error": null
+    },
+    {
+      "index": 5,
+      "id": "Q05",
+      "category": "General Questions",
+      "question": "Who is eligible for this program?",
+      "classification": "CORRECT",
+      "answer": "The official programme documents do not specify which single programme you are referring to. Eligibility criteria vary by programme. Here is the eligibility for each available online programme:\n\n| Programme | Eligibility Criteria |\n|:--- |:--- |\n| **Online BBA** | Successfully completed secondary examination (10+2) or equivalent. Minimum percentage/CGPA determined by the Admission committee. Must demonstrate sufficient knowledge of English. |\n| **Online MBA** | Passed Bachelor's degree (or equivalent) in any stream with English as a subject. Must meet regulations decided by regulatory authorities and CHARUSAT. |\n| **Online MCA** | Passed Bachelor's degree (or equivalent) in any stream with English as a subject/medium of instruction. Must meet regulations decided by regulatory authorities and CHARUSAT. |\n\nTell me which programme and I will give full details.",
+      "elapsed_s": 1.856,
+      "error": null
+    },
+    {
+      "index": 6,
+      "id": "Q06",
+      "category": "General Questions",
+      "question": "What is the admission process?",
+      "classification": "CORRECT",
+      "answer": "The admission process for CHARUSAT's online degree programmes involves the following steps:\n\n1. Online submission of the application form and relevant documents.\n2. Document verification.\n3. If eligible, directions to pay fees within the given time.\n4. Post-fee payment, an email of admission confirmation is sent.\n5. Students receive LMS credentials and access to the students' portal.\n\nFor the **Online BCA** programme specifically, the documents also note that students can download the admission form from the university website and submit it online or offline. Once fees are cleared, admission is confirmed, and an enrollment number is issued.\n\nTell me which programme and I will give full details.",
+      "elapsed_s": 7.559,
+      "error": null
+    },
+    {
+      "index": 7,
+      "id": "Q07",
+      "category": "General Questions",
+      "question": "What documents are required for admission?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents specify the following mandatory documents for admission to the Online BCA and Online MCA programmes:\n\n* **Proof of identity** (Any one of the following):\n    * Aadhaar card\n    * Passport\n    * Voter’s ID\n    * PAN card with photograph\n    * Any other Govt.-issued photo identity card\n* **Proof of address** (Any one of the following):\n    * Aadhaar card\n    * Passport\n    * Voter’s ID\n    * Gas bill\n    * Bank statement\n    * Electricity Bill\n* **Class 10 marksheet**\n* **Class 12 marksheet**\n\nFor the Online BBA and Online MBA programmes, the documents state that candidates must submit an \"Application form and relevant documents,\" but they do not list the specific mandatory documents required.\n\nI couldn't find information regarding Specific list of mandatory documents for Online BBA and Online MBA in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 24.586,
+      "error": null
+    },
+    {
+      "index": 8,
+      "id": "Q08",
+      "category": "General Questions",
+      "question": "Is there an entrance exam?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.567,
+      "error": null
+    },
+    {
+      "index": 9,
+      "id": "Q09",
+      "category": "General Questions",
+      "question": "What is the duration of the program?",
+      "classification": "CORRECT",
+      "answer": "| Programme | Duration |\n|:--- |:--- |\n| Online BBA | 3 years |\n| Online BCA | 3 years |\n| Online MBA | 2 years |\n| Online MCA | 2 years |\n\nTell me which programme and I will give full details.",
+      "elapsed_s": 20.058,
+      "error": null
+    },
+    {
+      "index": 10,
+      "id": "Q10",
+      "category": "General Questions",
+      "question": "Can I study while working?",
+      "classification": "CORRECT",
+      "answer": "Yes. The official programme documents state that Charusat’s online programmes provide “flexible learning opportunities” and “there is no requirement for students to physically attend sessions,” allowing you to study online from any location while working.",
+      "elapsed_s": 1.349,
+      "error": null
+    },
+    {
+      "index": 11,
+      "id": "Q11",
+      "category": "General Questions",
+      "question": "Are live classes compulsory?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 22.492,
+      "error": null
+    },
+    {
+      "index": 12,
+      "id": "Q12",
+      "category": "General Questions",
+      "question": "Are classes recorded?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 24.065,
+      "error": null
+    },
+    {
+      "index": 13,
+      "id": "Q13",
+      "category": "General Questions",
+      "question": "Can I access recorded lectures anytime?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "Yes, the official programme documents state that the LMS is user-friendly and makes it easy to revisit lectures anytime.\n\nI couldn't find information regarding Specific details on access duration or restrictions for recorded lectures in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 44.559,
+      "error": null
+    },
+    {
+      "index": 14,
+      "id": "Q14",
+      "category": "General Questions",
+      "question": "What is the class schedule?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "The official programme documents do not provide specific class schedules (such as exact days or hours for live sessions) for any of the online programmes.\n\nHowever, the documents do state the following regarding the structure of the **Online MBA**:\n* The programme is structured into four semesters.\n* It consists of online learning for a **minimum of 12 weeks per semester**.\n\nFor the **Online BCA** and **Online MCA**, the documents specify the duration (e.g., BCA is 6 semesters minimum) but do not detail the weekly class schedule or specific time slots.\n\nI couldn't find information regarding Specific class schedules (days/times) for Online BCA, Online MBA, and Online MCA in the official programme documents.\n\nFor further assistance, please contact Learning Management System: Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238), Ms. Subhashree S (BBA/MBA) (9688397401).",
+      "elapsed_s": 20.588,
+      "error": null
+    },
+    {
+      "index": 15,
+      "id": "Q15",
+      "category": "General Questions",
+      "question": "How are examinations conducted?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "Examinations for CHARUSAT online degree programmes are conducted through a combination of **Internal Evaluation** and a **University Final Examination**.\n\nThe specific weightage and conduct vary by programme as detailed in the official programme documents:\n\n| Programme | Internal Evaluation | University Final Examination |\n|:--- |:--- |:--- |\n| **Online BBA** | 30% of marks (Continuous assessment by faculty) | 70% of marks (Written paper, practical test, oral test, or presentation) |\n| **Online BCA** | 50% of marks (Continuous assessment by faculty) | 50% of marks (Written paper, practical test, oral test, or presentation) |\n| **Online MBA** | 50% of marks (Continuous assessment by faculty) | 50% of marks (Written paper, practical test, oral test, or presentation) |\n| **Online MCA** | Not specified in retrieved documents | Not specified in retrieved documents |\n\n**Key Examination Rules:**\n* **Format:** The University final examination may be conducted via written paper, practical test, oral test, presentation, or a combination of these.\n* **Passing Criteria:** To earn credit in a course, a student must obtain a grade other than **FF** (for BBA/MBA) or **F/Ab** (for BCA).\n* **Re-examination:** If a student secures a minimum of **36%** in the University examination but fails to achieve the minimum passing total percentage of **36%** for the course, they must repeat the university examination for that course.\n\nI couldn't find information regarding Specific evaluation weightage and examination format details for Online MCA in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 26.9,
+      "error": null
+    },
+    {
+      "index": 16,
+      "id": "Q16",
+      "category": "General Questions",
+      "question": "Will exams be online or offline?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "Based on the official programme documents, exams are conducted **online**.\n\nThe documents state that the final assessment window is kept open for \"two days\" and that students receive exam notifications and date sheets to select appropriate dates, indicating an online format. Additionally, the programmes are described as \"entirely online\" with teaching and learning happening via a Learning Management System (LMS).\n\nI couldn't find information regarding Specific details on whether any component of the examination (e.g., practicals or specific proctoring methods) requires offline presence are not explicitly stated in the the official programme documents. in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 24.248,
+      "error": null
+    },
+    {
+      "index": 17,
+      "id": "Q17",
+      "category": "General Questions",
+      "question": "What is the attendance requirement?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Services: Mr. Mitesh Patel (9408033391).",
+      "elapsed_s": 21.011,
+      "error": null
+    },
+    {
+      "index": 18,
+      "id": "Q18",
+      "category": "General Questions",
+      "question": "Is there any internship included?",
+      "classification": "CORRECT",
+      "answer": "Yes. The official programme documents state that the **Online MCA** programme provides “opportunities for networking, **internships**, and industry collaborations.” The Online BCA documents do not mention an internship component.",
+      "elapsed_s": 1.671,
+      "error": null
+    },
+    {
+      "index": 19,
+      "id": "Q19",
+      "category": "General Questions",
+      "question": "Are placement assistance services available?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Services: Mr. Mitesh Patel (9408033391).",
+      "elapsed_s": 18.54,
+      "error": null
+    },
+    {
+      "index": 20,
+      "id": "Q20",
+      "category": "General Questions",
+      "question": "Will I receive a degree certificate after completion?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "Yes, you will receive a degree certificate upon successful completion of the programme.\n\nThe official programme documents state that students who earn the required credits and pass all prescribed coursework, tests, examinations, assignments, laboratory work, projects, and other evaluation components as per the University's passing standards are eligible for the award of the respective degree (e.g., Bachelor of Business Administration for BBA, Master of Business Administration for MBA).\n\nI couldn't find information regarding Specific details on the physical format, delivery method, or timeline for receiving the degree certificate in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 21.445,
+      "error": null
+    },
+    {
+      "index": 21,
+      "id": "Q21",
+      "category": "Fees Related Questions",
+      "question": "What is the total course fee?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents specify the fee structure for the **Online BBA** programme. The total cost is calculated by summing the programme fee and the examination fee as stated in the documents. | Component | Amount |\n|:--- |:--- |\n| BBA Programme Fee (Total) | ₹1,50,000 |\n| Course Examination Fee (Total) | ₹9,000 |\n| **Total Cost** | **₹1,59,000** |\n\n*Note: The documents provide detailed fee breakdowns only for the Online BBA programme. Fee details for Online BCA, Online MBA, and Online MCA are not fully specified in the provided context (only annual fees are listed for BCA).*\n\nI couldn't find information regarding Total fee breakdown for Online BCA, Online MBA, and Online MCA in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 45.577,
+      "error": null
+    },
+    {
+      "index": 22,
+      "id": "Q22",
+      "category": "Fees Related Questions",
+      "question": "What is the semester-wise fee?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents specify fees on a year-wise basis, not semester-wise.\n\nThe fee structure for the Online BBA programme is as follows:\n\n| Component | Amount |\n|:--- |:--- |\n| Annual Programme Fee | ₹50,000 |\n| Course Examination Fee | ₹1,500 per semester |\n\n**Total Programme Fee:** ₹1,50,000 (Programme) + ₹9,000 (Examinations)\n\nI couldn't find information regarding Specific semester-wise breakdown of the annual programme fee in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 46.383,
+      "error": null
+    },
+    {
+      "index": 23,
+      "id": "Q23",
+      "category": "Fees Related Questions",
+      "question": "Is there any registration or application fee?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 23.35,
+      "error": null
+    },
+    {
+      "index": 24,
+      "id": "Q24",
+      "category": "Fees Related Questions",
+      "question": "Can I pay the fees in installments?",
+      "classification": "CORRECT",
+      "answer": "The official programme documents mention the fee amounts for each programme but do not state whether fees can be paid in installments.",
+      "elapsed_s": 55.329,
+      "error": null
+    },
+    {
+      "index": 25,
+      "id": "Q25",
+      "category": "Fees Related Questions",
+      "question": "What are the available payment modes?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.297,
+      "error": null
+    },
+    {
+      "index": 26,
+      "id": "Q26",
+      "category": "Fees Related Questions",
+      "question": "Are EMI options available?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.304,
+      "error": null
+    },
+    {
+      "index": 27,
+      "id": "Q27",
+      "category": "Fees Related Questions",
+      "question": "Are there any scholarships or fee concessions?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 50.725,
+      "error": null
+    },
+    {
+      "index": 28,
+      "id": "Q28",
+      "category": "Fees Related Questions",
+      "question": "Is GST included in the course fee?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 1.541,
+      "error": null
+    },
+    {
+      "index": 29,
+      "id": "Q29",
+      "category": "Fees Related Questions",
+      "question": "Are examination fees included in the tuition fee?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "No, examination fees are **not included** in the tuition fee.\n\nThe official programme documents list them as separate components for the Online BBA programme:\n\n| Component | Amount |\n|:--- |:--- |\n| BBA Programme Fee (Annual) | ₹50,000 |\n| Course Examination Fee (Per Semester) | ₹1,500 |\n\nI couldn't find information regarding Fee structure details for Online BCA, Online MBA, and Online MCA in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 8.894,
+      "error": null
+    },
+    {
+      "index": 30,
+      "id": "Q30",
+      "category": "Fees Related Questions",
+      "question": "Are there any hidden charges?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents do not mention any \"hidden charges.\"\n\nThe fee structure for the **Online BBA** programme is explicitly stated as follows:\n\n| Component | Amount |\n|:--- |:--- |\n| Programme Fee (Total) | ₹1,50,000 |\n| Course Examination Fee (Total) | ₹9,000 |\n\nFor the **Online BCA** programme, the documents state an **Annual Fee** of **₹50,000**, but do not provide a detailed breakdown of other specific charges like examination fees or registration fees in the provided text.\n\nI couldn't find information regarding Detailed fee breakdown for Online BCA (e.g., examination fees, registration fees) and explicit statement regarding hidden charges for all programmes in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 45.282,
+      "error": null
+    },
+    {
+      "index": 31,
+      "id": "Q31",
+      "category": "Fees Related Questions",
+      "question": "What is the refund policy if I cancel my admission?",
+      "classification": "CORRECT",
+      "answer": "**Refund Policy for Admission Cancellation**\n\nTo cancel admission, you must apply using the prescribed form (signed by you and your parent/guardian) and send a scanned copy to the program coordinator. The refund amount depends on when the request is received:\n\n| Timing of Request | Refund Amount |\n|:--- |:--- |\n| Before closure of admission or commencement of classes (whichever is later) | Fee refund after deduction of **₹1,500** as administrative charges |\n| After commencement of the academic session | Fee deduction on a pro-rata basis from the date of commencement of classes plus **₹1,500** as processing charges |\n| After the date of the first mid-term review | **No Refund** (except for the security deposit) |\n\nRefunds are issued by cheque or NEFT from the Account Section of CHARUSAT.",
+      "elapsed_s": 22.174,
+      "error": null
+    },
+    {
+      "index": 32,
+      "id": "Q32",
+      "category": "Fees Related Questions",
+      "question": "Is there any late fee for delayed payment?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 21.344,
+      "error": null
+    },
+    {
+      "index": 33,
+      "id": "Q33",
+      "category": "Fees Related Questions",
+      "question": "Can I pay the fee semester-wise instead of annually?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents do not clearly state whether fees can be paid semester-wise; they only specify the annual fee structure and total programme costs.\n\nI couldn't find information regarding specific payment schedule options (e.g., semester-wise vs. annual payment terms) in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 22.54,
+      "error": null
+    },
+    {
+      "index": 34,
+      "id": "Q34",
+      "category": "Fees Related Questions",
+      "question": "Will I receive a fee receipt after payment?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 22.338,
+      "error": null
+    },
+    {
+      "index": 35,
+      "id": "Q35",
+      "category": "Fees Related Questions",
+      "question": "Is the fee refundable after classes begin?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "Yes, but with deductions. According to the official programme documents, if a cancellation request is received **after the commencement of the academic session**, the fee is refunded on a **pro-rata basis** from the date of commencement of classes, minus **₹1,500** as processing charges.\n\nHowever, if the request is received **after the date of the first mid-term review**, **no refund** is provided (except for the security deposit).\n\nI couldn't find information regarding Specific definition or date of \"first mid-term review\" and details regarding the security deposit amount in the official programme documents.\n\nFor further assistance, please contact Accounts & Payments: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 23.045,
+      "error": null
+    },
+    {
+      "index": 36,
+      "id": "Q36",
+      "category": "Academic Questions",
+      "question": "What subjects are covered in the program?",
+      "classification": "CORRECT",
+      "answer": "The official programme documents do not specify which programme you are referring to. Please specify the programme (e.g., Online BBA, Online BCA, Online MBA, or Online MCA) so I can provide the exact list of subjects.\n\nTell me which programme and I will give full details.",
+      "elapsed_s": 21.576,
+      "error": null
+    },
+    {
+      "index": 37,
+      "id": "Q37",
+      "category": "Academic Questions",
+      "question": "How many semesters does the course have?",
+      "classification": "CORRECT",
+      "answer": "| Programme | Number of Semesters |\n|:--- |:--- |\n| Online BBA | not in documents |\n| Online BCA | 6 |\n| Online MBA | 4 |\n| Online MCA | not in documents |\n\nTell me which programme and I will give full details.",
+      "elapsed_s": 23.525,
+      "error": null
+    },
+    {
+      "index": 38,
+      "id": "Q38",
+      "category": "Academic Questions",
+      "question": "Who are the faculty members?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents list the following faculty members for the respective online programmes:\n\n**Online BBA (Bachelor of Business Administration)**\n* Dr. Robert Parmar\n* Dr. Vijay Makwana\n* Dr. Bharati Kaknani\n\n**Online BCA (Bachelor of Computer Applications)**\n* Dr. Arpan Raval\n* Ms. Mubina S Malik\n* Ms. Hema Patel\n* Ms. Anjali Mahavar\n* Mr. Ravi Patel\n* Dr. Nilay Vaidya\n* Ms. Dhatri Raval\n* Mr. Sanket Patel\n* Dr. Sohil Pandya\n* Dr. Kanubhai Patel\n* Mr. Tejas Patel\n* Dr. Unnati Patel\n* Mr. Kaushal Gor\n* Mr. Tushar Mehta\n* Dr. Hardik Pandit\n* Mr. Arpit Trivedi\n* Mr. Hardik I Patel\n* Dr. Krishna Kant\n* Dr. Mittal Desai\n* Dr. Bhargav Vyas\n\n**Online MBA (Master of Business Administration)**\n* Dr. Binit Patel\n* Dr. Reshma Sable\n* Dr. Rajesh Sadhwani\n* Dr. Bhaskar Pandya\n* Dr. Kaushik Trivedi\n* Dr. Gaurav Rajput\n\n**Online MCA (Master of Computer Applications)**\nThe official programme documents do not list specific faculty member names for the Online MCA programme in the provided sections.\n\nI couldn't find information regarding Specific faculty member names for Online MCA in the official programme documents.\n\nFor further assistance, please contact Course Mentor: Dr. Hetal Barad (7434055556).",
+      "elapsed_s": 27.278,
+      "error": null
+    },
+    {
+      "index": 39,
+      "id": "Q39",
+      "category": "Academic Questions",
+      "question": "Will I receive study materials?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that the institute has a well-equipped library with all e-resources including e-books, e-materials, e-journals, and other required resources. However, they do not explicitly state whether physical study materials are mailed to students or if access is solely through the LMS platform.\n\nI couldn't find information regarding Explicit confirmation on the mode of delivery (physical vs. digital) for study materials in the official programme documents.\n\nFor further assistance, please contact Course Mentor: Dr. Hetal Barad (7434055556).",
+      "elapsed_s": 21.604,
+      "error": null
+    },
+    {
+      "index": 40,
+      "id": "Q40",
+      "category": "Academic Questions",
+      "question": "Are e-books provided?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Admissions: Mr. Darshit Patel (7434055553), Mr. Kirti Patel (7600257365).",
+      "elapsed_s": 23.807,
+      "error": null
+    },
+    {
+      "index": 41,
+      "id": "Q41",
+      "category": "Academic Questions",
+      "question": "How are assignments submitted?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning Management System: Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238), Ms. Subhashree S (BBA/MBA) (9688397401).",
+      "elapsed_s": 23.447,
+      "error": null
+    },
+    {
+      "index": 42,
+      "id": "Q42",
+      "category": "Academic Questions",
+      "question": "How much weightage do assignments carry?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning Management System: Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238), Ms. Subhashree S (BBA/MBA) (9688397401).",
+      "elapsed_s": 24.561,
+      "error": null
+    },
+    {
+      "index": 43,
+      "id": "Q43",
+      "category": "Academic Questions",
+      "question": "What is the passing criteria?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "Based on the official programme documents, the passing criteria for the online degree programmes are as follows:\n\n**General Passing Criteria**\n* **Minimum Passing Marks:** A student must secure a minimum of **36%** in the University examinations.\n* **Total Passing Percentage:** A student must obtain a minimum total percentage of **36%** for the course.\n* **Grade Requirement:** To earn credit in a course, a student must obtain a grade other than **FF** (for BBA and MBA) or **F (Fail) / Ab (Absent)** (for BCA).\n* **Re-examination:** If a student secures the minimum passing marks of 36% in the University examination but fails to obtain the minimum passing total percentage of 36%, they must repeat the university examination for that course.\n\n**Programme-Specific Evaluation Split**\nThe weightage of the University Examination varies by programme:\n\n| Programme | University Examination Weightage |\n|:--- |:--- |\n| Online BBA | **70%** |\n| Online BCA | **50%** |\n| Online MBA | **50%** |\n| Online MCA | Not in documents |\n\n**Progression Criteria**\n* **Online BBA:** A student will not be allowed to move to the second academic year if their CGPA is less than **3** at the end of the first academic year.\n* **Online BCA:** A student will be promoted to the next year only if they have cleared all the courses of the year they are studying in.\n\nI couldn't find information regarding Specific passing criteria details for Online MCA beyond class awards in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 28.286,
+      "error": null
+    },
+    {
+      "index": 44,
+      "id": "Q44",
+      "category": "Academic Questions",
+      "question": "Can I appear for backlogs online?",
+      "classification": "CORRECT_REFUSAL",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 1.833,
+      "error": null
+    },
+    {
+      "index": 45,
+      "id": "Q45",
+      "category": "Academic Questions",
+      "question": "How is the grading system structured?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that the grading system for all online programmes is structured as follows:\n\n* **Scale:** A ten-point scale.\n* **Conversion:** The total of internal evaluation marks and final University examination marks in each course is converted to a letter grade.\n* **Averages:**\n    * **SGPA (Semester Grade Point Average):** Assesses performance in any semester.\n    * **CGPA (Cumulative Grade Point Average):** Denotes performance at the end of two or more consecutive semesters.\n* **Formulas:**\n    * SGPA = $\\sum C_i G_i / \\sum C_i$\n    * CGPA = $\\sum C_i G_i / \\sum C_i$\n    * Where $C_i$ is the number of credits of course $i$ and $G_i$ is the Grade Point for course $i$.\n\nI couldn't find information regarding specific letter grades, grade points, and score/percentage ranges for the ten-point scale in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 24.076,
+      "error": null
+    },
+    {
+      "index": 46,
+      "id": "Q46",
+      "category": "Technical Questions",
+      "question": "Which Learning Management System (LMS) is used?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that the programmes are supported through a \"robust Learning Management System (LMS)\" and describe it as an \"online platform that provides a centralized location for students to access learning content, engage in discussions, submit assignments, and take assessments.\" However, the specific name or vendor of the LMS software is not mentioned.\n\nI couldn't find information regarding specific name or vendor of the Learning Management System (LMS) in the official programme documents.\n\nFor further assistance, please contact Learning Management System: Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238), Ms. Subhashree S (BBA/MBA) (9688397401).",
+      "elapsed_s": 23.297,
+      "error": null
+    },
+    {
+      "index": 47,
+      "id": "Q47",
+      "category": "Technical Questions",
+      "question": "How do I log in to the LMS?",
+      "classification": "CORRECT",
+      "answer": "The official programme documents state that after admission confirmation, students receive LMS credentials and access to the students’ portal. They do not provide specific login steps.",
+      "elapsed_s": 1.979,
+      "error": null
+    },
+    {
+      "index": 48,
+      "id": "Q48",
+      "category": "Technical Questions",
+      "question": "What if I forget my LMS password?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that you must keep your Access Credentials (username and password) confidential and notify the institution promptly of any unsolicited activity or security breach. However, the documents do not provide specific instructions or a process for what to do if you forget your LMS password.\n\nI couldn't find information regarding specific procedure or contact details for resetting a forgotten LMS password in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 12.691,
+      "error": null
+    },
+    {
+      "index": 49,
+      "id": "Q49",
+      "category": "Technical Questions",
+      "question": "Can I attend classes on my mobile phone?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that students can \"access course materials and resources online,attend virtual classrooms,\" and \"learn at their own pace\" from anywhere. However, they do not explicitly state whether classes can be attended specifically on a mobile phone.\n\nI couldn't find information regarding explicit confirmation of mobile phone compatibility for attending classes in the official programme documents.\n\nFor further assistance, please contact Student Services: Mr. Mitesh Patel (9408033391).",
+      "elapsed_s": 21.306,
+      "error": null
+    },
+    {
+      "index": 50,
+      "id": "Q50",
+      "category": "Technical Questions",
+      "question": "Is there a dedicated mobile app?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Learning Management System: Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238), Ms. Subhashree S (BBA/MBA) (9688397401).",
+      "elapsed_s": 23.06,
+      "error": null
+    },
+    {
+      "index": 51,
+      "id": "Q51",
+      "category": "Technical Questions",
+      "question": "What internet speed is recommended?",
+      "classification": "CORRECT",
+      "answer": " of 14 PROGRAMME PROJECT REPORT BACHELOR OF COMPUTER APPLICATIONS (BCA) of 11 PROGRAMME PROJECT REPORT MASTER OF COMPUTER APPLICATIONS (MCA)",
+      "elapsed_s": 34.067,
+      "error": null
+    },
+    {
+      "index": 52,
+      "id": "Q52",
+      "category": "Technical Questions",
+      "question": "Is technical support available?",
+      "classification": "CORRECT",
+      "answer": "The online MCA program offers a flexible and accessible platform for learners to enhance their technical knowledge and skills in computer applications, covering areas such as software development, database management, networking, and cybersecurity. This program equips students with the expertise needed for successful careers in the rapidly evolving tech industry.",
+      "elapsed_s": 17.065,
+      "error": null
+    },
+    {
+      "index": 53,
+      "id": "Q53",
+      "category": "Technical Questions",
+      "question": "Who should I contact if I face technical issues?",
+      "classification": "CORRECT",
+      "answer": "The online MCA program offers a flexible and accessible platform for learners to enhance their technical knowledge and skills in computer applications, covering areas such as software development, database management, networking, and cybersecurity. This program equips students with the expertise needed for successful careers in the rapidly evolving tech industry.\nhomemakers. The online MBA programme is apt for students who cannot afford to pursue\nlearning mode to acquire Specific Skills and Competence\ntheir own pace and balance work, family and educational life. The learning resources\nThe programme aims at providing learning opportunities to a diverse group of learners falling under the category of non-traditional learners such as full-time working professionals, entrepreneurs, individuals in remote regions, non-residents and homemakers. The online MBA programme is apt for students who cannot afford to pursue the education in regular mode due to time, cost and distance constraints.",
+      "elapsed_s": 17.359,
+      "error": null
+    },
+    {
+      "index": 54,
+      "id": "Q54",
+      "category": "Career & Placement Questions",
+      "question": "Does the university provide placement assistance?",
+      "classification": "CORRECT",
+      "answer": "components as per the passing standards of the University will be\nstandards of the University will be eligible for the award of the Bachelor of\nand all other evaluation components as per the passing standards of the University will be",
+      "elapsed_s": 17.604,
+      "error": null
+    },
+    {
+      "index": 55,
+      "id": "Q55",
+      "category": "Career & Placement Questions",
+      "question": "Are internships available?",
+      "classification": "CORRECT",
+      "answer": "9. Provide opportunities for networking, internships, and industry collaborations to bridge the",
+      "elapsed_s": 19.197,
+      "error": null
+    },
+    {
+      "index": 56,
+      "id": "Q56",
+      "category": "Career & Placement Questions",
+      "question": "Can I pursue higher education after completing this program?",
+      "classification": "CORRECT",
+      "answer": "When articulating higher educational objectives for online degree programs, particularly within a\nThe objective of establishment of CIQA is to develop and put in place a comprehensive and dynamic internal quality assurance system to provide high quality programmes of higher education in the Open and Distance Learning mode. Its functions would inter alia include the following:-\nprofessionals, enabling them to pursue higher education without career interruptions.\nprofessionals, enabling them to pursue higher education without career interruptions.",
+      "elapsed_s": 17.741,
+      "error": null
+    },
+    {
+      "index": 57,
+      "id": "Q57",
+      "category": "Career & Placement Questions",
+      "question": "Is the degree accepted abroad?",
+      "classification": "CORRECT",
+      "answer": "The admissions staff of the Charusat thoroughly reviews all submitted applications for the online BCA degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.\nCandidate should have passed Bachelor's degree (or equivalent) examination (any\nThe admissions staff of the Charusat thoroughly reviews all submitted applications for the online mca degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.",
+      "elapsed_s": 17.693,
+      "error": null
+    },
+    {
+      "index": 58,
+      "id": "Q58",
+      "category": "Career & Placement Questions",
+      "question": "Will there be career guidance sessions?",
+      "classification": "CORRECT",
+      "answer": "the prescribed course work and passing all tests, examinations,\ncomponents as per the passing standards of the University will be\nprescribed course work and passing all tests, examinations, assignments,\nstandards of the University will be eligible for the award of the Bachelor of\nand all other evaluation components as per the passing standards of the University will be",
+      "elapsed_s": 18.256,
+      "error": null
+    },
+    {
+      "index": 59,
+      "id": "Q59",
+      "category": "Career & Placement Questions",
+      "question": "Are resume-building workshops conducted?",
+      "classification": "CORRECT",
+      "answer": "The structure of BBA programme is as shown in the following figure: Programme Credits • Any student of the BBA programme who earns 120 credits by pursuing the prescribed course work and passing all tests, examinations, assignments, laboratory work, projects and all other evaluation components as per the passing standards of the University will be",
+      "elapsed_s": 17.741,
+      "error": null
+    },
+    {
+      "index": 60,
+      "id": "Q60",
+      "category": "Career & Placement Questions",
+      "question": "Will there be mock interviews?",
+      "classification": "CORRECT",
+      "answer": "the prescribed course work and passing all tests, examinations,\ncomponents as per the passing standards of the University will be\nprescribed course work and passing all tests, examinations, assignments,\nstandards of the University will be eligible for the award of the Bachelor of\nand all other evaluation components as per the passing standards of the University will be",
+      "elapsed_s": 17.396,
+      "error": null
+    },
+    {
+      "index": 61,
+      "id": "Q61",
+      "category": "Career & Placement Questions",
+      "question": "Do companies recruit online degree students?",
+      "classification": "CORRECT",
+      "answer": "degree.\nBusiness Administration (MBA) degree.\neligible for the award of the Master of Computer Applications (MCA) degree.",
+      "elapsed_s": 17.334,
+      "error": null
+    },
+    {
+      "index": 62,
+      "id": "Q62",
+      "category": "Admission Questions",
+      "question": "When does admission start?",
+      "classification": "CORRECT",
+      "answer": "2. All new admission cancellation applications shall be processed once the academic starts.\n| Sl No | Name of the student | Gender | Enrolment No | Date of Admission | Category | Nationality | Country of residence | Locality | | | | | | | | | | | |\n3. Eligibility & Mode of Admissions\nF. Procedure for admissions, curriculum transaction and evaluation:-\nThe eligibility for the admission is passed in 10+2 examination or equivalent. Students have\nthe convenience of accessing admission information through the university website or",
+      "elapsed_s": 17.383,
+      "error": null
+    },
+    {
+      "index": 63,
+      "id": "Q63",
+      "category": "Admission Questions",
+      "question": "What is the last date to apply?",
+      "classification": "CORRECT",
+      "answer": "University will send you date sheets and you can select appropriate date from that sheet.\n| Sl No | Name of the student | Gender | Enrolment No | Date of Admission | Category | Nationality | Country of residence | Locality | | | | | | | | | | | |\n1. For the cancellation of admission, a candidate has to apply in the prescribed form\n1. In case of cancellation of admission for whatever reason, the programme in which the candidate has taken\n2. The candidate may receive a refund by cheque or NEFT from the Account Section of CHARUSAT.",
+      "elapsed_s": 19.046,
+      "error": null
+    },
+    {
+      "index": 64,
+      "id": "Q64",
+      "category": "Admission Questions",
+      "question": "Can I apply online?",
+      "classification": "CORRECT",
+      "answer": "A- Applications can be submitted online through the website. The admissions staff of the Charusat University thoroughly review all submitted applications for the online mba degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.\nThe admissions staff of the Charusat thoroughly reviews all submitted applications for the online BCA degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.\nYes. At Charusat, obtaining a WES evaluation is a streamlined process that can be completed from the comfort of your own home via the website portal. The WES process at Charusat is conducted online through email service, which ensures a prompt response time.\nThe admissions staff of the Charusat thoroughly reviews all submitted applications for the online mca degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.\nYes. At Charusat, obtaining a WES evaluation is a streamlined process that can be completed from the comfort of your own home via the website portal. The WES process at Charusat is conducted online through email service, which ensures a promp",
+      "elapsed_s": 21.171,
+      "error": null
+    },
+    {
+      "index": 65,
+      "id": "Q65",
+      "category": "Admission Questions",
+      "question": "How long does admission approval take?",
+      "classification": "CORRECT",
+      "answer": "3. Eligibility & Mode of Admissions\nStudents who have successfully completed the secondary examination (10+2) pattern or equivalent are eligible to apply for admission. The specific minimum percentage of marks or Cumulative Grade Point Average (CGPA) required for eligibility will be determined by the Admission committee. Applicant should demonstrate a sufficient level of knowledge and understanding of the English language.\nstream) with English as a subject is eligible for admission to the MBA Programme and\naccording to the regulations for admission decided by regulatory authorities and\nstream) with English as a subject/medium of instruction is eligible for admission to the MCA\nProgramme and according to the regulations for admission decided by regulatory authorities and",
+      "elapsed_s": 18.563,
+      "error": null
+    },
+    {
+      "index": 66,
+      "id": "Q66",
+      "category": "Admission Questions",
+      "question": "How will I know if my admission is confirmed?",
+      "classification": "CORRECT",
+      "answer": "support. Online and face-to-face counselling will be provided by academic counsellors\nF. Procedure for admissions, curriculum transaction and evaluation:-\nThe eligibility for the admission is passed in 10+2 examination or equivalent. Students have\nthe convenience of accessing admission information through the university website or\ncontacting the helpdesk number. They can download the admission form from the university\nwebsite and send it through either online or offline mode. Upon receipt, the university will",
+      "elapsed_s": 17.894,
+      "error": null
+    },
+    {
+      "index": 67,
+      "id": "Q67",
+      "category": "Admission Questions",
+      "question": "Can I change my course after admission?",
+      "classification": "CORRECT",
+      "answer": "modifying any content thereon and you agree to abide by the most current version of the Terms, as revised Terms will supersede all previous Terms. If you do not choose to accept the changes to the Terms, you may cancel your access to the website and the courses as referred under termination.\n2. All new admission cancellation applications shall be processed once the academic starts.\nStep-4: Post Fees payment – Email of admission confirmation\n• Course curriculum will be designed by well-trained faculty members with relevant\n• The course structure and curriculum will be approved through Board of Studies,\nStep-4: Post Fees payment – Email of admission confirmation",
+      "elapsed_s": 17.811,
+      "error": null
+    },
+    {
+      "index": 68,
+      "id": "Q68",
+      "category": "Admission Questions",
+      "question": "Can international students apply?",
+      "classification": "CORRECT",
+      "answer": "The programme aims at providing learning opportunities to a diverse group of learners falling under the category of non-traditional learners such as full-time working professionals, entrepreneurs, individuals in remote regions, non-residents and homemakers. The online MBA programme is apt for students who cannot afford to pursue the education in regular mode due to time, cost and distance constraints.",
+      "elapsed_s": 17.898,
+      "error": null
+    },
+    {
+      "index": 69,
+      "id": "Q69",
+      "category": "Admission Questions",
+      "question": "Is there any age limit for admission?",
+      "classification": "CORRECT",
+      "answer": "project/dissertation if any.\n3. Eligibility & Mode of Admissions\nStudents who have successfully completed the secondary examination (10+2) pattern or equivalent are eligible to apply for admission. The specific minimum percentage of marks or Cumulative Grade Point Average (CGPA) required for eligibility will be determined by the Admission committee. Applicant should demonstrate a sufficient level of knowledge and understanding of the English language.\nyou are at least 18 years of age. If you use this site from locations other than India, you are responsible for compliance with any and all applicable local laws.I further confirm that my responses to quizzes, assessments, projects and other assignments under the respective program will be solely submitted by me. I further confirm that I will not engage in any other activities that will dishonestly improve my results or dishonestly improve or hurt the results of others.\n| Sl No | Name of the student | Gender | Enrolment No | Date of Admission | Category | Nationality | Country of residence | Locality | | | | | | | | | | | |\n of 14",
+      "elapsed_s": 17.302,
+      "error": null
+    },
+    {
+      "index": 70,
+      "id": "Q70",
+      "category": "Student Support Questions",
+      "question": "Is academic counseling available?",
+      "classification": "CORRECT",
+      "answer": "###### Het Patel ###### Jay Oza ## FAQs about mca start The MCA Program aims to provide a sound knowledge of computer applications and equip the learner with the necessary skills to excel in the IT industry. The contemporary curriculum of MCA is designed to provide necessary software skills and industry exposure to students through project-driven courseses and hands-on experience.",
+      "elapsed_s": 17.92,
+      "error": null
+    },
+    {
+      "index": 71,
+      "id": "Q71",
+      "category": "Student Support Questions",
+      "question": "Will I get a student ID card?",
+      "classification": "CORRECT",
+      "answer": "The online MCA program offers a flexible and accessible platform for learners to enhance their technical knowledge and skills in computer applications, covering areas such as software development, database management, networking, and cybersecurity. This program equips students with the expertise needed for successful careers in the rapidly evolving tech industry.\n• Any student of the BBA programme who earns 120 credits by pursuing\ncomponents as per the passing standards of the University will be\n• Any student of the MBA programme who earns 102 credits by pursuing the\nstandards of the University will be eligible for the award of the Bachelor of",
+      "elapsed_s": 18.201,
+      "error": null
+    },
+    {
+      "index": 72,
+      "id": "Q72",
+      "category": "Student Support Questions",
+      "question": "How can I contact faculty members?",
+      "classification": "CORRECT",
+      "answer": "I am thrilled to be a part of the BBA General Program at IIIM of CHARUSAT. The expertise and enthusiasm of the faculty members have sparked my interest in Management. Looking at the course curriculum and learning by doing approach in pedagogy, I feel confident that in due course I will be well-equipped for a promising career.\ncounselling sessions with faculty members.\nfaculty members.\nI am thrilled to be a part of the mba General Program at IIIM of CHARUSAT. The expertise and enthusiasm of the faculty members have sparked my interest in Management. Looking at the course curriculum and learning by doing approach in pedagogy, I feel confident that in due course I will be well-equipped for a promising career.\nfaculty members.\n6. Facilitate mentorship and guidance from experienced faculty members and industry experts",
+      "elapsed_s": 19.484,
+      "error": null
+    },
+    {
+      "index": 73,
+      "id": "Q73",
+      "category": "Student Support Questions",
+      "question": "Is there a dedicated student support team?",
+      "classification": "CORRECT",
+      "answer": "The transcript issued to the student at the time of leaving the University will contain a\nG. Requirement of the laboratory support and Library Resources:-\nIn an online MCA program, laboratory support will be provided through various means such as\nbe used to provide students with a virtual environment in which they can perform practical tasks.\nIn some cases, it may be possible to provide students with remote access to physical labs.\nMoreover, Instructors will record practical demonstrations and provide students with access to",
+      "elapsed_s": 20.925,
+      "error": null
+    },
+    {
+      "index": 74,
+      "id": "Q74",
+      "category": "Student Support Questions",
+      "question": "What are the student support timings?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Student Services: Mr. Mitesh Patel (9408033391).",
+      "elapsed_s": 6.804,
+      "error": null
+    },
+    {
+      "index": 75,
+      "id": "Q75",
+      "category": "Student Support Questions",
+      "question": "Can I raise queries through email or WhatsApp?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "The official programme documents state that if the admission council requires clarification or more details, the student will be contacted via **email, SMS, or phone call**. However, they do not specify whether students can proactively raise queries through email or WhatsApp.\n\nI couldn't find information regarding specific channels for students to proactively raise queries (e.g., email or WhatsApp) in the official programme documents.\n\nFor further assistance, please contact Student Services: Mr. Mitesh Patel (9408033391).",
+      "elapsed_s": 3.533,
+      "error": null
+    },
+    {
+      "index": 76,
+      "id": "Q76",
+      "category": "Student Support Questions",
+      "question": "How can I download my marksheet?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 1.884,
+      "error": null
+    },
+    {
+      "index": 77,
+      "id": "Q77",
+      "category": "Student Support Questions",
+      "question": "How do I obtain my degree certificate after completion?",
+      "classification": "WRONG_DATA_EXISTS",
+      "answer": "I couldn't find this information in the official programme documents.\n\nFor further assistance, please contact Examinations: Mr. Snehal Patel (9409572216), Mr. Sanket Patel (BCA/MCA) (8460549025), Mr. Ravi Patel (BCA/MCA) (7574945238).",
+      "elapsed_s": 2.869,
+      "error": null
+    }
+  ]
+}
