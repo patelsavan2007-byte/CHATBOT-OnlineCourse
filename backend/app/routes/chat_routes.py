@@ -205,7 +205,7 @@ def _process_chat_turn(
     question: str,
     history: Optional[List[Dict[str, Any]]],
     rag_chain: Any,
-) -> Tuple[str, List[Dict[str, Any]]]:
+) -> Tuple[str, List[Dict[str, Any]], Optional[Any]]:
     """Execute a single chat turn through RAG and build answer and sources.
     Shared by both /api/chat and /api/chat/stream.
     """
@@ -218,38 +218,41 @@ def _process_chat_turn(
     if is_smalltalk(question):
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return answer_text, []
+        return answer_text, [], None
 
     # 2. Execute RAG
-    answer_text, retrieved = rag_chain.answer(question, history=history)
+    res = rag_chain.answer(question, history=history)
+    answer_text = res.answer
+    retrieved = res.retrieved
 
     # 3. If RAG returned no chunks and query is not course-specific, use conversational fallback
     if not retrieved and plan.topic == "general" and not plan.programmes:
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return answer_text, []
+        return answer_text, [], res
 
     from app.citations import extract_citations
     sources = extract_citations(retrieved, answer_text=answer_text)
-    return answer_text, sources
+    return answer_text, sources, res
 
 
 def _log_chat_event(
     db: Any,
     question: str,
     answer: str,
-    rag_chain: Any,
+    rag_chain: Any = None,
     user: Optional[Dict[str, Any]] = None,
     conversation_id: Optional[str] = None,
     message_id: Optional[str] = None,
+    rag_result: Optional[Any] = None,
 ):
     """Record an interaction event in db.chat_events for admin analytics."""
     if db is None:
         return
     try:
         from app.conversation import analyze_turn
-        plan = analyze_turn(question, history=None)
-        status_val = getattr(rag_chain, "last_status", "unknown") if rag_chain else "unknown"
+        plan = getattr(rag_result, "plan", None) or analyze_turn(question, history=None)
+        status_val = getattr(rag_result, "status", getattr(rag_chain, "last_status", "unknown")) if (rag_result or rag_chain) else "unknown"
         status_str = str(status_val).lower()
         is_gap = (
             "not_found" in status_str
@@ -258,7 +261,8 @@ def _log_chat_event(
             or "fallback" in status_str
             or "couldn't find" in answer.lower()
         )
-        latency = getattr(rag_chain, "last_timing", {}).get("total_s", 0.0) if rag_chain else 0.0
+        timing_dict = getattr(rag_result, "timing", {}) if rag_result else getattr(rag_chain, "last_timing", {})
+        latency = timing_dict.get("total_s", 0.0) if timing_dict else 0.0
 
         event = {
             "timestamp": datetime.now(timezone.utc),
@@ -304,7 +308,7 @@ async def chat_message(
 
     # Call the shared RAG turn processing
     try:
-        answer_text, sources = _process_chat_turn(request.question, history, rag_chain)
+        answer_text, sources, rag_result = _process_chat_turn(request.question, history, rag_chain)
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(
@@ -316,7 +320,7 @@ async def chat_message(
 
     # For guests, return without persistence (but log event)
     if user is None:
-        _log_chat_event(db, request.question, answer_text, rag_chain, user=None)
+        _log_chat_event(db, request.question, answer_text, user=None, rag_result=rag_result)
         return ChatMessageResponse(
             answer=answer_text,
         )
@@ -364,10 +368,10 @@ async def chat_message(
         db,
         request.question,
         answer_text,
-        rag_chain,
         user=user,
         conversation_id=conversation_id,
         message_id=assistant_msg["id"],
+        rag_result=rag_result,
     )
 
     return ChatMessageResponse(
@@ -398,7 +402,7 @@ async def chat_message_stream(
         )
 
     history = _resolve_history(request.history, user, conversation_id)
-    answer_text, sources = _process_chat_turn(request.question, history, rag_chain)
+    answer_text, sources, _ = _process_chat_turn(request.question, history, rag_chain)
 
     async def generate_response():
         yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"

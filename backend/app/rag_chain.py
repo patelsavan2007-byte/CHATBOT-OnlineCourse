@@ -64,6 +64,21 @@ class AnswerResult:
         self.conflicts = conflicts
         self.plan = plan
 
+    def __iter__(self):
+        """Support tuple unpacking: answer, retrieved = result"""
+        return iter((self.answer, self.retrieved))
+
+    def __getitem__(self, idx: int):
+        """Support indexing: result[0] -> answer, result[1] -> retrieved"""
+        if idx == 0:
+            return self.answer
+        elif idx == 1:
+            return self.retrieved
+        raise IndexError("AnswerResult index out of range (supports [0] and [1])")
+
+    def __len__(self) -> int:
+        return 2
+
 
 class RAGChain:
     """Compose retrieval -> conflict detection -> context -> LLM answer."""
@@ -134,7 +149,7 @@ class RAGChain:
                 self.last_status = _status
                 self.last_timing = _timing
                 logger.info("[RAG] Cache hit, returning cached answer and sources")
-                return cached_answer, cached_sources
+                return AnswerResult(cached_answer, cached_sources, _status, _timing, [], plan)
 
         # Check for vague query with no programme context
         from app.query_expansion import is_vague_query, vague_clarification_message
@@ -147,7 +162,7 @@ class RAGChain:
             }
             self.last_status = _status
             self.last_timing = _timing
-            return answer, []
+            return AnswerResult(answer, [], _status, _timing, [], plan)
 
         t_ret = time.time()
         retrieved = self.retriever.retrieve(question, plan=plan)
@@ -174,11 +189,8 @@ class RAGChain:
 
         logger.info("[RAG] Retrieved relevant chunks: %d", len(retrieved))
 
-        # Step 7: read last_program/last_pool from retriever immediately after
-        # retrieve() while still inside this thread (no other thread has called
-        # retrieve() yet in this request cycle).
-        program_name = self.retriever.last_program
-        pool_docs = [doc for doc, _ in self.retriever.last_pool] if self.retriever.last_pool else [doc for doc, _ in retrieved]
+        program_name = plan.primary_program if plan else ""
+        pool_docs = [doc for doc, _ in retrieved]
 
         if not retrieved:
             answer, status = self._fallback_answer("no_chunks_above_threshold", question, plan=plan)
@@ -189,7 +201,7 @@ class RAGChain:
             }
             self.last_status = _status
             self.last_timing = _timing
-            return answer, retrieved
+            return AnswerResult(answer, retrieved, _status, _timing, [], plan)
 
         _conflicts = detect_conflicts_from_documents(pool_docs, question, program_name)
 
@@ -311,7 +323,7 @@ class RAGChain:
                     status=status,
                 )
 
-        return answer, retrieved
+        return AnswerResult(answer, retrieved, _status, _timing, _conflicts, plan)
 
 
     def _format_chunk(self, doc: Document, score: float) -> str:

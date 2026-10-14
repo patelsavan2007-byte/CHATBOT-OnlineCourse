@@ -81,14 +81,14 @@ class ChatbotApp:
                 break
 
             with Timer() as timer:
-                response_text, retrieved = self.rag_chain.answer(question)
+                res = self.rag_chain.answer(question)
 
             self._display_result(
                 question,
-                response_text,
-                retrieved,
+                res.answer,
+                res.retrieved,
                 timer.elapsed_seconds,
-                status=self.rag_chain.last_status,
+                status=res.status,
             )
 
     def _display_result(

@@ -334,7 +334,13 @@ class RAGRetriever:
     # Candidate retrieval
     # ------------------------------------------------------------------
 
-    def _candidate_search(self, query: str, program_name: str) -> List[Tuple[Document, float]]:
+    def _candidate_search(
+        self,
+        query: str,
+        program_name: str,
+        intent: Optional[str] = None,
+        phrases: Optional[List[str]] = None,
+    ) -> List[Tuple[Document, float]]:
         """Route candidate retrieval by query intent.
 
         * ``programme``        -> the detected programme plus general policy docs
@@ -347,16 +353,17 @@ class RAGRetriever:
         candidates so a small, topically-correct chunk buried below the
         embedding ranking can still be retrieved.
         """
-        intent = self.last_intent
+        if intent is None:
+            intent = self.last_intent
         if intent == INTENT_PROGRAMME:
             return self._programme_candidate_search(query, program_name)
         if intent == INTENT_OVERVIEW:
             pool = self._overview_candidate_search(query)
         else:
             pool = self._general_candidate_search(query)
-        return self._merge_phrase_candidates(pool)
+        return self._merge_phrase_candidates(pool, phrases=phrases)
 
-    def _phrase_candidates(self) -> List[Tuple[Document, float]]:
+    def _phrase_candidates(self, phrases: Optional[List[str]] = None) -> List[Tuple[Document, float]]:
         """Return chunks containing one of the meaningful query phrases verbatim.
 
         Semantic retrieval can bury a small, topically-correct chunk (for
@@ -367,12 +374,13 @@ class RAGRetriever:
         semantic score, so they enter at the relevance floor and the shared
         scorer places them above unrelated content.
         """
+        target_phrases = phrases if phrases is not None else self.last_phrases
         collection = getattr(self.vector_store, "_collection", None)
-        if collection is None or not self.last_phrases:
+        if collection is None or not target_phrases:
             return []
         hits: List[Tuple[Document, float]] = []
         seen_ids: Set[str] = set()
-        for phrase in self.last_phrases:
+        for phrase in target_phrases:
             pattern = "(?i)" + re.escape(phrase)
             try:
                 got = collection.get(where_document={"$regex": pattern}, include=["metadatas"])
@@ -392,14 +400,15 @@ class RAGRetriever:
         return hits
 
     def _merge_phrase_candidates(
-        self, pool: List[Tuple[Document, float]],
+        self, pool: List[Tuple[Document, float]], phrases: Optional[List[str]] = None,
     ) -> List[Tuple[Document, float]]:
         """Merge verbatim-phrase candidates into the pool (deduped by content)."""
-        if not self.last_phrases:
+        target_phrases = phrases if phrases is not None else self.last_phrases
+        if not target_phrases:
             return pool
         seen = {doc.page_content.strip()[:100] for doc, _ in pool}
         merged = list(pool)
-        for doc, score in self._phrase_candidates():
+        for doc, score in self._phrase_candidates(phrases=target_phrases):
             if doc.page_content.strip()[:100] in seen:
                 continue
             seen.add(doc.page_content.strip()[:100])
@@ -859,8 +868,10 @@ class RAGRetriever:
             plan = analyze_turn(query, history=history)
 
         search_query = plan.standalone_question or query
-        self.last_keywords = _detect_query_keywords(search_query)
-        self.last_phrases = _query_phrases(search_query)
+        keywords = _detect_query_keywords(search_query)
+        phrases = _query_phrases(search_query)
+        self.last_keywords = keywords
+        self.last_phrases = phrases
 
         is_multi = (plan.is_compare or len(plan.programmes) >= 2) if plan else False
         from app.lexicon import is_topic_programme_independent
@@ -870,14 +881,12 @@ class RAGRetriever:
         # or compare questions search across all programmes
         if is_multi or (is_prog_independent and not plan.programmes):
             program_name = ""
-            self.last_program = ""
-            self.last_intent = INTENT_GENERAL
+            intent = INTENT_GENERAL
             pool = self._compare_candidate_search(search_query, plan)
         elif len(plan.programmes) == 1:
             program_name = plan.programmes[0]
-            self.last_program = program_name
-            self.last_intent = INTENT_PROGRAMME
-            pool = self._candidate_search(search_query, program_name)
+            intent = INTENT_PROGRAMME
+            pool = self._candidate_search(search_query, program_name, intent=intent, phrases=phrases)
             if plan.topic == "subjects":
                 curr_pool = self._curriculum_candidate_search(program_name, plan.year, plan.semester)
                 pool = self._merge_targeted_pool(pool, curr_pool)
@@ -888,16 +897,16 @@ class RAGRetriever:
                 fee_pool = self._fee_candidate_search(program_name)
                 pool = self._merge_targeted_pool(pool, fee_pool)
         elif _is_programme_overview_query(search_query):
-
             program_name = ""
-            self.last_program = ""
-            self.last_intent = INTENT_OVERVIEW
-            pool = self._candidate_search(search_query, "")
+            intent = INTENT_OVERVIEW
+            pool = self._candidate_search(search_query, "", intent=intent, phrases=phrases)
         else:
             program_name = ""
-            self.last_program = ""
-            self.last_intent = INTENT_GENERAL
-            pool = self._candidate_search(search_query, "")
+            intent = INTENT_GENERAL
+            pool = self._candidate_search(search_query, "", intent=intent, phrases=phrases)
+
+        self.last_program = program_name
+        self.last_intent = intent
 
         if not pool:
             logger.warning("No candidates retrieved for query: %s", search_query)
@@ -906,10 +915,10 @@ class RAGRetriever:
         scored: List[Tuple[Document, float]] = []
         for doc, base_score in pool:
             doc_prog = str(doc.metadata.get("program_name", "") or "")
-            final, *_ = _score_chunk(
-                doc, base_score, doc_prog or program_name, self.last_keywords, self.last_phrases,
+            final_sc, *_ = _score_chunk(
+                doc, base_score, doc_prog or program_name, keywords, phrases,
             )
-            scored.append((doc, final))
+            scored.append((doc, final_sc))
 
         scored.sort(key=lambda item: item[1], reverse=True)
 
@@ -925,9 +934,9 @@ class RAGRetriever:
             except Exception as exc:
                 logger.warning("Reranking failed: %s", exc)
 
-        if self.last_intent == INTENT_OVERVIEW:
+        if intent == INTENT_OVERVIEW:
             scored = self._overview_boost_and_diversify(scored)
-        elif self.last_intent == INTENT_GENERAL and not is_multi:
+        elif intent == INTENT_GENERAL and not is_multi:
             scored = self._general_diversify(scored)
 
         # Filter out low-relevance noise below threshold
@@ -950,8 +959,8 @@ class RAGRetriever:
             final = kept[:top_k]
         else:
             needs_coverage = (
-                self.last_intent == INTENT_GENERAL
-                and not self.last_program
+                intent == INTENT_GENERAL
+                and not program_name
                 and _requires_all_program_coverage(search_query)
             )
             if needs_coverage:
