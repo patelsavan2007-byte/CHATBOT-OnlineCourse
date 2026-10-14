@@ -51,7 +51,7 @@
     },
     "student_id": {
       "category": "Student Support Questions",
-      "stems": ["id\\s+card\\w*", "id\\s+crd\\w*", "identity\\s+card\\w*", "identity\\s+crd\\w*", "smart\\s+card\\w*", "smart\\s+crd\\w*", "studnt\\s+id\\w*", "student\\s+card\\w*"],
+      "stems": ["id\\s+card\\w*", "id\\s+crd\\w*", "identity\\s+card\\w*", "identity\\s+crd\\w*", "smart\\s+card\\w*", "smart\\s+crd\\w*", "studnt\\s+id\\w*", "student\\s+card\\w*", "student\\s+id\\b", "id\\s+verif\\w*"],
       "synonyms": ["student id card", "identity card", "will i get id card", "physical id card", "digital id", "digital identity card", "student id crd dispatch process"],
       "programme_independent": true,
       "contact_service": "Student Services"
@@ -65,7 +65,7 @@
     },
     "technical_issues": {
       "category": "Technical Questions",
-      "stems": ["lms\\s+issue\\w*", "portal\\s+issue\\w*", "login\\s+problem\\w*", "logn\\s+problem\\w*", "logn\\s+err\\w*", "login\\s+err\\w*", "forgot\\s+password\\w*", "forgt\\s+my\\s+pass\\w*", "reset\\s+password\\w*", "technical\\s+support\\w*", "technicl\\s+supp\\w*", "portal\\s+error\\w*", "lms\\s+err\\w*", "portal\\s+not\\s+load\\w*"],
+      "stems": ["lms\\s+issue\\w*", "portal\\s+issue\\w*", "login\\s+problem\\w*", "logn\\s+problem\\w*", "logn\\s+err\\w*", "login\\s+err\\w*", "forgot\\s+password\\w*", "forgt\\s+my\\s+pass\\w*", "reset\\s+password\\w*", "technical\\s+support\\w*", "technicl\\s+supp\\w*", "portal\\s+error\\w*", "lms\\s+err\\w*", "portal\\s+not\\s+load\\w*", "technic\\w*\\s+problem\\w*", "technic\\w*\\s+issue\\w*", "technic\\w*\\s+glitch\\w*"],
       "synonyms": ["technical issues", "login problem", "forgot lms password", "portal not loading", "technical help", "password reset", "lms logn error in bca portal"],
       "programme_independent": true,
       "contact_service": "Learning Management System"

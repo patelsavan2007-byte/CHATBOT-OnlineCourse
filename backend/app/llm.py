@@ -298,7 +298,6 @@ class LLMClient:
                 getattr(config, "GROQ_MODEL", "openai/gpt-oss-120b"),
                 "openai/gpt-oss-20b",
                 "qwen/qwen3.8-27b",
-                "allam-2-7b",
             ]
             for model_name in groq_models:
                 try:
@@ -428,9 +427,9 @@ class LLMClient:
             getattr(config, "GROQ_MODEL", "openai/gpt-oss-120b"),
             "openai/gpt-oss-20b",
             "qwen/qwen3.8-27b",
-            "allam-2-7b",
         ]
 
+        rate_limited_models = 0
         for model_name in groq_models:
             try:
                 logger.info("[LLM] Groq request: model=%s", model_name)
@@ -450,12 +449,20 @@ class LLMClient:
                 logger.warning("Groq API model %s returned an empty response", model_name)
             except Exception as exc:
                 exc_str = str(exc).lower()
-                if "rate limit" in exc_str or "429" in exc_str or "tokens per day" in exc_str or "tpd" in exc_str:
-                    logger.warning("Groq daily rate limit reached, setting 60s cooldown: %s", exc)
+                if "tokens per day" in exc_str or "tpd" in exc_str:
+                    logger.warning("Groq organization TPD daily limit reached, setting 60s cooldown: %s", exc)
                     self._groq_cooldown_until = time.time() + 60.0
                     break
-                logger.warning("Groq API model %s failed (%s), trying failover model...", model_name, exc)
+                elif "rate limit" in exc_str or "429" in exc_str:
+                    rate_limited_models += 1
+                    logger.warning("Groq API model %s rate limited, trying failover model: %s", model_name, exc)
+                else:
+                    logger.warning("Groq API model %s failed (%s), trying failover model...", model_name, exc)
                 continue
+
+        if rate_limited_models >= len(groq_models):
+            logger.warning("All Groq models rate-limited; setting 60s cooldown")
+            self._groq_cooldown_until = time.time() + 60.0
 
         logger.error("All Groq API models exhausted or failed")
         return None
@@ -744,10 +751,10 @@ class LLMClient:
                 lowered = stripped.lower()
                 if stripped.startswith("# ") and len(tokens) > 1:
                     continue
-            min_matches = min(2, len(tokens))
-            matched_count = sum(1 for token in tokens if token in lowered)
-            if matched_count >= min_matches:
-                relevant.append(stripped)
+                min_matches = min(2, len(tokens))
+                matched_count = sum(1 for token in tokens if token in lowered)
+                if matched_count >= min_matches:
+                    relevant.append(stripped)
 
         if relevant:
             answer = "\n".join(relevant[:6])

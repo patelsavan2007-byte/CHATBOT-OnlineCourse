@@ -1,6 +1,6 @@
-from __future__ import annotations
-
+import io
 import logging
+import sys
 import time
 from pathlib import Path
 from typing import Any
@@ -8,7 +8,26 @@ from typing import Any
 from rich.console import Console
 from rich.logging import RichHandler
 
-console = Console()
+# Ensure UTF-8 output on Windows consoles to prevent cp1252 charmap encoding errors
+if sys.platform == "win32":
+    try:
+        if hasattr(sys.stdout, "reconfigure"):
+            sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        if hasattr(sys.stderr, "reconfigure"):
+            sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
+console = Console(
+    file=io.TextIOWrapper(
+        getattr(sys.stdout, "buffer", sys.stdout),
+        encoding="utf-8",
+        errors="replace",
+        line_buffering=True,
+    ),
+    highlight=False,
+    safe_box=True,
+)
 
 
 def setup_logging() -> logging.Logger:

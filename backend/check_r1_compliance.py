@@ -7,11 +7,17 @@ import re
 
 PATTERNS = [
     (re.compile(r"\b\d{1,3}(?:,\d{3})+\b"), "Formatted currency amount (e.g. 75,000)"),
+    (re.compile(r"(?:₹|Rs\.?|INR)\s*\d{4,}\b"), "Unformatted currency amount (e.g. ₹150000)"),
     (re.compile(r"\+91"), "+91 country code"),
     (re.compile(r"\b[6-9]\d{9}\b"), "10-digit Indian phone number"),
+    (re.compile(r"\b(?:Darshit\s+Patel|Kirti\s+Patel|Mitesh\s+Patel|Sanket\s+Patel|Ravi\s+Patel|Subhashree\s+S|Hetal\s+Barad|Snehal\s+Patel)\b", re.I), "Person name from contact.md"),
     (re.compile(r"What is the total fee for the Online MBA programme\?", re.I), "Full test question sentence"),
     (re.compile(r"What is the duration of the Online BCA programme\?", re.I), "Full test question sentence"),
     (re.compile(r"How many semesters are there in the Online MCA programme\?", re.I), "Full test question sentence"),
+    (re.compile(r"Is the online degree equivalent to a regular degree\?", re.I), "Full test question sentence"),
+    (re.compile(r"What documents are required for admission\?", re.I), "Full test question sentence"),
+    (re.compile(r"Can I pay the fees in installments\?", re.I), "Full test question sentence"),
+    (re.compile(r"Who should I contact if I face technical issues\?", re.I), "Full test question sentence"),
 ]
 
 def scan():
