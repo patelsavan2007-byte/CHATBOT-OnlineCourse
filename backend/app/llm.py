@@ -239,6 +239,7 @@ class LLMClient:
                 self._client = None
 
         # Initialize Groq as failover
+        self._groq_cooldown_until = 0.0
         if self.groq_api_key and HAS_GROQ:
             try:
                 self._groq_client = Groq(api_key=self.groq_api_key)
@@ -416,6 +417,10 @@ class LLMClient:
                 logger.error("Failed to initialise Groq client: %s", exc)
                 return None
 
+        if hasattr(self, "_groq_cooldown_until") and time.time() < self._groq_cooldown_until:
+            logger.info("Groq in cooldown until %.0f (skipping to avoid failover latency)", self._groq_cooldown_until)
+            return None
+
         # Tiered list of Groq models to try in order. Must reflect the account's
         # current model availability (see config.GROQ_MODEL); outdated names
         # return 404/decommissioned and force deterministic fallback.
@@ -444,6 +449,11 @@ class LLMClient:
                         return text.strip()
                 logger.warning("Groq API model %s returned an empty response", model_name)
             except Exception as exc:
+                exc_str = str(exc).lower()
+                if "rate limit" in exc_str or "429" in exc_str or "tokens per day" in exc_str or "tpd" in exc_str:
+                    logger.warning("Groq daily rate limit reached, setting 60s cooldown: %s", exc)
+                    self._groq_cooldown_until = time.time() + 60.0
+                    break
                 logger.warning("Groq API model %s failed (%s), trying failover model...", model_name, exc)
                 continue
 
