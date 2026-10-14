@@ -50,6 +50,7 @@ CONFLICT RULES:
 - Only report a conflict when values truly cannot both be correct and represent the exact same measurement for the same period.
 - If a "Conflict Notice" block is present in the context, only highlight a discrepancy if the numbers genuinely contradict each other; if one is an annual fee and another is a multi-year total, explain both without alleging an inconsistency.
 - Evaluation percentages (internal/external split): if two sources state different splits for the same programme (e.g. 50/50 vs 30/70), state BOTH values and name the source document for each.
+- Refund rules: if different documents state different refund terms after commencement of classes (e.g. Fees Refund Policy PDF vs Terms & Conditions), present BOTH rules and their source documents.
 
 MISSING DATA RULES (Step 4):
 - NEVER write "–", "-", or "N/A" for a fee, credit, or number that is not in the documents. Instead write "not in documents" in that cell.
