@@ -56,6 +56,10 @@ ATTRIBUTE_FAMILIES: Dict[str, List[str]] = {
     "duration": ["duration"],
     "eligib": ["eligibility"],
     "speciali": ["specializations"],
+    "evaluat": ["evaluation_internal", "evaluation_external"],
+    "weight": ["evaluation_internal", "evaluation_external"],
+    "internal": ["evaluation_internal"],
+    "external": ["evaluation_external"],
 }
 
 

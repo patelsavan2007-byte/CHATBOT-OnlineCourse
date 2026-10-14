@@ -5,11 +5,38 @@ from langchain_core.documents import Document
 
 from app import config
 from app.cache import get_cache
-from app.conflict import detect_conflicts_from_documents, format_conflict_notice
+from app.conflict import detect_conflicts_from_documents, format_conflict_notice, extract_numbers
 from app.llm import LLMClient, LLMStatus, NOT_FOUND_ANSWER, build_not_found_answer, strip_internal_references
 from app.prompt import build_prompt
 from app.retriever import RAGRetriever
 from app.utils import logger
+
+
+def _find_unverified_numbers(
+    response_text: str,
+    evidence_chunks: List[Tuple[str, Dict[str, Any]]],
+    user_question: str,
+) -> List[float]:
+    """Identify any numbers or amounts in LLM response not in evidence or question.
+    Ignores markdown list numbering and simple parenthetical references.
+    """
+    cleaned = re.sub(r"(?m)^\s*\d+[\.\)]\s+", "", response_text)
+    cleaned = re.sub(r"\(\d+\)\s*", "", cleaned)
+
+    resp_nums = extract_numbers(cleaned)
+    if not resp_nums:
+        return []
+
+    context_text = " ".join(chunk_text for chunk_text, _ in evidence_chunks)
+    allowed = set(extract_numbers(context_text)) | set(extract_numbers(user_question))
+
+    unverified = []
+    for n in resp_nums:
+        if n not in allowed:
+            n_str = str(int(n)) if n.is_integer() else str(n)
+            if n_str not in context_text and n_str not in user_question:
+                unverified.append(n)
+    return unverified
 
 
 class AnswerResult:
@@ -178,10 +205,57 @@ class RAGChain:
         )
         llm_time = time.time() - t_llm
 
+        raw_trimmed = response_text.strip()
+        # Step 4b: Verify numbers/amounts in LLM response against retrieved chunks
+        if raw_trimmed and not raw_trimmed.startswith("[["):
+            unverified = _find_unverified_numbers(response_text, evidence, question)
+            if unverified:
+                logger.warning(
+                    "[RAG] Unverified numbers found in LLM response: %s. Regenerating with strict grounding prompt.",
+                    unverified,
+                )
+                strict_prompt = (
+                    prompt
+                    + "\n\nCRITICAL GROUNDING REQUIREMENT:\n"
+                    + f"Your previous response included numbers or figures not found in the documents: {unverified}. "
+                    + "Only cite numbers, amounts, percentages, or figures that appear VERBATIM in the source context. "
+                    + "Do NOT invent, guess, or calculate any figures. If a figure is not present, state that it is not specified."
+                )
+                t_regen = time.time()
+                regen_text, regen_status = self.llm_client.generate(
+                    strict_prompt,
+                    context_chunks=evidence,
+                    conflicts=_conflicts,
+                )
+                llm_time += time.time() - t_regen
+                status = f"{status}|regen_checked"
+                response_text = regen_text
+                raw_trimmed = response_text.strip()
+                unverified_retry = _find_unverified_numbers(response_text, evidence, question)
+                if unverified_retry:
+                    logger.warning(
+                        "[RAG] Regenerated response still contained unverified numbers: %s. Applying safe partial answer.",
+                        unverified_retry,
+                    )
+                    sentences = re.split(r"(?<=[.!?])\s+", response_text)
+                    safe_sentences = [
+                        s for s in sentences
+                        if not any(
+                            (str(int(u)) if u.is_integer() else str(u)) in s
+                            for u in unverified_retry
+                        )
+                    ]
+                    if safe_sentences:
+                        response_text = " ".join(safe_sentences)
+                    else:
+                        response_text = (
+                            "I could not verify the exact figures for this request in the official programme documents. "
+                            "Please consult the university admissions or examination office for confirmed details."
+                        )
+                    raw_trimmed = response_text.strip()
+
         from app.contacts import get_contact_line
         contact_line = get_contact_line(topic=plan.topic, programme=plan.primary_program)
-
-        raw_trimmed = response_text.strip()
         if "[[not_found]]" in raw_trimmed.lower() or raw_trimmed == "[[NOT_FOUND]]":
             answer = (
                 "I couldn't find this information in the official programme documents.\n\n"

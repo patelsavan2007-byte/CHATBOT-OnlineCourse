@@ -267,6 +267,22 @@ ATTRIBUTE_TAXONOMY: Dict[str, Dict[str, object]] = {
             "stream of management", "streams",
         ],
     },
+    "evaluation_internal": {
+        "label": "Internal evaluation percentage",
+        "semantics": "single",
+        "keywords": [
+            "internal evaluation", "internal assessment", "continuous assessment",
+            "internal marks", "internal evaluation components",
+        ],
+    },
+    "evaluation_external": {
+        "label": "University examination percentage",
+        "semantics": "single",
+        "keywords": [
+            "final examination by the university", "university examination",
+            "external examination", "external marks", "end semester examination",
+        ],
+    },
 }
 
 # ---------------------------------------------------------------------------

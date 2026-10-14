@@ -453,6 +453,11 @@ class RAGRetriever:
                 logger.error("Unfiltered search failed: %s", exc2)
                 return []
 
+    def _fee_candidate_search(self, program_name: str) -> List[Tuple[Document, float]]:
+        """Retrieve fee structure chunks specifically for a given programme."""
+        query = f"fee structure semester tuition examination fee {program_name}"
+        return self._programme_candidate_search(query, program_name)[:2]
+
     def _overview_candidate_search(self, query: str) -> List[Tuple[Document, float]]:
         """Query each offered programme and merge with the general pool."""
         try:
@@ -955,6 +960,16 @@ class RAGRetriever:
                 kept, _removed_dup = deduplicate_results(relevant_scored)
                 kept, _removed_div = apply_diversity_cap(kept)
                 final = kept[: config.TOP_K]
+
+        # Step 4c: Retrieval rule: for fee questions, the fee-table chunk of every requested programme must be in the context
+        if plan and plan.topic in ("fees", "taxes_hidden_charges", "emi"):
+            target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
+            for p in target_progs:
+                fee_chunks = self._fee_candidate_search(p)
+                for fdoc, fscore in fee_chunks:
+                    key = fdoc.page_content.strip()[:100]
+                    if not any(d.page_content.strip()[:100] == key for d, _ in final):
+                        final.insert(0, (fdoc, max(fscore, 0.90)))
 
         return final
 
