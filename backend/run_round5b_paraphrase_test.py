@@ -16,7 +16,7 @@ def query_chat(q):
     req = urllib.request.Request(API_URL, data=data, headers={"Content-Type": "application/json"})
     t0 = time.time()
     try:
-        with urllib.request.urlopen(req, timeout=30) as resp:
+        with urllib.request.urlopen(req, timeout=120) as resp:
             elapsed = time.time() - t0
             body = json.loads(resp.read().decode("utf-8"))
             return True, body.get("answer", ""), elapsed
