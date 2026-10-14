@@ -77,6 +77,12 @@ _NUMBER_RE = re.compile(
 def extract_numbers(text: str) -> List[float]:
     """Extract all plain/international/Indian-format numbers from text."""
     numbers: List[float] = []
+    # Handle lakh/lac formats (e.g. 1.5 lakh, 1.6 lakhs)
+    for m in re.finditer(r"(\d+(?:\.\d+)?)\s*(?:lakhs?|lac|l)\b", text or "", re.I):
+        try:
+            numbers.append(float(m.group(1)) * 100000.0)
+        except ValueError:
+            pass
     for match in _NUMBER_RE.findall(text or ""):
         clean = re.sub(r"[^\d.]", "", match).strip(".")
         if clean and clean != ".":

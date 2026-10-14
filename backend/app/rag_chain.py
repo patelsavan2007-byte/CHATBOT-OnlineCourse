@@ -17,7 +17,8 @@ def _find_unverified_numbers(
     evidence_chunks: List[Tuple[str, Dict[str, Any]]],
     user_question: str,
 ) -> List[float]:
-    """Identify any numbers or amounts in LLM response not in evidence or question.
+    """Identify any numbers or amounts in LLM response not in evidence, question,
+    or derived via arithmetic (e.g. sums or fee x semesters/years).
     Ignores markdown list numbering and simple parenthetical references.
     """
     cleaned = re.sub(r"(?m)^\s*\d+[\.\)]\s+", "", response_text)
@@ -28,7 +29,18 @@ def _find_unverified_numbers(
         return []
 
     context_text = " ".join(chunk_text for chunk_text, _ in evidence_chunks)
-    allowed = set(extract_numbers(context_text)) | set(extract_numbers(user_question))
+    allowed_base = set(extract_numbers(context_text)) | set(extract_numbers(user_question))
+
+    # Allow common semester / year products and simple component sums
+    allowed = set(allowed_base)
+    for n in list(allowed_base):
+        for mult in (2, 3, 4, 6, 8):
+            allowed.add(n * mult)
+
+    allowed_list = list(allowed)
+    for i in range(len(allowed_list)):
+        for j in range(i, len(allowed_list)):
+            allowed.add(allowed_list[i] + allowed_list[j])
 
     unverified = []
     for n in resp_nums:
