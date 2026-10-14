@@ -62,7 +62,7 @@ _TOPIC_REGEXES = {
         r"\b(?:grad(?:ing|e|es)|pass(?:ing)?|cgpa|sgpa|marks|evaluat(?:ion|e)|exam|exams|examination|examinations)\b", re.I
     ),
     "refund": re.compile(
-        r"\b(?:refund|money\s+back|cancell(?:ation|ed|ing)?|withdraw(?:al)?)\b", re.I
+        r"\b(?:refund\w*|money\s+back|cancell(?:ation|ed|ing)?|withdraw(?:al)?)\b", re.I
     ),
     "lms": re.compile(
         r"\b(?:lms|password|login|portal|forgot\s+password|technical\s+support)\b", re.I
@@ -75,8 +75,14 @@ _TOPIC_REGEXES = {
     ),
 }
 
+# Step 1 fix: extended to match "each program", "all four", "both programs", "every program"
 _COMPARE_RE = re.compile(
-    r"\b(?:compare|comparison|difference|differ|vs|versus|all\s+programme?s?|each\s+programme?s?|across\s+programme?s?)\b",
+    r"\b(?:compare|comparison|difference|differ|vs|versus"
+    r"|all\s+programme?s?|each\s+programme?s?"
+    r"|across\s+programme?s?"
+    r"|every\s+programme?s?|both\s+programme?s?"
+    r"|all\s+four|all\s+programs?|each\s+programs?|every\s+programs?"
+    r"|both\s+programs?|across\s+programs?)\b",
     re.I,
 )
 
@@ -298,63 +304,57 @@ def _build_standalone_question(
     is_compare: bool,
     is_followup: bool,
 ) -> str:
-    """Construct an unambiguous, self-contained search query from the TurnPlan."""
-    # If not a follow-up and already names the programme or is a general query, return cleaned raw
+    """Construct an unambiguous, self-contained search query from the TurnPlan.
+
+    RULE (Step 1 fix): Always keep the user's own words.  Only APPEND the
+    resolved context (programme name and/or year/semester) in parentheses when
+    it was inherited from history and is not already present in the raw question.
+    Never replace the user's wording with a generic topic template like
+    "fee structure and payment details" — that caused cache cross-talk.
+    """
+    # Not a follow-up and not a compare -> return the raw question unchanged.
     if not is_followup and not is_compare:
         return raw_question
 
+    # Compare / multi-programme: keep user words, prefix with "Compare across <progs>:"
     if is_compare or len(programmes) >= 2:
-        progs_str = ", ".join(PROGRAM_MAP.get(p, p) for p in programmes) or "Online BBA, BCA, MBA and MCA"
-        if topic == "fees":
-            return f"Compare fees across {progs_str}"
-        elif topic == "subjects":
-            return f"Compare curriculum and subjects across {progs_str}"
-        elif topic == "duration":
-            return f"Compare duration and semesters across {progs_str}"
-        elif topic == "eligibility":
-            return f"Compare eligibility criteria across {progs_str}"
-        return f"Comparison across {progs_str}: {raw_question}"
+        progs_str = ", ".join(PROGRAM_MAP.get(p, p) for p in programmes) or "all online programmes"
+        user_words = raw_question.strip()
+        return f"Compare across {progs_str}: {user_words}"
 
     prog_name = PROGRAM_MAP.get(programmes[0]) if programmes else ""
 
+    # Not actually a follow-up (guard): return raw question
     if not is_followup:
         return raw_question
 
-    # Rebuild from plan elements
-    parts = []
-    if prog_name:
-        parts.append(prog_name)
+    # Build context suffix only from elements NOT already in the raw question
+    raw_lower = raw_question.lower()
+    context_parts: List[str] = []
 
+    # Add programme if not already present in the user's words
+    if prog_name:
+        acronym = programmes[0].replace("online_", "").lower()  # "bca", "mba", …
+        if prog_name.lower() not in raw_lower and acronym not in raw_lower:
+            context_parts.append(prog_name)
+
+    # Add year/semester if not already mentioned in the user's words
     if year:
         ord_map = {1: "1st", 2: "2nd", 3: "3rd"}
-        ord_str = ord_map.get(year, f"{year}th")
-        parts.append(f"Year {year} ({ord_str} Year)")
+        yr_str = ord_map.get(year, str(year))
+        already_year = (
+            f"year {year}" in raw_lower
+            or f"{yr_str} year" in raw_lower
+        )
+        if not already_year:
+            context_parts.append(f"{yr_str} year")
     elif semester:
-        parts.append(f"Semester {semester}")
+        if f"semester {semester}" not in raw_lower and f"sem {semester}" not in raw_lower:
+            context_parts.append(f"semester {semester}")
 
-    if topic == "fees":
-        parts.append("fee structure and payment details")
-    elif topic == "subjects":
-        parts.append("syllabus and course subjects")
-    elif topic == "specializations":
-        parts.append("specializations and elective choices")
-    elif topic == "eligibility":
-        parts.append("eligibility criteria and qualification requirements")
-    elif topic == "admission":
-        parts.append("admission procedure and required documents")
-    elif topic == "duration":
-        parts.append("duration, semesters, and credits")
-    elif topic == "grading":
-        parts.append("grading system and examination rules")
-    elif topic == "refund":
-        parts.append("fees refund policy and cancellation")
-    elif topic == "lms":
-        parts.append("LMS portal login and password support")
-    elif topic == "career":
-        parts.append("placement opportunities and recruiter companies")
-    elif topic == "contact":
-        parts.append("contact details and helpline numbers")
-    else:
-        parts.append(raw_question)
+    if context_parts:
+        suffix = ", ".join(context_parts)
+        return f"{raw_question.strip()} ({suffix})"
 
-    return " ".join(parts).strip()
+    # No new context to add: return the raw question as-is
+    return raw_question
