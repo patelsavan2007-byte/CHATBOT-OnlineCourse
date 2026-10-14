@@ -91,7 +91,16 @@ def detect_primary_topic(text: str) -> str:
 def get_topic_contact_service(topic: str) -> str:
     """Return the designated contact service for a topic."""
     lex = load_lexicon()
-    return lex.get("topics", {}).get(topic, {}).get("contact_service", "Admissions")
+    t = (topic or "").lower().strip()
+    if t == "lms":
+        t = "lms_technical"
+    elif t in ("grading", "exams", "evaluation"):
+        t = "exams_grading"
+    elif t in ("fee", "tuition", "cost"):
+        t = "fees"
+    elif t in ("support", "help"):
+        t = "student_support"
+    return lex.get("topics", {}).get(t, {}).get("contact_service", "Admissions")
 
 def is_topic_programme_independent(topic: str) -> bool:
     """Check if a topic is programme-independent."""

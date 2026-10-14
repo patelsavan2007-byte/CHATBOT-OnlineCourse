@@ -148,6 +148,16 @@ def is_smalltalk(question: str) -> bool:
     if _NO_ASCII_LETTERS_RE.match(q):
         return True
 
+    # If message contains explicit off-topic terms (weather, cricket, football, recipe, joke, etc.)
+    # and does not name a specific university programme, it is off-topic
+    has_prog = bool(re.search(r"\b(?:bca|bba|mba|mca|charusat)\b", q, re.IGNORECASE))
+    if (_OFFTOPIC_RE.search(q) or _RUDE_RE.search(q)) and not has_prog:
+        return True
+
+    # If question contains course or programme context, NEVER treat as smalltalk
+    if _has_course_context(q):
+        return False
+
     # Fast-path for definite conversational patterns
     if (
         _GREETING_RE.match(q)
@@ -156,12 +166,6 @@ def is_smalltalk(question: str) -> bool:
         or _WHO_ARE_YOU_RE.search(q)
     ):
         return True
-
-    # Off-topic / rude ONLY when no course context is present
-    has_course_context = _has_course_context(q)
-    if not has_course_context:
-        if _RUDE_RE.search(q) or _OFFTOPIC_RE.search(q):
-            return True
 
     return False
 
