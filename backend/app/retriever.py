@@ -741,7 +741,14 @@ class RAGRetriever:
         self, query: str, plan: TurnPlan,
     ) -> List[Tuple[Document, float]]:
         """A separate sub-retrieval per programme, merged."""
-        target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
+        from app.lexicon import is_topic_programme_independent
+        is_indep = is_topic_programme_independent(plan.topic) if (plan and plan.topic) else False
+        explicit_progs = _detect_programmes_in_text(query) if query else (
+            _detect_programmes_in_text(plan.raw_question) if (plan and plan.raw_question) else []
+        )
+        target_progs = explicit_progs if explicit_progs else (
+            plan.programmes if (plan and plan.programmes and not is_indep) else ALL_PROGRAM_NAMES
+        )
         merged_results: List[Tuple[Document, float]] = []
         seen = set()
 
@@ -870,16 +877,22 @@ class RAGRetriever:
         search_query = plan.standalone_question or query
         keywords = _detect_query_keywords(search_query)
         phrases = _query_phrases(search_query)
+        if plan and plan.topic:
+            from app.lexicon import get_topic_synonyms
+            for syn in get_topic_synonyms(plan.topic)[:4]:
+                if syn and syn not in phrases:
+                    phrases.append(syn)
         self.last_keywords = keywords
         self.last_phrases = phrases
 
         is_multi = (plan.is_compare or len(plan.programmes) >= 2) if plan else False
         from app.lexicon import is_topic_programme_independent
         is_prog_independent = is_topic_programme_independent(plan.topic) if plan else False
+        explicit_progs = _detect_programmes_in_text(search_query) if search_query else []
 
-        # Step 3: programme-independent topics (documents, refund, lms, placement, support)
-        # or compare questions search across all programmes
-        if is_multi or (is_prog_independent and not plan.programmes):
+        # Programme-independent topics (documents, refund, lms, placement, support, attendance),
+        # multi-programme comparisons, or broad queries without explicitly named programmes search across all programmes
+        if is_multi or is_prog_independent or (not explicit_progs and plan and plan.is_followup):
             program_name = ""
             intent = INTENT_GENERAL
             pool = self._compare_candidate_search(search_query, plan)

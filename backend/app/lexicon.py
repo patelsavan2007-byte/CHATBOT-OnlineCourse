@@ -107,7 +107,14 @@ def is_topic_programme_independent(topic: str) -> bool:
     lex = load_lexicon()
     return lex.get("topics", {}).get(topic, {}).get("programme_independent", False)
 
+def get_topic_synonyms(topic: str) -> List[str]:
+    """Return list of synonyms for a given topic."""
+    lex = load_lexicon()
+    t = (topic or "").lower().strip()
+    return list(lex.get("topics", {}).get(t, {}).get("synonyms", []))
+
 def get_course_keywords_regex() -> re.Pattern:
     """Return regex matching any course/topic keyword from lexicon."""
     _compile_patterns()
     return _ALL_KEYWORDS_RE
+

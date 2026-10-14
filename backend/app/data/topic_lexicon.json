@@ -2,8 +2,8 @@
   "topics": {
     "attendance": {
       "category": "Academic Questions",
-      "stems": ["attend\\w*", "attnd\\w*", "atend\\w*", "webinar\\s+attend\\w*", "presen\\w*", "compulsory\\s+class\\w*", "mandatory\\s+class\\w*"],
-      "synonyms": ["attendance requirement", "live webinar attendance", "mandatory attendance", "is attendance compulsory", "attend classes", "presence in live class"],
+      "stems": ["attend\\w*", "attnd\\w*", "atend\\w*", "webinar\\s+attend\\w*", "webinar\\s+session\\w*", "mandatory\\s+webinar\\w*", "deliver\\w*\\s+modalit\\w*", "presen\\w*", "compulsory\\s+class\\w*", "mandatory\\s+class\\w*"],
+      "synonyms": ["attendance requirement", "live webinar attendance", "mandatory attendance", "is attendance compulsory", "attend classes", "presence in live class", "live webinar", "webinar session"],
       "programme_independent": true,
       "contact_service": "Student Services"
     },
@@ -58,8 +58,8 @@
     },
     "certificate": {
       "category": "General Questions",
-      "stems": ["degree\\s+certif\\w*", "convocat\\w*", "diploma\\s+certif\\w*", "pass\\w*\\s+certif\\w*", "provis\\w*\\s+pass\\s+certif\\w*", "graduat\\w*\\s+certif\\w*"],
-      "synonyms": ["degree certificate", "convocation", "obtain degree certificate", "graduation certificate", "passing certificate", "provisional certificate", "how to obtain original degree certficate"],
+      "stems": ["degree\\s+certif\\w*", "award\\s+of\\s+degree\\w*", "degree\\s+awarded\\w*", "convocat\\w*", "diploma\\s+certif\\w*", "pass\\w*\\s+certif\\w*", "provis\\w*\\s+pass\\s+certif\\w*", "graduat\\w*\\s+certif\\w*"],
+      "synonyms": ["degree certificate", "convocation", "obtain degree certificate", "award of degree", "degree awarded", "graduation certificate", "passing certificate", "provisional certificate", "how to obtain original degree certficate"],
       "programme_independent": true,
       "contact_service": "Examinations"
     },
@@ -114,8 +114,8 @@
     },
     "fees": {
       "category": "Fees Related Questions",
-      "stems": ["fee\\w*", "tuition\\w*", "cost\\w*", "price\\w*", "receipt\\w*", "installment\\w*"],
-      "synonyms": ["total course fee", "semester fee", "tuition fee", "fee structure", "payment modes", "fee receipt", "annual fee"],
+      "stems": ["fee\\w*", "tuition\\w*", "cost\\w*", "price\\w*", "receipt\\w*", "installment\\w*", "fee\\s+receipt\\w*", "payment\\s+receipt\\w*", "confirm\\w*\\s+of\\s+pay\\w*"],
+      "synonyms": ["total course fee", "semester fee", "tuition fee", "fee structure", "payment modes", "fee receipt", "annual fee", "receipt after payment", "confirmation of payment"],
       "programme_independent": false,
       "contact_service": "Accounts & Payments"
     },
@@ -156,8 +156,8 @@
     },
     "exams_grading": {
       "category": "Academic Questions",
-      "stems": ["exam\\w*", "grad\\w*", "pass\\w*", "mark\\w*", "cgpa\\b", "sgpa\\b", "backlog\\w*", "evaluat\\w*", "score\\w*"],
-      "synonyms": ["how examinations conducted", "online or offline exams", "passing criteria", "grading system", "backlog exams", "evaluation scheme"],
+      "stems": ["exam\\w*", "grad\\w*", "pass\\w*", "mark\\w*", "cgpa\\b", "sgpa\\b", "backlog\\w*", "evaluat\\w*", "score\\w*", "transcript\\w*", "marksheet\\w*", "grade\\s+card\\w*", "download\\s+mark\\w*"],
+      "synonyms": ["how examinations conducted", "online or offline exams", "passing criteria", "grading system", "backlog exams", "evaluation scheme", "download marksheet", "transcript", "marksheet", "evaluation results and transcripts"],
       "programme_independent": false,
       "contact_service": "Examinations"
     },
@@ -170,8 +170,8 @@
     },
     "placement": {
       "category": "Career & Placement Questions",
-      "stems": ["place\\w*", "job\\w*", "career\\w*", "recruit\\w*", "compan\\w*", "hiring\\w*", "salary\\w*", "package\\w*"],
-      "synonyms": ["placement assistance", "career guidance", "companies recruit", "job opportunities", "mock interviews", "resume workshops"],
+      "stems": ["place\\w*", "job\\w*", "career\\w*", "recruit\\w*", "compan\\w*", "hiring\\w*", "salary\\w*", "package\\w*", "placement\\s+cell\\w*", "campus\\s+placement\\w*"],
+      "synonyms": ["placement assistance", "career guidance", "companies recruit", "job opportunities", "mock interviews", "resume workshops", "placement cell", "campus placement"],
       "programme_independent": true,
       "contact_service": "Student Services"
     },
