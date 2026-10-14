@@ -74,6 +74,7 @@ class ContactDirectory:
         if not phone:
             return
         prog_tag = None
+        # Detect programme tag BEFORE stripping it from the display name
         if "BCA/MCA" in person or "(BCA/MCA)" in person:
             prog_tag = "BCA/MCA"
         elif "BBA/MBA" in person or "(BBA/MBA)" in person:
@@ -82,22 +83,31 @@ class ContactDirectory:
         entry = ContactEntry(person=person, phone=phone, prog_tag=prog_tag)
         self._services.setdefault(service, []).append(entry)
 
+    # ------------------------------------------------------------------
+    # Step 5 fix: map topics to services using new vocabulary;
+    #             keep programme tags in the output.
+    # ------------------------------------------------------------------
     def get_contact_line(self, topic: str = "", programme: str = "") -> str:
-        """Return a single formatted contact line based on topic and programme."""
+        """Return a formatted contact line based on topic and programme.
+
+        The (BCA/MCA) / (BBA/MBA) tags are preserved in the output so the user
+        knows which person serves which programme.  If the programme is unknown
+        every row is shown with its tag.
+        """
         t_lower = (topic or "").lower()
         prog_lower = (programme or "").lower()
 
-        # Map topic to service
+        # Map topic -> service using expanded vocabulary
         if any(w in t_lower for w in ("fee", "fees", "payment", "receipt", "refund", "account", "tuition")):
             service_name = "Accounts & Payments"
-        elif any(w in t_lower for w in ("exam", "examination", "marksheet", "result", "certificate", "grade", "grading", "evaluation", "score")):
-            service_name = "Examinations"
-        elif any(w in t_lower for w in ("lms", "login", "password", "technical", "portal")):
+        elif any(w in t_lower for w in ("lms", "login", "password", "technical", "portal", "learning management")):
             service_name = "Learning Management System"
         elif any(w in t_lower for w in ("mentor", "counsel", "faculty", "counselling")):
             service_name = "Course Mentor"
-        elif any(w in t_lower for w in ("student support", "support", "services", "id card")):
+        elif any(w in t_lower for w in ("student support", "support", "id card", "student services", "services")):
             service_name = "Student Services"
+        elif any(w in t_lower for w in ("exam", "examination", "marksheet", "result", "certificate", "grade", "grading", "evaluation", "score")):
+            service_name = "Examinations"
         elif any(w in t_lower for w in ("admission", "eligibility", "document", "apply", "enrol", "enrollment", "registration")):
             service_name = "Admissions"
         else:
@@ -112,8 +122,9 @@ class ContactDirectory:
         if not entries:
             return "For assistance, please visit https://charusat.online."
 
-        # Filter LMS or Examinations entries by programme if applicable
-        if service_name in ("Learning Management System", "Examinations") and prog_lower:
+        # Filter by programme tag when programme is known AND service has tags
+        has_tags = any(e.prog_tag for e in entries)
+        if has_tags and prog_lower:
             if any(p in prog_lower for p in ("bca", "mca")):
                 filtered = [e for e in entries if e.prog_tag == "BCA/MCA"]
                 if filtered:
@@ -122,12 +133,17 @@ class ContactDirectory:
                 filtered = [e for e in entries if e.prog_tag == "BBA/MBA"]
                 if filtered:
                     entries = filtered
+            # else: show all with their tags
 
-        # Format one clean contact line with names and numbers
+        # Step 5 fix: keep the programme tag in the display name
         formatted_contacts = []
         for e in entries:
-            clean_name = re.sub(r"\s*\([^)]*\)", "", e.person).strip()
-            formatted_contacts.append(f"{clean_name} ({e.phone})")
+            # Build display: "Name (BCA/MCA) (phone)" if tag exists, else "Name (phone)"
+            if e.prog_tag and e.prog_tag not in e.person:
+                formatted_contacts.append(f"{e.person} ({e.prog_tag}) ({e.phone})")
+            else:
+                # Tag may already be embedded in person string — show as-is plus phone
+                formatted_contacts.append(f"{e.person} ({e.phone})")
 
         contacts_str = ", ".join(formatted_contacts)
         return f"For further assistance, please contact {service_name}: {contacts_str}."

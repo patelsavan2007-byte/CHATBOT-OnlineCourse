@@ -2,6 +2,14 @@
 
 Provides dynamic conversational responses for greetings, thanks, compliments,
 rudeness, off-topic requests, and non-English inquiries without stating any facts.
+
+Step 6 fixes:
+- Greetings tolerate repeated letters (hii, heyy, helloo, helo).
+- Off-topic / rude checks run ONLY when the message has no programme keyword
+  AND no course topic, preventing legit questions like "what subjects match my score"
+  from being refused.
+- Hindi/Gujarati Unicode ranges and word lists removed (R5 English-only rule).
+  Non-ASCII-only messages get a brief English-only notice.
 """
 from __future__ import annotations
 
@@ -14,9 +22,12 @@ from app.utils import logger
 # Guard against accidental factual numbers or currency in conversational replies
 _GUARD_NUMERIC_RE = re.compile(r"[\d₹%]|INR\b", re.IGNORECASE)
 
-# Fast-path detection patterns
+# -----------------------------------------------------------------------
+# Step 6: greeting pattern now uses \b only at start and tolerates repeated
+# letters (hi+, hey+, hello+, helo+, hii+, hiii+).
+# -----------------------------------------------------------------------
 _GREETING_RE = re.compile(
-    r"^\s*(?:hi|hello|hey|good\s+(?:morning|afternoon|evening|day)|greetings|hola)\b",
+    r"^\s*(?:h+i+h*|h+e+y+|h+e+l+o+|h+e+l+l+o+|good\s+(?:morning|afternoon|evening|day)|greetings|hola)\b",
     re.IGNORECASE,
 )
 _THANKS_RE = re.compile(
@@ -35,13 +46,25 @@ _RUDE_RE = re.compile(
     r"\b(?:idiot|stupid|useless|dumb|fool|shut\s+up|hate\s+you|rubbish|garbage|worst\s+bot)\b",
     re.IGNORECASE,
 )
+# Step 6: off-topic terms that are also innocent substrings in course questions
+# are matched ONLY when no programme/course context is present.
 _OFFTOPIC_RE = re.compile(
-    r"\b(?:weather|temperature|rain|joke|sing|song|recipe|cook|cricket|football|match|score|"
-    r"python\s+code|write\s+code|function|algorithm|capital\s+of|president|prime\s+minister)\b",
+    r"\b(?:weather|temperature|rain|joke|sing|song|recipe|cook|cricket|football"
+    r"|python\s+code|write\s+code|algorithm|capital\s+of|president|prime\s+minister)\b",
     re.IGNORECASE,
 )
-_NON_ENGLISH_RE = re.compile(
-    r"[\u0900-\u097F\u0A80-\u0AFF]|\b(?:km\s+cho|majama|kem\s+cho|kya\s+haal|namaste|kemcho)\b",
+
+# Step 6: removed Hindi/Gujarati Unicode ranges and word lists per R5.
+# Only pure-non-ASCII detection remains (no ASCII letters at all).
+_NO_ASCII_LETTERS_RE = re.compile(r"^[^a-zA-Z]+$")
+
+# Detect any course-related keyword that should override off-topic/rude checks
+_COURSE_KEYWORD_RE = re.compile(
+    r"\b(?:bca|bba|mba|mca|fee|fees|admission|syllabus|subject|subjects|"
+    r"course|programme|program|semester|year|exam|examination|placement|"
+    r"eligib|document|enrol|credit|specializ|duration|lms|mentor|"
+    r"charusat|online\s+degree|score|marks|cgpa|sgpa|grading|internship|"
+    r"scholarship|faculty|tuition|payment|refund|cancel|attend|webinar)\b",
     re.IGNORECASE,
 )
 
@@ -108,19 +131,37 @@ Your persona and rules:
 
 
 def is_smalltalk(question: str) -> bool:
-    """Check if query is purely conversational or out-of-scope."""
+    """Check if query is purely conversational or out-of-scope.
+
+    Step 6 fix: off-topic and rude checks are suppressed when the message
+    contains programme or course keywords.  This prevents legitimate questions
+    containing words like "score", "match", "function", "rain" from being
+    wrongly flagged as off-topic.
+    """
     q = question.strip()
     if not q:
         return True
-    return bool(
+
+    # Pure non-ASCII (no English letters) -> non-English path
+    if _NO_ASCII_LETTERS_RE.match(q):
+        return True
+
+    # Fast-path for definite conversational patterns
+    if (
         _GREETING_RE.match(q)
         or _THANKS_RE.match(q)
         or _BYE_RE.match(q)
         or _WHO_ARE_YOU_RE.search(q)
-        or _RUDE_RE.search(q)
-        or _OFFTOPIC_RE.search(q)
-        or _NON_ENGLISH_RE.search(q)
-    )
+    ):
+        return True
+
+    # Off-topic / rude ONLY when no course context is present
+    has_course_context = bool(_COURSE_KEYWORD_RE.search(q))
+    if not has_course_context:
+        if _RUDE_RE.search(q) or _OFFTOPIC_RE.search(q):
+            return True
+
+    return False
 
 
 def converse(
@@ -131,13 +172,19 @@ def converse(
     """Generate a conversational response via LLM chat with template fallbacks and output safety guards."""
     q = question.strip()
 
-    # Rule-based fast paths for exact greetings, thanks, farewells, off-topic, or non-English
-    if _NON_ENGLISH_RE.search(q):
+    # Pure non-ASCII -> English-only notice
+    if _NO_ASCII_LETTERS_RE.match(q):
         return random.choice(_NON_ENGLISH_TEMPLATES)
-    if _OFFTOPIC_RE.search(q):
-        return random.choice(_OFFTOPIC_TEMPLATES)
-    if _RUDE_RE.search(q):
-        return random.choice(_RUDE_TEMPLATES)
+
+    has_course_context = bool(_COURSE_KEYWORD_RE.search(q))
+
+    # Off-topic / rude only when no course keywords
+    if not has_course_context:
+        if _OFFTOPIC_RE.search(q):
+            return random.choice(_OFFTOPIC_TEMPLATES)
+        if _RUDE_RE.search(q):
+            return random.choice(_RUDE_TEMPLATES)
+
     if _BYE_RE.search(q):
         return random.choice(_BYE_TEMPLATES)
     if _THANKS_RE.search(q):
