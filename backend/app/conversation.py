@@ -75,14 +75,13 @@ _TOPIC_REGEXES = {
     ),
 }
 
-# Step 1 fix: extended to match "each program", "all four", "both programs", "every program"
+# Step 2 fix: extended _COMPARE_RE to match program and programme variants, both/each/every/all four
 _COMPARE_RE = re.compile(
     r"\b(?:compare|comparison|difference|differ|vs|versus"
-    r"|all\s+programme?s?|each\s+programme?s?"
-    r"|across\s+programme?s?"
-    r"|every\s+programme?s?|both\s+programme?s?"
-    r"|all\s+four|all\s+programs?|each\s+programs?|every\s+programs?"
-    r"|both\s+programs?|across\s+programs?)\b",
+    r"|all\s+program(?:me)?s?|each\s+program(?:me)?s?"
+    r"|across\s+program(?:me)?s?"
+    r"|every\s+program(?:me)?s?|both\s+program(?:me)?s?"
+    r"|all\s+four(?: program(?:me)?s?)?)\b",
     re.I,
 )
 
@@ -167,11 +166,15 @@ def _detect_year_semester(text: str) -> Tuple[Optional[int], Optional[int], List
 
 
 def _detect_topic(text: str) -> str:
-    """Detect topic category from text."""
-    for topic, pat in _TOPIC_REGEXES.items():
-        if pat.search(text):
-            return topic
-    return "general"
+    """Detect topic category from text using multi-label lexicon scoring."""
+    try:
+        from app.lexicon import detect_primary_topic
+        return detect_primary_topic(text)
+    except Exception:
+        for topic, pat in _TOPIC_REGEXES.items():
+            if pat.search(text):
+                return topic
+        return "general"
 
 
 def analyze_turn(

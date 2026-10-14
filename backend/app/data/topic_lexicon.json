@@ -1,0 +1,193 @@
+{
+  "topics": {
+    "attendance": {
+      "category": "Academic Questions",
+      "stems": ["attend\\w*", "attnd\\w*", "atend\\w*", "webinar\\s+attend\\w*", "presen\\w*", "compulsory\\s+class\\w*", "mandatory\\s+class\\w*"],
+      "synonyms": ["attendance requirement", "live webinar attendance", "mandatory attendance", "is attendance compulsory", "attend classes", "presence in live class"],
+      "programme_independent": true,
+      "contact_service": "Student Services"
+    },
+    "schedule": {
+      "category": "Academic Questions",
+      "stems": ["schedul\\w*", "timetabl\\w*", "timng\\w*", "timing\\w*", "routine\\w*", "class\\s+time\\w*", "what\\s+time\\w*", "lecture\\s+time\\w*", "lectur\\w*\\s+held"],
+      "synonyms": ["class schedule", "time table", "lecture timing", "when are classes held", "daily schedule", "routine", "weekly lecture routine", "when are mba lecturs held", "what time do mca classes start"],
+      "programme_independent": true,
+      "contact_service": "Learning Management System"
+    },
+    "internship_projects": {
+      "category": "Career & Placement Questions",
+      "stems": ["internship\\w*", "intership\\w*", "project\\s+work", "dissertation\\w*", "disertation\\w*", "industrial\\s+train\\w*", "organizational\\s+att\\w+", "capstone\\w*", "capston\\w*"],
+      "synonyms": ["internship", "internships", "project work", "dissertation", "industrial training", "organizational attachment programme", "live projects", "capstone project", "is there any intership in bca curriculum"],
+      "programme_independent": false,
+      "contact_service": "Student Services"
+    },
+    "scholarship": {
+      "category": "Fees Related Questions",
+      "stems": ["scholar\\w*", "scolaship\\w*", "scolership\\w*", "concess\\w*", "concssion\\w*", "fee\\s+waiv\\w*", "waivr\\w*", "discount\\w*", "financial\\s+aid\\w*"],
+      "synonyms": ["scholarships", "fee concession", "fee discount", "fee waiver", "financial aid", "merit scholarship", "discount on tuition", "discount on bba tuition fee for girls"],
+      "programme_independent": true,
+      "contact_service": "Admissions"
+    },
+    "taxes_hidden_charges": {
+      "category": "Fees Related Questions",
+      "stems": ["hidden\\s+charg\\w*", "hiden\\s+charg\\w*", "hidden\\s+fee\\w*", "extra\\s+charg\\w*", "extra\\s+fee\\w*", "gst\\b", "tax\\w*", "additional\\s+cost\\w*", "unannounced\\s+exp\\w*"],
+      "synonyms": ["hidden charges", "hidden fees", "is gst included", "taxes", "extra charges", "additional fees", "additional expenses", "extra chargs besides bba tuition fee"],
+      "programme_independent": true,
+      "contact_service": "Accounts & Payments"
+    },
+    "faculty": {
+      "category": "Academic Questions",
+      "stems": ["facult\\w*", "professor\\w*", "professr\\w*", "teacher\\w*", "teachr\\w*", "instructor\\w*", "instructr\\w*", "lecturer\\w*", "who\\s+teaches"],
+      "synonyms": ["faculty members", "professors", "course teachers", "teaching staff", "instructors", "faculty list", "who teaches"],
+      "programme_independent": false,
+      "contact_service": "Course Mentor"
+    },
+    "mentor": {
+      "category": "Student Support Questions",
+      "stems": ["mentor\\w*", "mentr\\w*", "counsel\\w*", "advis\\w*", "advisr\\w*", "academic\\s+guid\\w*"],
+      "synonyms": ["course mentor", "academic counseling", "mentor contact", "counselor", "academic advisor", "student guidance"],
+      "programme_independent": true,
+      "contact_service": "Course Mentor"
+    },
+    "student_id": {
+      "category": "Student Support Questions",
+      "stems": ["id\\s+card\\w*", "id\\s+crd\\w*", "identity\\s+card\\w*", "identity\\s+crd\\w*", "smart\\s+card\\w*", "smart\\s+crd\\w*", "studnt\\s+id\\w*", "student\\s+card\\w*"],
+      "synonyms": ["student id card", "identity card", "will i get id card", "physical id card", "digital id", "digital identity card", "student id crd dispatch process"],
+      "programme_independent": true,
+      "contact_service": "Student Services"
+    },
+    "certificate": {
+      "category": "General Questions",
+      "stems": ["degree\\s+certif\\w*", "convocat\\w*", "diploma\\s+certif\\w*", "pass\\w*\\s+certif\\w*", "provis\\w*\\s+pass\\s+certif\\w*", "graduat\\w*\\s+certif\\w*"],
+      "synonyms": ["degree certificate", "convocation", "obtain degree certificate", "graduation certificate", "passing certificate", "provisional certificate", "how to obtain original degree certficate"],
+      "programme_independent": true,
+      "contact_service": "Examinations"
+    },
+    "technical_issues": {
+      "category": "Technical Questions",
+      "stems": ["lms\\s+issue\\w*", "portal\\s+issue\\w*", "login\\s+problem\\w*", "logn\\s+problem\\w*", "logn\\s+err\\w*", "login\\s+err\\w*", "forgot\\s+password\\w*", "forgt\\s+my\\s+pass\\w*", "reset\\s+password\\w*", "technical\\s+support\\w*", "technicl\\s+supp\\w*", "portal\\s+error\\w*", "lms\\s+err\\w*", "portal\\s+not\\s+load\\w*"],
+      "synonyms": ["technical issues", "login problem", "forgot lms password", "portal not loading", "technical help", "password reset", "lms logn error in bca portal"],
+      "programme_independent": true,
+      "contact_service": "Learning Management System"
+    },
+    "international_wes": {
+      "category": "Career & Placement Questions",
+      "stems": ["wes\\b", "wes\\s+eval\\w*", "wes\\s+verif\\w*", "international\\s+student\\w*", "internatinal\\b", "nri\\b", "abroad\\b", "overseas\\b", "foriegn\\s+student\\w*", "foreign\\s+student\\w*"],
+      "synonyms": ["wes evaluation", "degree accepted abroad", "international students", "nri admission", "foreign evaluation", "wes verification"],
+      "programme_independent": true,
+      "contact_service": "Admissions"
+    },
+    "entrance_test": {
+      "category": "Admission Questions",
+      "stems": ["entrance\\s+exam\\w*", "entrnce\\s+exam\\w*", "entrance\\s+test\\w*", "entranc\\s+test\\w*", "entrnce\\b", "admission\\s+test\\w*", "admissin\\s+test\\w*", "compet\\w+\\s+exam\\w*", "cat\\b", "cmat\\b", "mat\\s+entr\\w*"],
+      "synonyms": ["entrance exam", "entrance test", "is there entrance exam", "admission test", "qualifying entrance", "competitive exam"],
+      "programme_independent": true,
+      "contact_service": "Admissions"
+    },
+    "emi": {
+      "category": "Fees Related Questions",
+      "stems": ["emi\\b", "installment\\s+option\\w*", "instllment\\w*", "monthly\\s+pay\\w*", "monthly\\s+emi\\w*", "education\\s+loan\\w*", "educaton\\s+loan\\w*", "loan\\s+facilit\\w*"],
+      "synonyms": ["emi options", "pay in emi", "monthly installments", "education loan", "zero interest emi", "pay bca fee in emi"],
+      "programme_independent": true,
+      "contact_service": "Accounts & Payments"
+    },
+    "assignments": {
+      "category": "Academic Questions",
+      "stems": ["assign\\w*", "homework\\w*", "homewrk\\w*", "continuous\\s+assess\\w*", "internal\\s+evaluat\\w*", "internal\\s+assess\\w*", "quiz\\w*", "internal\\s+mark\\w*", "internl\\s+mark\\w*"],
+      "synonyms": ["assignments", "assignment submission", "assignment weightage", "how are assignments submitted", "continuous evaluation", "internal marks", "continuous assessment"],
+      "programme_independent": false,
+      "contact_service": "Learning Management System"
+    },
+    "mobile": {
+      "category": "Technical Questions",
+      "stems": ["mobile\\s+app\\w*", "mobil\\s+app\\w*", "android\\w*", "ios\\b", "phone\\s+app\\w*", "smartphone\\w*", "smartphon\\w*", "tablet\\b", "mobil\\s+phon\\w*", "mobile\\s+phon\\w*", "attend\\s+on\\s+mobile\\w*"],
+      "synonyms": ["mobile app", "dedicated mobile app", "attend classes on phone", "android app", "ios app", "study on mobile", "watch lectures on smartphone"],
+      "programme_independent": true,
+      "contact_service": "Learning Management System"
+    },
+    "refund": {
+      "category": "Fees Related Questions",
+      "stems": ["refund\\w*", "refnd\\w*", "cancell\\w*", "withdraw\\w*", "withdrawl\\w*", "money\\s+back\\w*", "mony\\s+back\\w*"],
+      "synonyms": ["refund policy", "fee refund", "cancellation policy", "cancel admission", "refundable fee", "money back guarantee", "admission cancellation"],
+      "programme_independent": true,
+      "contact_service": "Accounts & Payments"
+    },
+    "fees": {
+      "category": "Fees Related Questions",
+      "stems": ["fee\\w*", "tuition\\w*", "cost\\w*", "price\\w*", "receipt\\w*", "installment\\w*"],
+      "synonyms": ["total course fee", "semester fee", "tuition fee", "fee structure", "payment modes", "fee receipt", "annual fee"],
+      "programme_independent": false,
+      "contact_service": "Accounts & Payments"
+    },
+    "subjects": {
+      "category": "Academic Questions",
+      "stems": ["subject\\w*", "syllab\\w*", "curricul\\w*", "course\\s+structur\\w*", "course\\s+content\\w*"],
+      "synonyms": ["subjects covered", "syllabus", "curriculum", "what is taught", "course list", "semester subjects"],
+      "programme_independent": false,
+      "contact_service": "Course Mentor"
+    },
+    "specializations": {
+      "category": "Academic Questions",
+      "stems": ["speciali[zs]\\w*", "electiv\\w*", "stream\\w*", "branch\\w*"],
+      "synonyms": ["specializations offered", "elective subjects", "specialization options", "streams available"],
+      "programme_independent": false,
+      "contact_service": "Course Mentor"
+    },
+    "eligibility": {
+      "category": "Admission Questions",
+      "stems": ["eligib\\w*", "criteri\\w*", "qualif\\w*", "who\\s+can\\s+apply\\w*", "age\\s+limit\\w*"],
+      "synonyms": ["who is eligible", "eligibility criteria", "qualification required", "minimum marks", "age limit for admission"],
+      "programme_independent": false,
+      "contact_service": "Admissions"
+    },
+    "admission": {
+      "category": "Admission Questions",
+      "stems": ["admiss\\w*", "apply\\w*", "applicat\\w*", "enro?l\\w*", "regist\\w*", "document\\w*", "last\\s+date\\w*", "start\\s+date\\w*"],
+      "synonyms": ["admission process", "how to apply", "application deadline", "last date to apply", "required documents", "apply online"],
+      "programme_independent": false,
+      "contact_service": "Admissions"
+    },
+    "duration": {
+      "category": "Academic Questions",
+      "stems": ["durat\\w*", "how\\s+long\\w*", "how\\s+many\\s+years\\w*", "how\\s+many\\s+semesters\\w*", "credit\\w*", "total\\s+credit\\w*"],
+      "synonyms": ["duration of program", "how many semesters", "total credits", "course duration", "how long is course"],
+      "programme_independent": false,
+      "contact_service": "Course Mentor"
+    },
+    "exams_grading": {
+      "category": "Academic Questions",
+      "stems": ["exam\\w*", "grad\\w*", "pass\\w*", "mark\\w*", "cgpa\\b", "sgpa\\b", "backlog\\w*", "evaluat\\w*", "score\\w*"],
+      "synonyms": ["how examinations conducted", "online or offline exams", "passing criteria", "grading system", "backlog exams", "evaluation scheme"],
+      "programme_independent": false,
+      "contact_service": "Examinations"
+    },
+    "lms_technical": {
+      "category": "Technical Questions",
+      "stems": ["lms\\b", "learning\\s+management\\w*", "login\\w*", "portal\\w*", "internet\\s+speed\\w*", "bandwidth\\w*"],
+      "synonyms": ["which lms used", "how to login lms", "internet speed recommended", "learning portal", "e-learning platform"],
+      "programme_independent": true,
+      "contact_service": "Learning Management System"
+    },
+    "placement": {
+      "category": "Career & Placement Questions",
+      "stems": ["place\\w*", "job\\w*", "career\\w*", "recruit\\w*", "compan\\w*", "hiring\\w*", "salary\\w*", "package\\w*"],
+      "synonyms": ["placement assistance", "career guidance", "companies recruit", "job opportunities", "mock interviews", "resume workshops"],
+      "programme_independent": true,
+      "contact_service": "Student Services"
+    },
+    "student_support": {
+      "category": "Student Support Questions",
+      "stems": ["support\\w*", "help\\w*", "helpline\\w*", "contact\\s+facult\\w*", "support\\s+timing\\w*", "whatsapp\\b", "email\\s+query\\w*"],
+      "synonyms": ["student support team", "support timings", "contact faculty members", "query via email or whatsapp", "helpdesk"],
+      "programme_independent": true,
+      "contact_service": "Student Services"
+    },
+    "general": {
+      "category": "General Questions",
+      "stems": ["program\\w*\\s+offer\\w*", "ugc\\w*", "recogni\\w*", "accredit\\w*", "valid\\w*", "equivalent\\w*", "study\\s+while\\s+work\\w*"],
+      "synonyms": ["what programs offered", "ugc recognized", "equivalent to regular degree", "study while working", "degree valid for jobs"],
+      "programme_independent": true,
+      "contact_service": "Admissions"
+    }
+  }
+}

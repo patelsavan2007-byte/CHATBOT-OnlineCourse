@@ -97,20 +97,11 @@ class ContactDirectory:
         t_lower = (topic or "").lower()
         prog_lower = (programme or "").lower()
 
-        # Map topic -> service using expanded vocabulary
-        if any(w in t_lower for w in ("fee", "fees", "payment", "receipt", "refund", "account", "tuition")):
-            service_name = "Accounts & Payments"
-        elif any(w in t_lower for w in ("lms", "login", "password", "technical", "portal", "learning management")):
-            service_name = "Learning Management System"
-        elif any(w in t_lower for w in ("mentor", "counsel", "faculty", "counselling")):
-            service_name = "Course Mentor"
-        elif any(w in t_lower for w in ("student support", "support", "id card", "student services", "services")):
-            service_name = "Student Services"
-        elif any(w in t_lower for w in ("exam", "examination", "marksheet", "result", "certificate", "grade", "grading", "evaluation", "score")):
-            service_name = "Examinations"
-        elif any(w in t_lower for w in ("admission", "eligibility", "document", "apply", "enrol", "enrollment", "registration")):
-            service_name = "Admissions"
-        else:
+        # Map topic -> service dynamically via topic lexicon (R1 compliant)
+        try:
+            from app.lexicon import get_topic_contact_service
+            service_name = get_topic_contact_service(t_lower) or "Admissions"
+        except Exception:
             service_name = "Admissions"
 
         entries = self._services.get(service_name, [])

@@ -58,15 +58,17 @@ _OFFTOPIC_RE = re.compile(
 # Only pure-non-ASCII detection remains (no ASCII letters at all).
 _NO_ASCII_LETTERS_RE = re.compile(r"^[^a-zA-Z]+$")
 
-# Detect any course-related keyword that should override off-topic/rude checks
-_COURSE_KEYWORD_RE = re.compile(
-    r"\b(?:bca|bba|mba|mca|fee|fees|admission|syllabus|subject|subjects|"
-    r"course|programme|program|semester|year|exam|examination|placement|"
-    r"eligib|document|enrol|credit|specializ|duration|lms|mentor|"
-    r"charusat|online\s+degree|score|marks|cgpa|sgpa|grading|internship|"
-    r"scholarship|faculty|tuition|payment|refund|cancel|attend|webinar)\b",
-    re.IGNORECASE,
-)
+# Step 2 fix: dynamically detect course context from topic lexicon (R1 compliant)
+def _has_course_context(q: str) -> bool:
+    """Check if question contains course or programme context from topic lexicon."""
+    try:
+        from app.lexicon import get_course_keywords_regex
+        pat = get_course_keywords_regex()
+        if pat and pat.search(q):
+            return True
+    except Exception:
+        pass
+    return bool(re.search(r"\b(?:bca|bba|mba|mca|charusat|online)\b", q, re.I))
 
 # Pool of at least 6 varied conversational templates
 _DEFAULT_TEMPLATES = [
@@ -156,7 +158,7 @@ def is_smalltalk(question: str) -> bool:
         return True
 
     # Off-topic / rude ONLY when no course context is present
-    has_course_context = bool(_COURSE_KEYWORD_RE.search(q))
+    has_course_context = _has_course_context(q)
     if not has_course_context:
         if _RUDE_RE.search(q) or _OFFTOPIC_RE.search(q):
             return True
@@ -176,7 +178,7 @@ def converse(
     if _NO_ASCII_LETTERS_RE.match(q):
         return random.choice(_NON_ENGLISH_TEMPLATES)
 
-    has_course_context = bool(_COURSE_KEYWORD_RE.search(q))
+    has_course_context = _has_course_context(q)
 
     # Off-topic / rude only when no course keywords
     if not has_course_context:
