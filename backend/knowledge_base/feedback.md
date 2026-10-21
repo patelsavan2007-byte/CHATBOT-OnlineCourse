@@ -1,18 +1,27 @@
 Title: Students' Feedback Form
 URL: https://charusat.online/feedback/
 Category: Feedback
-Last Scraped: 2026-09-20T05:20:49.822243+00:00
+Last Scraped: 2026-10-20T14:44:00+00:00
 
 # Students' Feedback Form
 
-This form was created inside Charotar University of Science & Technology.
+## About the Feedback Form
 
-Does this form look suspicious? Report
+CHARUSAT provides a feedback mechanism for students who are already enrolled in any online programme (BBA, BCA, MBA, or MCA). Students can submit their feedback about the programme, faculty, LMS, and overall learning experience through the official Google Form.
 
-Forms
+## Feedback Form Link
 
-Help and feedback
+Students who are currently enrolled in any CHARUSAT online programme can submit their feedback using the following link:
 
-- Contact form owner
-- Help Forms improve
-- Report
+**Feedback Form**: https://docs.google.com/forms/d/e/1FAIpQLSeRDL3qthBAZOaI6MppzDZk2F-PTLY-9x4OQPphIIsI7wmKyA/viewform
+
+**Note**: This feedback form is intended only for students who have already enrolled in a CHARUSAT online programme. If you are not yet enrolled and want to apply, please visit the admission portal at https://admission.charusat.ac.in/
+
+## How to Submit Feedback
+
+1. Open the feedback form link provided above.
+2. Fill in the required details (your name, enrolment number, programme, etc.).
+3. Share your feedback about the course, faculty, LMS, and overall experience.
+4. Submit the form.
+
+Your feedback helps CHARUSAT continuously improve the quality of online education.

@@ -1,0 +1,38 @@
+# Environment variables and secrets
+.env
+*.env
+backend/.env
+
+# Python & Virtual Environments
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Vector DB & generated artifacts
+.chroma/
+
+# IDE & OS settings
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Deployment build artifacts
+deployment/node_modules/
+deployment/dist/
+deployment/.env
+
+# Vercel CLI
+.vercel/
+
+.vercel
+.env*
+backend/chroma_db/
+
+# Test caches
+.pytest_cache/
+.coverage
+htmlcov/

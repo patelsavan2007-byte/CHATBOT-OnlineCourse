@@ -1,14 +1,9 @@
 {
   "files": [
     {
-      "path": "bba-admission-data.md",
-      "size": 1584,
-      "modified": 1791616133
-    },
-    {
-      "path": "bca-admission-data.md",
-      "size": 4103,
-      "modified": 1791616133
+      "path": "bca_syllabus_2025_26.md",
+      "size": 227304,
+      "modified": 1792514265
     },
     {
       "path": "ciqa.md",
@@ -16,19 +11,34 @@
       "modified": 1789881633
     },
     {
+      "path": "eoa_report_bba_mba.md",
+      "size": 7959,
+      "modified": 1792512642
+    },
+    {
+      "path": "eoa_report_bca_mca.md",
+      "size": 8139,
+      "modified": 1792512821
+    },
+    {
       "path": "feedback.md",
-      "size": 374,
-      "modified": 1789881649
+      "size": 1286,
+      "modified": 1792507872
     },
     {
       "path": "home.md",
-      "size": 9913,
-      "modified": 1791616133
+      "size": 13433,
+      "modified": 1792507854
     },
     {
-      "path": "mandatory-disclosures.md",
-      "size": 1234,
-      "modified": 1789881634
+      "path": "mca_syllabus_2025_26.md",
+      "size": 124002,
+      "modified": 1792514099
+    },
+    {
+      "path": "online_examination.md",
+      "size": 18436,
+      "modified": 1792512356
     },
     {
       "path": "privacy-policy.md",
@@ -37,33 +47,38 @@
     },
     {
       "path": "programs/contact.md",
-      "size": 1237,
-      "modified": 1791616133
+      "size": 2240,
+      "modified": 1792507894
     },
     {
       "path": "programs/online_bba.md",
-      "size": 7758,
-      "modified": 1791616133
+      "size": 8348,
+      "modified": 1792507959
     },
     {
       "path": "programs/online_bca.md",
-      "size": 8295,
-      "modified": 1791616133
+      "size": 9663,
+      "modified": 1792508946
     },
     {
       "path": "programs/online_mba.md",
-      "size": 7592,
-      "modified": 1791616133
+      "size": 8081,
+      "modified": 1792509007
     },
     {
       "path": "programs/online_mca.md",
-      "size": 7429,
-      "modified": 1791616133
+      "size": 9049,
+      "modified": 1792509069
     },
     {
       "path": "terms-conditions.md",
       "size": 28052,
       "modified": 1791616133
+    },
+    {
+      "path": "ugc_public_notice.md",
+      "size": 11564,
+      "modified": 1792512382
     }
   ]
 }
