@@ -52,6 +52,7 @@ For fee payment, receipts, refund queries, and financial matters:
 ## General Contact
 
 - **Phone (Helpline)**: +91-743 405 5556
+- **Phone (Helpline)**: +91-743 405 5554
 - **Admission Email**: online-admissions@charusat.ac.in
 - **General Enquiry Email**: info.ccoe@charusat.ac.in
 - **Website**: https://charusat.online/

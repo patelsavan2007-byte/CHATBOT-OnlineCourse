@@ -1,5 +1,4 @@
 Title: UGC Public Notice – Precautions for ODL and Online Learning Programme Students
-URL: https://charusat.online/ugc-notice
 Category: Accreditation
 Last Scraped: 2026-10-20T00:00:00+00:00
 

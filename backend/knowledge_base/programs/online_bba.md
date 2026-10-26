@@ -101,42 +101,9 @@ Graduates will be able to:
 - PO3 - Understand Global Perspectives and exhibit Cross-Cultural sensitivity.
 - PO4 - Demonstrate Attitude for continuous learning and development.
 
-## Our Faculty (BBA Programme)
+## Faculty
 
-The BBA programme faculty includes experienced professionals from management, finance, HR, marketing, and humanities:
-
-- Dr. Binit Patel – Registrar, CHARUSAT; PhD, MBA(Marketing), BE(Computer Science), EP(BA), CORe - Harvard Business School (Online)
-- Dr. Reshma Sable – Principal - IIIM; PhD, MBA(HRM), M.Ed., MSc
-- Dr. Rajesh Sadhwani – I/C Dean - FMS; Ph.D. (Finance), MBA (Finance), BSc. (Electronics), FTM- IIT Kanpur, FDP- IIM Ahmedabad
-- Dr. Bhaskar Pandya – Principal - CLASS; Dean - FOH; Ph.D., M.Phil., M.A.
-- Dr. Kaushik Trivedi – Head - Humanities & Social Sciences (HSS); Ph.D. (ELT), M.Phil. (ELT), M.A. (English), B.Ed. (English & SS)
-- Dr. Gaurav Rajput – Assistant Professor; MBA, UGC-NET
-- Dr. Archana Sarkar – Ph.D(Management), UGC-NET, MBA(Marketing)
-- Dr. Gopal Shah – PhD, M.Sc.(IT), M.Sc.(Statistics)
-- Ms. Margie Mehta – PhD(Pursuing), MBA(Marketing), BBA
-- Ms. Khushboo Bhatt
-- Dr. Mukesh Pal – PhD, MBA
-- Dr. Ruma Pal – PhD, MBA, BCom
-- Dr. Shabana Anjum – PhD, MBA, BCom
-- Ms. Dharti Patel – PhD(Pursuing), MBA(Finance), BCom
-- Dr. Hardi Raval – PhD, MBA(HR)
-- Dr. Geeta Marmat – PhD, MBA(Marketing), M.Sc., B.Sc.
-- Dr. Poonam Amrutia
-- Dr. Jaimin Trivedi – PhD, M.Phil., MCom
-- Dr. Divyang Purohit – PhD, MBA (Marketing), B.E. (Mechanical)
-- Mr. Mahendra H Prajapati – PhD(Pursuing), MBA, BCA
-- Ms. Khushali N Pathak – PhD(Pursuing), MBA, BBA
-- Mr. Surpalsinh B Rathod
-- Ms. Rania Pathan – PhD(Pursuing), MBA(Finance)
-- Mr. Brijesh Patel – PhD(Pursuing), MHRM
-- Ms. Foram Pathak
-- Mrs. Nikita R. Chhasatiya – PhD(Pursuing), MBA
-- Ms. Riddhi Soneji
-- Ms. Ojisha Bhardwaj – MBA
-- Dr. Mehul Shah – PhD, MBA
-- Ms. Aashita Agrawal – MBA(Finance + Marketing)
-- Mrs. S. Subhashree – PhD(Pursuing), M.Phil., M.Com.
-- Ms. Nilam Parmar – PhD(Pursuing), M.Com., BBA, PGDBM, DTP
+See [Faculty](../faculty.md) for the consolidated list (BBA & MBA section). No programme-specific duplicate faculty list is maintained here.
 - Dr. Sumetha Madhu – Ph.D., M.Phil. M.Com
 - Ms. Sweta Gurung – MBA, BBA
 - Dr. Robert Parmar – Ph.D. in English, M. Phil in ELT, M.A. in English, M.A. ELT
@@ -167,3 +134,7 @@ A: Dedicated course mentors and coordinators will be assigned to each student at
 
 **Q: How can I apply for the Online BBA programme at Charusat?**
 A: Applications can be submitted online through the website. The admissions staff of the Charusat University thoroughly review all submitted applications for the online BBA degree to determine their eligibility. In case the admission council requires any clarification or more details, the student will be contacted via email, SMS, or phone call.
+
+
+## Faculty
+- Dr. Ruma Pal ??? Assistant Professor; PhD, MBA, BCom

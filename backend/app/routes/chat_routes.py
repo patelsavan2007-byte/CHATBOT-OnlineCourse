@@ -12,9 +12,9 @@ The existing ``POST /chat`` endpoint in api.py is kept unchanged for
 backward compatibility.
 
 Endpoints:
-  POST /api/chat         — send a message (guest or authenticated)
-  POST /api/chat/stream  — send a message with streaming response
-  POST /api/chat/migrate — migrate guest conversation to authenticated user
+  POST /api/chat         ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ send a message (guest or authenticated)
+  POST /api/chat/stream  ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ send a message with streaming response
+  POST /api/chat/migrate ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ migrate guest conversation to authenticated user
 """
 from __future__ import annotations
 
@@ -22,6 +22,7 @@ import asyncio
 import json
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
@@ -48,7 +49,7 @@ router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
 from app.smalltalk import is_smalltalk, converse
-
+from app.suggestions import generate_suggestions
 
 
 # ---------------------------------------------------------------------------
@@ -66,6 +67,8 @@ class ChatMessageResponse(BaseModel):
     answer: str
     conversation_id: Optional[str] = None
     message_id: Optional[str] = None
+    suggested_questions: Optional[List[str]] = None
+    quick_replies: Optional[List[str]] = None
 
 
 class StreamChatRequest(BaseModel):
@@ -85,7 +88,7 @@ class UserCorrectionRequest(BaseModel):
 
 
 class MigrateConversationRequest(BaseModel):
-    """Migrate a guest conversation to the authenticated user's account."""
+    """Migrate a guest conversation to the authenticated user account."""
     messages: List[Dict[str, Any]] = Field(
         ...,
         description="List of {role, content} message objects from the guest session",
@@ -130,6 +133,7 @@ def _persist_turn(
     assistant_answer: str,
     user_id: Optional[str] = None,
     sources: Optional[List[Dict[str, Any]]] = None,
+    suggested: Optional[List[str]] = None,
 ) -> tuple:
     """Save user + assistant messages; returns the assistant message and conversation_id."""
     if db is None or user is None:
@@ -154,7 +158,7 @@ def _persist_turn(
         role="assistant",
         content=assistant_answer,
         sources=sources or [],
-        suggested_questions=[],
+        suggested_questions=suggested or [],
     )
     return assistant_msg, conversation_id
 
@@ -172,7 +176,7 @@ def _resolve_history(
         if db is not None:
             recent = get_conversation_messages(db, conversation_id)
             if recent:
-                return recent[-8:]
+                return recent[-20:]
     return None
 
 
@@ -202,53 +206,194 @@ def _extract_sources(retrieved: List[Any]) -> List[Dict[str, Any]]:
     return sources
 
 
+@dataclass
+class _TurnOutcome:
+    answer: str
+    sources: List[Dict[str, Any]]
+    rag_result: Optional[Any]
+    plan: Any
+    kind: str  # "answer" | "smalltalk" | "unrelated"
+
+
 def _process_chat_turn(
     question: str,
     history: Optional[List[Dict[str, Any]]],
     rag_chain: Any,
     use_cache: Optional[bool] = True,
-) -> Tuple[str, List[Dict[str, Any]], Optional[Any]]:
+) -> _TurnOutcome:
     """Execute a single chat turn through RAG and build answer and sources.
     Shared by both /api/chat and /api/chat/stream.
     """
     from app.smalltalk import is_smalltalk, converse
     from app.conversation import analyze_turn
 
+    ql = (question or "").lower()
     plan = analyze_turn(question, history=history)
 
     # 1. Fast path for smalltalk / conversational pleasantries / out-of-scope
     if is_smalltalk(question):
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return answer_text, [], None
+        return _TurnOutcome(answer_text, [], None, plan, "smalltalk")
 
     # 2. Execute RAG
     res = rag_chain.answer(question, history=history, use_cache=use_cache)
-    answer_text = res.answer
+    answer_text = res.answer or ""
     retrieved = res.retrieved
+    effective_plan = getattr(res, "plan", None) or plan
+
+    import re
+    ql2 = (question or "").lower()
+    try:
+        from app import session_state
+        conv_id = None
+        conv_id = getattr(res, "conversation_id", None) if 'res' in locals() else None
+        if not conv_id and effective_plan:
+            conv_id = getattr(effective_plan, "conversation_id", None)
+        st = session_state.get_state(conv_id) if conv_id else {}
+    except Exception:
+        conv_id = None
+        st = {}
+    degree_q2 = bool(re.search(r'\b(what\s+degree|which\s+degree|degree\s+will\s+i\s+get|provisional\s+certificate|sample\s+certificate|show\s+degree\s+certificate|show\s+the\s+sample\s+certificate)\b', ql2))
+    ugc_q = bool(re.search(r'\b(ugc|recognized|recognised)\b', ql2))
+    aff = bool(re.match(r'^\s*(yes|yeah|yep|sure|ok|okay|show|show\s+me|haan|haann?|please)\s*[\.!\?]*\s*$', ql2) or re.search(r'\b(yes|yeah|yep|sure|okay|ok|show\s+me|please|haan|haann?)\b', ql2))
+    explicit_show = bool(re.search(r'\b(show\s+the\s+sample\s+certificate|show\s+degree\s+certificate\s+sample|show\s+sample\s+certificate)\b', ql2))
+    pending_offer = (st.get("pendingOffer") == "degree_sample") if conv_id else False
+    if explicit_show and not aff:
+        aff = True
+    if degree_q2 and not ugc_q and not aff and not pending_offer and "want to see" not in answer_text.lower():
+        answer_text = (answer_text.rstrip() + "\n\nWant to see a sample certificate?").strip()
+        try:
+            if conv_id:
+                from app import session_state
+                session_state.update_state(conv_id, pendingOffer="degree_sample")
+        except Exception:
+            pass
+    elif (aff and pending_offer) and not ugc_q:
+        imgs = "\n\n![BCA Front Sample](https://charusat.online/images/BCA-Front.webp)\n\n![BCA Back Sample](https://charusat.online/images/BCA-Back%20web.webp)"
+        answer_text = (imgs.strip() + "\n\n**BCA Degree Certificate - Sample (Front and Back)**").strip()
+        try:
+            if conv_id:
+                from app import session_state
+                session_state.clear_state(conv_id)
+        except Exception:
+            pass
+    elif explicit_show and "BCA-Front" not in answer_text:
+        imgs = "\n\n![BCA Front Sample](https://charusat.online/images/BCA-Front.webp)\n\n![BCA Back Sample](https://charusat.online/images/BCA-Back%20web.webp)"
+        answer_text = (imgs.strip() + "\n\n**BCA Degree Certificate - Sample (Front and Back)**").strip()
+        try:
+            if conv_id:
+                from app import session_state
+                session_state.clear_state(conv_id)
+        except Exception:
+            pass
 
     # 3. If RAG returned no chunks and query is not course-specific, use conversational fallback
-    if not retrieved and plan.topic == "general" and not plan.programmes:
+    if not retrieved and effective_plan.topic == "general" and not effective_plan.programmes:
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return answer_text, [], res
+        import re
+        ql2 = (question or "").lower()
+        try:
+            from app import session_state
+            conv_id = getattr(res, "conversation_id", None)
+            st = session_state.get_state(conv_id) if conv_id else {}
+        except Exception:
+            conv_id = None
+            st = {}
+        degree_q2 = bool(re.search(r'\b(what\s+degree|which\s+degree|degree\s+will\s+i\s+get|sample\s+certificate|show\s+degree\s+certificate|show\s+the\s+sample\s+certificate)\b', ql2))
+        ugc_q = bool(re.search(r'\b(ugc|recognized|recognised)\b', ql2))
+        aff = bool(re.match(r'^\s*(yes|yeah|yep|sure|ok|okay|show|show\s+me|haan|haann?|please)\s*[\.!\?]*\s*$', ql2) or re.search(r'\b(yes|yeah|yep|sure|okay|ok|show\s+me|please|haan|haann?)\b', ql2))
+        explicit_show = bool(re.search(r'\b(show\s+the\s+sample\s+certificate|show\s+degree\s+certificate\s+sample|show\s+sample\s+certificate)\b', ql2))
+        if explicit_show and not aff:
+            aff = True
+        pending_offer = (st.get("pendingOffer") == "degree_sample") if conv_id else False
+        if degree_q2 and not ugc_q and not aff and not pending_offer and "want to see" not in answer_text.lower():
+            answer_text = (answer_text.rstrip() + "\n\nWant to see a sample certificate?").strip()
+            try:
+                if conv_id:
+                    from app import session_state
+                    session_state.update_state(conv_id, pendingOffer="degree_sample")
+            except Exception:
+                pass
+        elif (aff and pending_offer) and not ugc_q:
+            imgs = "\n\n![BCA Front Sample](https://charusat.online/images/BCA-Front.webp)\n\n![BCA Back Sample](https://charusat.online/images/BCA-Back%20web.webp)"
+            answer_text = (imgs.strip() + "\n\n**BCA Degree Certificate - Sample (Front and Back)**").strip()
+            try:
+                if conv_id:
+                    from app import session_state
+                    session_state.clear_state(conv_id)
+            except Exception:
+                pass
+        elif explicit_show and "BCA-Front" not in answer_text:
+            imgs = "\n\n![BCA Front Sample](https://charusat.online/images/BCA-Front.webp)\n\n![BCA Back Sample](https://charusat.online/images/BCA-Back%20web.webp)"
+            answer_text = (imgs.strip() + "\n\n**BCA Degree Certificate - Sample (Front and Back)**").strip()
+            try:
+                if conv_id:
+                    from app import session_state
+                    session_state.clear_state(conv_id)
+            except Exception:
+                pass
+        return _TurnOutcome(answer_text, [], res, effective_plan, "unrelated")
 
     from app.citations import extract_citations
     sources = extract_citations(retrieved, answer_text=answer_text)
-    return answer_text, sources, res
+    return _TurnOutcome(answer_text, sources, res, effective_plan, "answer")
 
 
-def _log_chat_event(
-    db: Any,
-    question: str,
-    answer: str,
-    rag_chain: Any = None,
-    user: Optional[Dict[str, Any]] = None,
-    conversation_id: Optional[str] = None,
-    message_id: Optional[str] = None,
-    rag_result: Optional[Any] = None,
-):
-    """Record an interaction event in db.chat_events for admin analytics."""
+def _generate_suggested_questions(
+    outcome: _TurnOutcome,
+    history: Optional[List[Dict[str, Any]]],
+    max_suggestions: int = 3,
+) -> List[str]:
+    """Return deterministic, journey-aware suggestions from the question bank.
+
+    Suggestions are never generated by the LLM, so they cannot invent a
+    programme, fee, or URL. Greetings, farewells and unrelated chatter get
+    none; not-found answers get related answerable questions instead.
+    """
+    if outcome.kind in ("smalltalk", "unrelated"):
+        return []
+    if "vague_clarification" in str(getattr(outcome.rag_result, "status", "")):
+        return []
+    try:
+        suggestions = generate_suggestions(
+            outcome.plan,
+            outcome.answer,
+            history=history,
+            is_smalltalk=False,
+            is_unrelated=False,
+        )
+        return suggestions[:max_suggestions]
+    except Exception as exc:
+        logger.warning("Failed to generate suggested questions: %s", exc)
+        return []
+
+
+def _quick_replies(outcome: _TurnOutcome) -> List[str]:
+    """Programme quick replies for the vague-question clarification state."""
+    status = str(getattr(outcome.rag_result, "status", "") or "")
+    if "vague_clarification" in status:
+        return ["Online BBA", "Online BCA", "Online MBA", "Online MCA"]
+    return []
+
+
+def _thinking_status(plan: Any) -> str:
+    """Natural, topic-aware status shown before the first answer token."""
+    topic = getattr(plan, "topic", "general")
+    statuses = {
+        "fees": "Checking the fee detailsÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "subjects": "Looking through the curriculumÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "eligibility": "Checking the eligibility criteriaÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "admission": "Reviewing the admission processÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "duration": "Checking the programme structureÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "grading": "Reviewing the examination and grading rulesÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "lms": "Checking the LMS guidanceÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "contact": "Finding the right support contactÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "career": "Checking career and placement detailsÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "refund": "Reviewing the refund policyÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+    }
+    return statuses.get(topic, "Looking that up...")
     if db is None:
         return
     try:
@@ -310,7 +455,7 @@ async def chat_message(
 
     # Call the shared RAG turn processing
     try:
-        answer_text, sources, rag_result = _process_chat_turn(
+        outcome = _process_chat_turn(
             request.question, history, rag_chain, use_cache=request.use_cache
         )
     except Exception as exc:
@@ -320,6 +465,11 @@ async def chat_message(
             detail="Failed to generate answer",
         ) from exc
 
+    answer_text = outcome.answer
+    sources = outcome.sources
+    rag_result = outcome.rag_result
+    suggested = _generate_suggested_questions(outcome, history)
+    quick_replies = _quick_replies(outcome)
     db = get_db()
 
     # For guests, return without persistence (but log event)
@@ -327,13 +477,17 @@ async def chat_message(
         _log_chat_event(db, request.question, answer_text, user=None, rag_result=rag_result)
         return ChatMessageResponse(
             answer=answer_text,
+            suggested_questions=suggested,
+            quick_replies=quick_replies,
         )
 
     # For authenticated users, persist to MongoDB
     if db is None:
-        # MongoDB unavailable — return answer without persistence
+        # MongoDB unavailable ÃÂÃÂ¢ÃÂÃÂÃÂÃÂ return answer without persistence
         return ChatMessageResponse(
             answer=answer_text,
+            suggested_questions=suggested,
+            quick_replies=quick_replies,
         )
 
     # Create new conversation if needed
@@ -365,7 +519,7 @@ async def chat_message(
         role="assistant",
         content=answer_text,
         sources=sources,
-        suggested_questions=[],
+        suggested_questions=suggested,
     )
 
     _log_chat_event(
@@ -382,6 +536,8 @@ async def chat_message(
         answer=answer_text,
         conversation_id=conversation_id,
         message_id=assistant_msg["id"],
+        suggested_questions=suggested,
+        quick_replies=quick_replies,
     )
 
 
@@ -394,7 +550,7 @@ async def chat_message_stream(
 
     Returns a Server-Sent Events (SSE) stream with:
     - typing indicator events
-    - answer chunks as they're generated
+    - answer chunks as they are generated
     """
     conversation_id = request.conversation_id
     rag_chain, rag_ready = _get_rag_chain()
@@ -406,28 +562,146 @@ async def chat_message_stream(
         )
 
     history = _resolve_history(request.history, user, conversation_id)
-    answer_text, sources, _ = _process_chat_turn(request.question, history, rag_chain)
 
     async def generate_response():
-        yield f"data: {json.dumps({'type': 'typing', 'status': 'started'})}\n\n"
-        await asyncio.sleep(0.05)
+        from app.conversation import analyze_turn
+        from app.smalltalk import is_smalltalk
+        import uuid
+        qid = str(uuid.uuid4())
+        try:
+            from app import llm_call_counter
+            llm_call_counter.reset(qid)
+        except Exception:
+            pass
+        try:
+            if hasattr(rag_chain, "llm_client"):
+                rag_chain.llm_client._last_qid = qid
+        except Exception:
+            pass
 
-        chunk_size = 20
+        plan = analyze_turn(request.question, history=history)
+        kind = "smalltalk" if is_smalltalk(request.question) else None
+
+        if kind == "smalltalk" or (hasattr(plan, "is_clarification") and plan.is_clarification):
+            try:
+                outcome = await asyncio.to_thread(
+                    _process_chat_turn, request.question, history, rag_chain, True
+                )
+            except Exception as exc:
+                logger.error("Streaming RAG chain failed: %s", exc)
+                yield f"data: {json.dumps({'type': 'error', 'message': 'Failed to generate answer'})}\n\n"
+                return
+            answer_text = outcome.answer
+            sources = outcome.sources
+            suggested = _generate_suggested_questions(outcome, history)
+            quick_replies = _quick_replies(outcome)
+            try:
+                from app import llm_call_counter
+                _llm_calls = llm_call_counter.get_calls(qid)
+            except Exception:
+                _llm_calls = 0
+            # smalltalk/cached-like: can chunk quickly
+            chunk_size = 18
+            for i in range(0, len(answer_text), chunk_size):
+                chunk = answer_text[i:i + chunk_size]
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+            db = get_db()
+            assistant_msg, conv_id = _persist_turn(
+                db,
+                user,
+                conversation_id,
+                request.question,
+                answer_text,
+                sources=sources,
+                suggested=suggested,
+            )
+            _log_chat_event(
+                db,
+                request.question,
+                answer_text,
+                user=user,
+                conversation_id=conv_id,
+                message_id=assistant_msg["id"] if assistant_msg else None,
+                rag_result=outcome.rag_result,
+            )
+            try:
+                from app import llm_call_counter
+                _llm_calls = llm_call_counter.get_calls(qid)
+            except Exception:
+                _llm_calls = 0
+            final_data = {
+                "type": "done",
+                "answer": answer_text,
+                "conversation_id": conv_id,
+                "message_id": assistant_msg["id"] if assistant_msg else None,
+                "suggested_questions": suggested,
+                "quick_replies": quick_replies,
+                "llm_calls": _llm_calls,
+            }
+            yield f"data: {json.dumps(final_data)}\n\n"
+            return
+
+        import random
+        status_msgs = [
+            _thinking_status(plan),
+            "Gathering relevant details...",
+            "Searching for accurate information...",
+            "Reviewing the available details...",
+        ]
+        yield f"data: {json.dumps({'type': 'typing', 'status': 'searching', 'message': random.choice(status_msgs)})}\n\n"
+
+        try:
+            outcome = await asyncio.to_thread(
+                _process_chat_turn, request.question, history, rag_chain, True
+            )
+        except Exception as exc:
+            logger.error("Streaming RAG chain failed: %s", exc)
+            yield f"data: {json.dumps({'type': 'error', 'message': 'Failed to generate answer'})}\n\n"
+            return
+
+        answer_text = outcome.answer
+        sources = outcome.sources
+        suggested = _generate_suggested_questions(outcome, history)
+        quick_replies = _quick_replies(outcome)
+
+        # Use single grounded answer only (no second LLM call)
+        chunk_size = 18
         for i in range(0, len(answer_text), chunk_size):
             chunk = answer_text[i:i + chunk_size]
             yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
-            await asyncio.sleep(0.015)
 
         db = get_db()
         assistant_msg, conv_id = _persist_turn(
-            db, user, conversation_id, request.question, answer_text, sources=sources
+            db,
+            user,
+            conversation_id,
+            request.question,
+            answer_text,
+            sources=sources,
+            suggested=suggested,
         )
-
+        _log_chat_event(
+            db,
+            request.question,
+            answer_text,
+            user=user,
+            conversation_id=conv_id,
+            message_id=assistant_msg["id"] if assistant_msg else None,
+            rag_result=outcome.rag_result,
+        )
+        try:
+            from app import llm_call_counter
+            _llm_calls = llm_call_counter.get_calls(qid)
+        except Exception:
+            _llm_calls = 0
         final_data = {
             "type": "done",
             "answer": answer_text,
-            "conversation_id": conv_id,
-            "message_id": assistant_msg["id"] if assistant_msg else None,
+            "conversation_id": conversation_id,
+            "message_id": assistant_msg["id"] if "assistant_msg" in locals() else None,
+            "suggested_questions": suggested,
+            "quick_replies": quick_replies,
+            "llm_calls": _llm_calls,
         }
         yield f"data: {json.dumps(final_data)}\n\n"
 
@@ -449,9 +723,9 @@ async def migrate_guest_conversation(
     request: MigrateConversationRequest,
     user: Dict[str, Any] = Depends(get_current_user),
 ):
-    """Migrate a guest conversation to the authenticated user's account.
+    """Migrate a guest conversation to the authenticated user account.
 
-    Called after a guest user signs up or logs in. The guest's local
+    Called after a guest user signs up or logs in. The guest local
     messages are saved as a new conversation owned by the user.
     """
     db = get_db()
@@ -606,3 +880,5 @@ async def feedback_stats(
     user_id = user["id"] if user else None
     stats = get_feedback_stats(db, user_id)
     return stats
+
+

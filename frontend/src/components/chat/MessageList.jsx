@@ -6,19 +6,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import UserMessage      from "./UserMessage.jsx";
 import AssistantMessage from "./AssistantMessage.jsx";
+import { ASSISTANT_AVATAR, DEFAULT_THINKING_MESSAGE } from "../../config/branding.js";
 
-function TypingIndicator() {
+function TypingIndicator({ status }) {
   return (
-    <div className="flex gap-3 animate-fade-up">
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 ring-1 ring-[var(--border-primary)]">
-        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-[var(--accent-primary)]" aria-hidden>
-          <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-        </svg>
-      </div>
-      <div className="mt-1 flex items-center gap-1.5 px-1" role="status" aria-label="Assistant is typing">
-        <span className="typing-dot" />
-        <span className="typing-dot" />
-        <span className="typing-dot" />
+    <div className="flex gap-3">
+      <img
+        src={ASSISTANT_AVATAR}
+        alt=""
+        className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border-primary)]"
+      />
+      <div
+        className="mt-1 flex items-center gap-2 px-1 text-[13px] text-[var(--text-tertiary)]"
+        role="status"
+        aria-live="polite"
+        aria-label={status || "Assistant is thinking"}
+      >
+        <span className="flex items-center gap-1.5">
+          <span className="typing-dot" />
+          <span className="typing-dot" />
+          <span className="typing-dot" />
+        </span>
+        <span className="animate-pulse">{status || DEFAULT_THINKING_MESSAGE}</span>
       </div>
     </div>
   );
@@ -27,9 +36,12 @@ function TypingIndicator() {
 export default function MessageList({
   messages,
   isLoading,
+  thinkingStatus,
   onRetry,
   onRegenerate,
+  onSuggestedQuestion,
 }) {
+
   const scrollRef  = useRef(null);
   const bottomRef  = useRef(null);
   const [stickToBottom, setStickToBottom] = useState(true);
@@ -40,12 +52,14 @@ export default function MessageList({
     return el.scrollHeight - el.scrollTop - el.clientHeight < 80;
   }, []);
 
-  // Auto-scroll whenever new content arrives (if already near the bottom)
+  // Auto-scroll whenever content grows, but only if the user is already near
+  // the bottom. Direct scrollTop updates avoid the jitter of smooth scrolling
+  // during token streaming.
   useEffect(() => {
-    if (stickToBottom) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-    }
-  }, [messages, isLoading, stickToBottom]);
+    if (!stickToBottom) return;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messages, isLoading, thinkingStatus, stickToBottom]);
 
   const handleScroll = () => {
     setStickToBottom(isNearBottom());
@@ -67,8 +81,12 @@ export default function MessageList({
         aria-label="Conversation"
       >
         <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 sm:px-6">
-          {messages.map((msg, idx) => (
-            msg.role === "user" ? (
+          {messages.map((msg, idx) => {
+            const isLastAssistant =
+              msg.role === "assistant" &&
+              idx === messages.length - 1 &&
+              !isLoading;
+            return msg.role === "user" ? (
               <UserMessage key={msg.id} content={msg.content} timestamp={msg.timestamp} />
             ) : (
               <AssistantMessage
@@ -78,12 +96,17 @@ export default function MessageList({
                 isError={msg.isError}
                 timestamp={msg.timestamp}
                 onRetry={msg.isError ? (() => onRetry?.(msg)) : undefined}
-                onRegenerate={idx === messages.length - 1 && !msg.isError ? onRegenerate : undefined}
+                onRegenerate={idx === messages.length - 1 && !msg.isError && !msg.isStreaming ? onRegenerate : undefined}
+                isStreaming={msg.isStreaming}
+                suggestedQuestions={isLastAssistant ? (msg.suggestedQuestions || []) : []}
+                quickReplies={isLastAssistant ? (msg.quickReplies || []) : []}
+                onSuggestedQuestion={onSuggestedQuestion}
               />
-            )
-          ))}
+            );
+          })}
 
-          {isLoading && <TypingIndicator />}
+
+          {isLoading && <TypingIndicator status={thinkingStatus} />}
 
           <div ref={bottomRef} className="h-1" aria-hidden />
         </div>

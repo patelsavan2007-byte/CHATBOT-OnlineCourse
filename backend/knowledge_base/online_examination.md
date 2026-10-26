@@ -1,5 +1,4 @@
 Title: CHARUSAT Online Examination Guide – LM Exam Suite Step-by-Step Instructions
-URL: https://charusat.online/online-examination
 Category: Examination
 Last Scraped: 2026-10-20T00:00:00+00:00
 
@@ -13,7 +12,7 @@ CHARUSAT (Charotar University of Science and Technology) conducts online examina
 ## Exam Software: LM Exam Suite
 
 - **Software Name:** LM Exam Suite (by Littlemore Innovation Labs Pte. Ltd., Singapore; subsidiary in India: Ppyrus India Pvt. Ltd.)
-- **Download Link:** [https://charusat.lmexamsuite.com/downloads](https://charusat.lmexamsuite.com/downloads)
+- **Download Link:** Provided by the university examination cell
 - **Supported Platforms:** Windows (primary), macOS, Linux
 - **Purpose:** Replaces paper-pen examinations with digital, proctored online exams
 
@@ -22,7 +21,7 @@ CHARUSAT (Charotar University of Science and Technology) conducts online examina
 ## Step-by-Step: How to Take an Online Exam
 
 ### Step 1: Download the LM Exam Software
-- Visit [https://charusat.lmexamsuite.com/downloads](https://charusat.lmexamsuite.com/downloads)
+- Use the current download link provided by the university examination cell
 - Download the LM Exam Suite application for your operating system (Windows/macOS/Linux)
 - Save the installer to your computer
 
@@ -304,7 +303,7 @@ If you face technical issues during the exam, the support team may need to remot
 A: CHARUSAT uses the **LM Exam Suite** by Littlemore Innovation Labs for conducting online proctored exams.
 
 **Q: Where can I download the exam software?**
-A: Download from [https://charusat.lmexamsuite.com/downloads](https://charusat.lmexamsuite.com/downloads)
+A: Use the current download link provided by the university examination cell.
 
 **Q: Do I need a webcam and microphone for the exam?**
 A: Yes, both webcam (minimum 640x480 @ 15fps) and microphone are mandatory. The exam cannot start without them.

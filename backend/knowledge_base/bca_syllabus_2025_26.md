@@ -1,28 +1,11 @@
 Title: Online BCA Syllabus 2025-26 - CHARUSAT
-URL: https://charusat.online/bca-syllabus
 Category: BCA Syllabus
 Source PDF: Online BCA Syllabus 2025-26.pdf
 Last Scraped: 2026-10-20T00:00:00+00:00
 
 # Online BCA Syllabus 2025-26 - CHARUSAT
 
-## Page 1
 
-Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
-### A CADEMIC R EGULATIONS
-&
-### S YLLABUS 2025 -26
-Faculty of Computer Science & Applications
-Smt. Chandaben Mohanbhai Patel Institute of
-Computer Applications
-Bachelor of Computer Applications (ONLINE B.C.A.)
-Programme
-Charotar University of Science and Technology (CHARUSAT)
-CHARUSAT Campus, At Post: Changa – 388421, Taluka: Petlad, District: Anand
-Phone: 02697-247500, Fax: 02697-247100, Email: info@charusat.ac.in
-www.charusat.ac.in
-
-## Page 2
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -56,7 +39,6 @@ Government of Gujarat from time to time.
 A student admitted to a program should study the course and earn credits
 specified in the course structure.
 
-## Page 3
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -96,7 +78,6 @@ done on the relative grading system.
 7. Grading
 The student’s performance in any semester will be assessed by the
 
-## Page 4
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -155,7 +136,6 @@ The transcript issued at the time of leaving the University contains a consolida
 
 
 
-## Page 6
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -183,7 +163,6 @@ University core courses are compulsory courses which are offered across
 university and must be completed in order to meet the requirements of
 programme.
 
-## Page 7
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -209,7 +188,6 @@ their Programme /Specialization.
 The programme specific pool of elective courses offered by respective
 programme.
 
-## Page 8
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -244,7 +222,6 @@ mathematics, computing sciences, and relevant domain disciplines.
 PO3 : Design /Development of Solutions: Design and evaluate solutions
 for computing problems, and design and evaluate systems, components, or
 
-## Page 9
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -276,7 +253,6 @@ P11: Innovation and Entrepreneurship: Identify a timely opportunity
 and using innovation to pursue that opportunity to create value and wealth for
 the betterment of the individual and society at large.
 
-## Page 10
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -287,7 +263,6 @@ world problems using computing methods.
 PSO2: Apply proficiencies of communication, teamwork and management
 skills with spirit of entrepreneurship.
 
-## Page 11
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -305,7 +280,6 @@ courses.
 workshop.
 Total Credits of Programme (6 Semesters): 132
 
-## Page 12
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -316,7 +290,6 @@ Online BCA Syllabus 2025-26
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 13
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -417,7 +390,6 @@ Information Technology
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 14
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -517,7 +489,6 @@ Fundamentals of E-Commerce
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 15
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -608,7 +579,6 @@ Human Computer Interactions
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 16
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -708,7 +678,6 @@ Modern Application Development
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 17
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -865,7 +834,6 @@ Practical
 Viva etc.)
 *SEE- Semester –End- Evaluation
 
-## Page 18
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -876,7 +844,6 @@ Computer Applications
 ### ONLINE BCA PROGRAMME
 ### AS PER NEP-2020
 
-## Page 19
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -889,7 +856,6 @@ Online BCA Syllabus 2025-26
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 20
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -990,7 +956,6 @@ Information Technology
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 21
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1060,7 +1025,6 @@ Total Hours (Theory): 60
 Total hours (Practical): 60
 Total Contact Hours:120
 
-## Page 22
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1101,7 +1065,6 @@ Variables, Pointer Expressions and Pointer Arithmetic, Null Pointers, Generic Po
 passing arguments to Function using Pointers, Pointers and Arrays, passing an Array to a
 Function, Difference between Array name and Pointer, Pointers and Strings, Array of
 
-## Page 23
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1188,7 +1151,6 @@ Oxford University press, 2017
 University Press.
 3. E. Balagurusamy: Programming in C, 7th Edition.
 
-## Page 24
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1224,7 +1186,6 @@ both.
 CO5 : Be able to understand user define function. Also, learn Programing-using
 Array with Pointer and Structure.
 
-## Page 25
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1299,7 +1260,6 @@ Pointers & Basic of the structures
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 26
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1397,7 +1357,6 @@ Basic
 Learn basic form elements and when and where
 to apply it.
 
-## Page 27
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1474,7 +1433,6 @@ Technology,2009.
 Publication.
 ### Web References:
 
-## Page 28
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1557,7 +1515,6 @@ Able to apply validation using HTML5 attributes.
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 29
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1621,7 +1578,6 @@ Emerging Trends and Societal Impact of IT
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 30
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1656,7 +1612,6 @@ Internet of Things, Virtual and Augmented Reality, Industry 4.0, Image Processin
 Societal Impact, Social Use of World Wide Web, Privacy, Security and Integration of Information,
 Disaster Recovery, Intellectual Property Right, Career in IT
 
-## Page 31
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1693,7 +1648,6 @@ CO3 : Understand trends of Internet services.
 CO4 : Understands basics of Data Analytics, E-Business, GIS, and GPS related concepts
 CO5 : Understand emerging trends and societal Impact of Information Technology.
 
-## Page 32
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1785,7 +1739,6 @@ Emerging Trends and Societal Impact of IT
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 33
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1842,7 +1795,6 @@ The Arithmetic Logic Unit and Control Unit
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 34
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1879,7 +1831,6 @@ sequences.
 ### Unit V: Memory Interfaces and Data Representation
 Hours 08
 
-## Page 35
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -1922,7 +1873,6 @@ Logic and Computer Design book]
 4.
 https://cupola.gettysburg.edu/oer/1/ [Digital Circuit Projects]
 
-## Page 36
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2031,7 +1981,6 @@ The Arithmetic Logic Unit and Control Unit
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 37
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2093,7 +2042,6 @@ Graph Theory
 Total Hours (Theory): 30
 Total Contact Hours:30
 
-## Page 38
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2132,7 +2080,6 @@ Introduction to Graph, Graph Definition, Vertices, Edges, Loops, Parallel Edges,
 Graph, Finite Graph, Adjacent vertices, Incidence between vertex and edge, Degree of a
 vertex, Isolated Vertex, Pendent Vertex, Null Graph. Isomorphism, Labeled Graph
 
-## Page 39
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2162,7 +2109,6 @@ probability
 Students will be able to understand and apply the fundamental concepts
 in graph theory
 
-## Page 40
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2255,7 +2201,6 @@ Graph Theory
 -
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 41
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2268,7 +2213,6 @@ Online BCA Syllabus 2025-26
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 42
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2368,7 +2312,6 @@ Fundamentals of E-Commerce
 SWAYAM courses will be included as electives and
 updated periodically
 
-## Page 43
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2440,7 +2383,6 @@ Managing I/O formats and operations
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 44
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2476,7 +2418,6 @@ Understand and apply concepts from various header files like iostream, iomanip, 
 etc. opening and closing file, reading and writing text files and binary files, performing
 random access on files, handle command line arguments.
 
-## Page 45
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2508,7 +2449,6 @@ Able to handle the runtime errors or exceptions in C++ and use type cast
 operators. Able to read input from device, file, command line arguments and
 apply formats to input and output.
 
-## Page 46
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2590,7 +2530,6 @@ Managing I/O formats and operations
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 47
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2662,7 +2601,6 @@ Constraints, Queries –
 Data Constraints and Functions: - Pseudo
 columns, Null values, TAB table, DUAL table
 
-## Page 48
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2725,7 +2663,6 @@ Pearson Education,(Equivalent Reading).
 Edition, Cengage Learning, 2007.
 6. Leon and Leon : Database management Systems, Vikas Publication.
 
-## Page 49
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2810,7 +2747,6 @@ Advanced query processing
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 50
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2870,7 +2806,6 @@ E-Commerce Applications
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 51
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2905,7 +2840,6 @@ Advertising, Digital Shopping, Digital Media, Auctions, A case study need to be 
 for these application. Hands-on experience in setting up and managing an e-commerce
 store. Developing a business plan for an ecommerce start-up.
 
-## Page 52
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -2934,7 +2868,6 @@ examples.
 CO5 : To learn concepts of Customer Relationship Management and various solutions of E-
 Commerce (Software and Framework).
 
-## Page 53
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3009,7 +2942,6 @@ E-Commerce Applications
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 54
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3072,7 +3004,6 @@ Network security
 Total Hours (Theory):60
 Total Contact Hours:60
 
-## Page 55
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3117,7 +3048,6 @@ signature and key management concepts, communication security.
 3. William Stallings: Data and computer communication: 5th Edition, Pearson Publication,
 2019.
 
-## Page 56
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3150,7 +3080,6 @@ and technology behind it.
 ### CO5 :
 Students will learn about different aspects of network security.
 
-## Page 57
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3246,7 +3175,6 @@ Network security
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 58
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3308,7 +3236,6 @@ Cost Accounting - II
 Total Hours (Theory): 30
 Total Contact Hours:30
 
-## Page 59
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3347,7 +3274,6 @@ a. Eighteenth Edition, 2021
 ### Unit VI : Cost Accounting – II
 Hours 04
 
-## Page 60
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3380,7 +3306,6 @@ CO4 : Students will be able to generate Journal, Ledger, Trial Balance, and
 Final Accounts
 CO5 : Students will get basic understanding of the field of Cost Accounting
 
-## Page 61
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3481,7 +3406,6 @@ Cost Accounting – II
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 62
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3587,7 +3511,6 @@ embed
 Social
 Media with website
 
-## Page 63
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3647,7 +3570,6 @@ CO3 : Able to understand paid advertisements on social media platforms.
 CO4 : Able to understand SEO and its importance in digital marketing.
 CO5 : Able to use generative AI in Digital Marketing.
 
-## Page 64
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3714,7 +3636,6 @@ Online BCA Syllabus 2025-26
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 65
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3791,7 +3712,6 @@ PowerPoint
 Using Hyperlink and Action, Slide Show Set-up,
 Presenter View, Master views
 
-## Page 66
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3854,7 +3774,6 @@ La Counte, SL Editions ISBN:978-1629179513
 3. https://support.google.com/a/users/answer/9282488
 4. https://www.mentimeter.com/features
 
-## Page 67
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3943,7 +3862,6 @@ tools.
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 68
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -3956,7 +3874,6 @@ Online BCA PROGRAMME
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 69
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4039,7 +3956,6 @@ Practical
 Viva etc.)
 *SEE- Semester –End- Evaluation
 
-## Page 70
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4112,7 +4028,6 @@ Total Hours (Theory) : 60
 Total hours (Practical) : 60
 Total Contact Hours : 120
 
-## Page 71
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4145,7 +4060,6 @@ Hours 10
 Sorting Notations and Concepts, Sorting Techniques, Sequential Searching, Binary
 Searching, Search Trees.
 
-## Page 72
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4208,7 +4122,6 @@ Pearson Education, 2009.
 4. Reema Thareja: Data Structures using C, 1 st Edition, Oxford University
 Press, 2012.
 
-## Page 73
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4249,7 +4162,6 @@ applications.
 CO6: Implement and compare different sorting and searching algorithms for optimal
 performance.
 
-## Page 74
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4363,7 +4275,6 @@ Sorting and Searching Techniques
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 75
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4433,7 +4344,6 @@ Total Hours (Theory): 60
 Total hours (Practical): 60
 Total Contact Hours:120
 
-## Page 76
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4470,7 +4380,6 @@ Hours 09
 Shell Script, Shell environment, Making Script interactive, Command Line Argument,
 Evaluating Expression, Operator, Control Statement, Looping statement.
 
-## Page 77
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4541,7 +4450,6 @@ Cengage Learning,2014.
 4. Kenneth Rosen, Douglas Host, James Farber and Richard Rosinski: The Complete
 Reference, Tata McGraw Hill, 1999.
 
-## Page 78
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4566,7 +4474,6 @@ To study various supported device and file access technologies
 ### CO5 :
 Learning basic shell programming
 
-## Page 79
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4659,7 +4566,6 @@ Operating System Fundamentals
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 80
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4726,7 +4632,6 @@ technologies
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 81
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4765,7 +4670,6 @@ Management value chain, Overview of different types of Knowledge Management Syst
 Characteristics of ESS, The Role of ESS in the Firm, Business value of ESS, Monitoring
 Corporate Performance, Working Examples of ESS.
 
-## Page 82
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4796,7 +4700,6 @@ planning-and-control-systems/management_levels_comma_functions_comm
 [Transaction
 processing system]
 
-## Page 83
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4906,7 +4809,6 @@ technologies
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 84
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -4967,7 +4869,6 @@ Solution of Partial Differential Equations
 Total Hours (Theory): 60
 Total Contact Hours: 60
 
-## Page 85
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5004,7 +4905,6 @@ edition 2006
 1. V. Rajaraman Computer Oriented Numerical Methods, 3rd Edition, Prentice-Hall of
 India Pvt.Ltd, 3 rd edition, 2016
 
-## Page 86
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5053,7 +4953,6 @@ Solution of Differential Equations
 Solution of Partial Differential Equations
 √
 
-## Page 87
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5128,7 +5027,6 @@ Online BCA Syllabus 2025-26
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 88
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5185,7 +5083,6 @@ Stress and mental health management
 Total Hours (Theory):30
 Total Contact Hours:30
 
-## Page 89
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5217,7 +5114,6 @@ Importance of mental health, spirituality, improving concentration, importance o
 Memory problem and Memory Boosting techniques, causes and effects of stress,
 importance of Prathana, Upasna, Sadhna, and Aradhna
 
-## Page 90
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5247,7 +5143,6 @@ Students will get various aspects of physical and mental health
 ### CO5 :
 They will be able to develop personality and good habits
 
-## Page 91
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5346,7 +5241,6 @@ Life Style and its Basics
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 92
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5359,7 +5253,6 @@ Online BCA PROGRAMME
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 93
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5453,7 +5346,6 @@ Practical
 Viva etc.)
 *SEE- Semester –End- Evaluation
 
-## Page 94
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5519,7 +5411,6 @@ Systems Implementation & Maintenance
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 95
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5560,7 +5451,6 @@ Designing reliable and maintainable systems, design of software, software design
 documentation tools, managing quality assurance, user training, training methods and
 conversion.
 
-## Page 96
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5584,7 +5474,6 @@ sad.html
 4. http://www.eis.mdx.ac.uk/staffpages/geetha/bis2030/DFD.html
 5. http://faculty.washington.edu/ytan/is460/notes/LN11.pdf
 
-## Page 97
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5633,7 +5522,6 @@ and Tools
 6. Systems Implementation & Maintenance
 √
 
-## Page 98
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5692,7 +5580,6 @@ Online BCA Syllabus 2025-26
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 99
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5787,7 +5674,6 @@ Number, String,Boolean.
 Student can write script for basic
 programs using different datatypes.
 
-## Page 100
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5860,7 +5746,6 @@ Publishing), 2005.
 3. https://javascript.info/ [For modern JavaScript tutorials]
 4. https://www.tutorialsteacher.com/javascript/javascript-hoisting [JavaScript Basics]
 
-## Page 101
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -5942,7 +5827,6 @@ Able to use DOM objects for dynamic web pages
 ### CO5
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 102
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6010,7 +5894,6 @@ Total Hours (Theory): 60
 Total hours (Practical): 60
 Total Contact Hours:120
 
-## Page 103
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6046,7 +5929,6 @@ Cookies.
 Open Source Technology
 Hours 8
 
-## Page 104
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6132,7 +6014,6 @@ variables like $_SERVER, $GLOBALS and $_ENV
 PHP Mail
 Sending mail using PHP mail() & PHPMailer
 
-## Page 105
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6166,7 +6047,6 @@ Gain understanding of Form handing and utilities in PHP.
 Be able to develop dynamic web based application using PHP and
 MySQL with state management techniques.
 
-## Page 106
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6261,7 +6141,6 @@ PHP Utilities
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 107
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6327,7 +6206,6 @@ Fundamental of Network Security
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 108
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6367,7 +6245,6 @@ Market failures and need for regulation, Regulations and market structure, Firm 
 regulation. More on Externalities, and role of government, importance of competition in market
 failure and price regulations.
 
-## Page 109
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6406,7 +6283,6 @@ Evaluate and apply fundamental network security principles to protect
 network infrastructures from potential threats and vulnerabilities,
 ensuring robust and secure communication channels.
 
-## Page 110
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6505,7 +6381,6 @@ Fundamental of Network Security
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 111
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6566,7 +6441,6 @@ Application Areas
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 112
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6604,7 +6478,6 @@ Playing, Robotics.
 Hall of India Ltd., 2006.
 3. Rich & Knight, Artificial Intelligence, 2 nd edition, TMH, 1991.
 
-## Page 113
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6631,7 +6504,6 @@ To gain understanding Expert System and Agent Based Systems.
 ### CO5 :
 To explore various application areas of AI.
 
-## Page 114
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6717,7 +6589,6 @@ Application Areas
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 115
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6811,7 +6682,6 @@ Understanding SEO in Blogging
 Using Blogger for Blogging
 -
 
-## Page 116
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6842,7 +6712,6 @@ Publication, 2017
 4. https://www.javatpoint.com/digital-marketing
 5. https://www.javatpoint.com/blog
 
-## Page 117
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6920,7 +6789,6 @@ Able to use generative AI in Digital Marketing.
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 118
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -6933,7 +6801,6 @@ Online BCA Syllabus 2025-26
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 119
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7025,7 +6892,6 @@ Practical
 Viva etc.)
 *SEE- Semester –End- Evaluation
 
-## Page 120
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7096,7 +6962,6 @@ Total Hours (Theory) :60
 Total hours (Practical) : 60
 Total Contact Hours: 120
 
-## Page 121
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7137,7 +7002,6 @@ Set, The Collection classes- Array List, Linked List, Vector, Hash Set, Tree Set
 Queue. Accessing a collection using an Iterator, ListIterator, Map Interfaces and Classes:
 Map, Map Entry, SortedMap, HashMap, TreeMap, Hashtable.
 
-## Page 122
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7218,7 +7082,6 @@ Total Hours: 60
 2. Herbert Schildt: The Complete Reference Java J2SE, 5th Edition, TMH Publishing
 Company Ltd,NewDelhi.
 
-## Page 123
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7246,7 +7109,6 @@ java works ethically .
 To introduce the implementation of Exception and Packages.
 CO5 : To introduce the concepts of multithreading & Collections framework.
 
-## Page 124
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7339,7 +7201,6 @@ Basics of Collections Framework
 -
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 125
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7410,7 +7271,6 @@ Total Hours (Theory): 60
 Total Hours (Practical): 60
 Total Contact Hours:120
 
-## Page 126
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7459,7 +7319,6 @@ Layout: Grid Panel, Stack Panel, Dock Panel, Wrap Panel and Canvas Panel, WPF Co
 TextBlock, PasswordBox, ListBox, Slider, Popup, Menus and Expander, Animation using
 WPF, Introduction to MVC, Custom Controls, Introduction to Multithreading.
 
-## Page 127
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7546,7 +7405,6 @@ creating a simple ASP.NET page.
 ### WROX
 2. Albahani Josheph: C# 4.0 Pocket Reference, Shroff publication,2010.
 
-## Page 128
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7602,7 +7460,6 @@ Create rich, graphical desktop applications using WPF.
 ### CO5:
 Design and develop dynamic web applications in the .NET framework.
 
-## Page 129
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7651,7 +7508,6 @@ Online BCA Syllabus 2025-26
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 130
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7718,7 +7574,6 @@ Software Engineering, Software Engineering-A Layered Technology, A process frame
 Hours 10
 Definition of Software Process, Software Process Model - The Waterfall model, Incremental Process
 
-## Page 131
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7766,7 +7621,6 @@ odology [Introduction to Software Engineering/Process/Methodology]
 3. https://nptel.ac.in/courses/106/101/106101061/ [Agile Software Development and
 Extreme Programming and Overview of DevOps]
 
-## Page 132
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7861,7 +7715,6 @@ Modern methods in Software Engineering
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 133
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -7937,7 +7790,6 @@ Functions
 Student will be familiarize with
 built-in functions in Python.
 
-## Page 134
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8006,7 +7858,6 @@ edition, O'Reilly Media, Inc, 2014
 2. Mark Lutz: Programming Python, 4th Edition,O’reilly, 2011. 3.Steve Holden: Python Web
 Programming, 1st edition,2002.
 
-## Page 135
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8087,7 +7938,6 @@ Able to grasp Python for web based programming
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 136
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8148,7 +7998,6 @@ Overview of Data Mining
 Total Hours (Theory): 30
 Total Contact Hours:30
 
-## Page 137
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8191,7 +8040,6 @@ concepts of supervised learning and unsupervised learning.
 of Illinois at Urbana-Champaign Micheline Kamber Jian Pei Simon Fraser University.
 2012.
 
-## Page 138
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8211,7 +8059,6 @@ CO3 : Be able to develop applications of higher order database systems.
 CO4 : Have Clear understanding of implementation of huge amount of static data.
 CO5 : Understand Data Mining concept and techniques.
 
-## Page 139
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8288,7 +8135,6 @@ Overview of Data Mining
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 140
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8343,7 +8189,6 @@ Geo Statistical Analysis Techniques
 Total Hours (Theory): 30
 Total Contact Hours: 30
 
-## Page 141
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8391,7 +8236,6 @@ Hill, 2007, New Delhi
 Systems" Prentice Hall of India, 2006, New Delhi.
 ### Reference Books:
 
-## Page 142
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8431,7 +8275,6 @@ and
 terrain
 modeling, to support decision-making in GIS.
 
-## Page 143
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8537,7 +8380,6 @@ Geo Statistical Analysis Techniques
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 144
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8550,7 +8392,6 @@ Online BCA Syllabus 2025-26
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 145
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8620,7 +8461,6 @@ Practical
 Viva etc.)
 *SEE- Semester –End- Evaluation
 
-## Page 146
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8674,7 +8514,6 @@ The Project is not only a part of the coursework, but also a mechanism to demons
 student’s abilities and specialization. It provides the opportunity for them to demonstrate
 originality, teamwork, inspiration, planning and organization in a software project, and to
 
-## Page 147
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8715,7 +8554,6 @@ provide the format of project report. Student has to submit one copy of Mini Pro
 institute. Each Student is required to make a copy of Mini Project and submit along with
 Mini Project report.
 
-## Page 148
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8750,7 +8588,6 @@ Software Testing]
 http://www.cs.uics.edu/~jbell/CourseNotes/OO_SoftwareEngineering/SE_Project_
 Report_Te mplate .pdf [For guidelines to prepare software project report]
 
-## Page 149
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8806,7 +8643,6 @@ Online BCA Syllabus 2025-26
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 150
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8863,7 +8699,6 @@ Data Science Applications and future trends
 Total Hours (Theory):60
 Total Contact Hours:60
 
-## Page 151
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8904,7 +8739,6 @@ Applications- Manufacturing, Personalization, Medical Image Analysis, Internet S
 Genomics, Speech Recognition, Advertising, Financial Fraud Detection, Airline Route
 Planning, Cyber-threats, transportation, gaming, recommendation system.
 
-## Page 152
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -8939,7 +8773,6 @@ analysis techniques on data.
 CO4 : Able to build model using machine learning techniques.
 CO5 : Able to understand applications and future trends of Data Science.
 
-## Page 153
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9033,7 +8866,6 @@ Science
 -
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 154
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9100,7 +8932,6 @@ Image Compression
 Total Hours (Theory): 60
 Total Contact Hours:60
 
-## Page 155
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9135,7 +8966,6 @@ Hours 08
 Introduction, Image compression model, Error free compression, Variable length coding,
 Bit plan coding, Lossless predictive coding, Lossy compression, Compression standards.
 
-## Page 156
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9173,7 +9003,6 @@ Learn various image segmentation techniques.
 Be able to represent and recognize images using various pattern
 recognition methods its compression techniques.
 
-## Page 157
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9268,7 +9097,6 @@ Digital Image Fundamentals
 -
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 158
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9339,7 +9167,6 @@ Web Services
 03
 Total Hours (Theory): 30
 
-## Page 159
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9383,7 +9210,6 @@ Database, store data in a firebase, save files on Device, Sharing of data.
 Hours 03
 Working with Web Service in Android, Deploying Web Service.
 
-## Page 160
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9469,7 +9295,6 @@ create the app for data management in Firestore.
 2. Reto Meier: Professional Android 2 Application Development, Wrox publication
 3. Mark L. Murphy: The Busy Coder’s Guide to Android Development.
 
-## Page 161
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26
@@ -9518,7 +9343,6 @@ Application Data Handling
 Web Services
 √
 
-## Page 162
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online BCA Syllabus 2025-26

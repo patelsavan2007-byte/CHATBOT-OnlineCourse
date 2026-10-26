@@ -1,28 +1,15 @@
 Title: Online MCA Syllabus 2025-26 - CHARUSAT
-URL: https://charusat.online/mca-syllabus
 Category: MCA Syllabus
 Source PDF: Online MCA Syllabus 2025-26.pdf
 Last Scraped: 2026-10-20T00:00:00+00:00
 
 # Online MCA Syllabus 2025-26 - CHARUSAT
 
-## Page 1
 
 ### A CADEMIC R EGULATIONS
 &
 ### S YLLABUS 2025-26
 Faculty of Computer Science & Applications
-Smt. Chandaben Mohanbhai Patel Institute of
-Computer Applications
-Online Master of Computer Applications
-( ONLINE M.C.A.) Programme
-( as per CHOICE BASED CREDIT SYSTEM- (CBCS))
-Charotar University of Science and Technology (CHARUSAT)
-CHARUSAT Campus, At Post: Changa – 388421, Taluka: Petlad, District: Anand
-Phone: 02697-247500, Fax: 02697-247100, Email: info@charusat.ac.in
-www.charusat.ac.in
-
-## Page 2
 
 ### ACADEMIC RULES
 To ensure uniform system of education, duration of post graduate programmes, eligibility
@@ -51,7 +38,6 @@ the regulations for admission committee.
 A student admitted to a program should study the course and earn credits specified in
 the course structure.
 
-## Page 3
 
 5. Course Evaluation
 5.1 The performance of every student in each course will be evaluated as follows:
@@ -123,7 +109,6 @@ The transcript issued at the time of leaving the University contains a consolida
 
 
 
-## Page 5
 
 7.1.1 He should have earned at least minimum required credits as prescribed in
 ### course structure.
@@ -154,7 +139,6 @@ system, which is considered to be better than the conventional marks system.
 CBCS – Conceptual Definitions / Key Terms (Terminologies)
 ### Types of Courses: The Programme Structure consist of 3 types of courses:
 
-## Page 6
 
 Foundation Courses, Core Courses and Elective Courses.
 Foundation Course
@@ -177,7 +161,6 @@ provides an extended scope or which enables an exposure to some other discipline
 domain or nurtures the candidate’s proficiency / skill is called an elective course. Following
 ### elective courses are incorporated in CBCS structure:
 
-## Page 7
 
 ### A. University Elective Courses(UE):
 The pool of elective courses offered across all faculties / programmes.
@@ -189,7 +172,6 @@ by the University/Institute from time-to-time irrespective of their Programme
 ### C. Programme Elective Courses(PE):
 The programme specific pool of elective courses offered by respective programme.
 
-## Page 8
 
 Vision, Mission, PEOs, POs and PSOs
 Vision
@@ -220,7 +202,6 @@ for innovative software solutions
 PO6. Professional Ethics : Ability to apply and commit professional ethics and cyber regulations in a
 global economic environment.
 
-## Page 9
 
 PO7 . Life-long Learning : Recognize the need for and develop the ability to engage in continuous
 learning as a Computing professional.
@@ -241,7 +222,6 @@ PSO1: Analyze, design and develop effective software applications for solving co
 PSO2: Harness the necessary skills with spirit of research and entrepreneurship.
 Total Credits of Programme (4 Semesters): 108
 
-## Page 10
 
 ### TEACHING SCHEME
 &
@@ -251,7 +231,6 @@ Total Credits of Programme (4 Semesters): 108
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 11
 
 Teaching & Examination Scheme
 Online Master of Computer Applications (M.C.A.) Programme
@@ -360,7 +339,6 @@ Ethical Hacking
 ### CAME504
 Cyber Security and Privacy
 
-## Page 12
 
 Teaching & Examination Scheme
 Online Master of Computer Applications (M.C.A.) Programme
@@ -448,7 +426,6 @@ Code
 ### CAOE510
 Python Web framework
 
-## Page 13
 
 Teaching & Examination Scheme
 Online Master of Computer Applications (M.C.A.) Programme
@@ -527,7 +504,6 @@ Data Analytics
 ### CAOE604
 Internet of Things
 
-## Page 14
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -568,7 +544,6 @@ Work
 *CCE- Continuous and Comprehensive Evaluation (Assignments, Unit Tests, Sessional Test, Case Study, Attendance,
 Practical Test, Viva etc.) *SEE- Semester –End- Evaluation
 
-## Page 15
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -581,7 +556,6 @@ Computer Applications
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 16
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -597,7 +571,6 @@ Teaching & Examination Scheme
 Online Master of Computer Applications (M.C.A.) Programme
 (Choice Based Credit System)
 
-## Page 17
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -706,7 +679,6 @@ Ethical Hacking
 ### CAME504
 Cyber Security and Privacy
 
-## Page 18
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -746,7 +718,6 @@ studies
 Total Hours (Theory): 36
 Total Hours:36
 
-## Page 19
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -789,7 +760,6 @@ Markets and the Cloud
 ### Core Books:
 1. Kevin L. Jackson, Scott Goessling: Architecting Cloud Computing Solutions: Packt Publication: 2018
 
-## Page 20
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -817,7 +787,6 @@ CO4 : Students will get various business aspects of cloud computing with
 security aspects
 CO5 : They will be able to design and deploy Cloud Infrastructure
 
-## Page 21
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -923,7 +892,6 @@ Hidden Aspects of Cloud Computing
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 22
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -955,7 +923,6 @@ stack.
 Week 2: IP addressing and routing. TCP and UDP. IP subnets.
 Week 3: Routing protocols. IP version 6.
 
-## Page 23
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -978,7 +945,6 @@ escalation, remote code execution, etc. Attack on web servers: password attack, 
 site scripting.
 Week 12: Case studies: various attacks scenarios and their remedies.
 
-## Page 24
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1000,7 +966,6 @@ Final score = Average assignment score + Exam score
 SCORE >=10/25 AND EXAM SCORE >= 30/75. If one of the 2 criteria is not met, you
 will not get the certificate even if the Final score >= 40/100.
 
-## Page 25
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1036,7 +1001,6 @@ Week 3 : Understanding security policy, security behavior , Risk management: Ris
 threat modeling, strategies.
 Week 4 : Control strategies and protection mechanisms (Guest lecture), Cryptography for security.
 
-## Page 26
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1076,7 +1040,6 @@ Final score = Average assignment score + Exam score
 SCORE >=10/25 AND EXAM SCORE >= 30/75. If one of the 2 criteria is not met, you
 will not get the certificate even if the Final score >= 40/100.
 
-## Page 27
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1117,7 +1080,6 @@ Total Hours (Theory): 24
 Total Hours (Lab): 36
 Total Hours: 60
 
-## Page 28
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1151,7 +1113,6 @@ HTTP status code.
 Hours: 03
 Basics of AJAX, PHP with AJAX, MySql with AJAX, What is JQuery AJAX, JQuery AJAX with PHP.
 
-## Page 29
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1180,7 +1141,6 @@ CO3 : Acquire the knowledge of array and OOP in PHP
 CO4 : Learn Form handling and utilities in PHP.
 CO5 : Be able to develop dynamic web based application using PHP and MySQL with Ajax Call.
 
-## Page 30
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1282,7 +1242,6 @@ Relational Database Using PHP
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 31
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1326,7 +1285,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) : 36
 Total Hours: 72
 
-## Page 32
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1368,7 +1326,6 @@ Hours 05
 Overview of Hibernate, Hibernate Architecture, Hibernate Mapping Types, Hibernate O/R Mapping,
 Hibernate Annotation, Hibernate Query Language.
 
-## Page 33
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1399,7 +1356,6 @@ CO4 : Able to develop real time web application using Servlet and JSP
 technologies
 CO5 : Able to use Object Relation Mapping using Hibernate to build database.
 
-## Page 34
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1498,7 +1454,6 @@ Basics of Hibernate 4.0
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 35
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1541,7 +1496,6 @@ Total Hours (Theory): 24
 Total Hours (Lab):36
 Total Hours: 60
 
-## Page 36
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1572,7 +1526,6 @@ Introduction to Web Services and RESTful API, Applications of Web API, Understan
 2. Mridila Parihar, Essam Ahmed: ASP .Net Bible, Wiley, 2017
 3. Stephon Walther: ASP.Net Unleashed, BPB publication, 2018
 
-## Page 37
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1601,7 +1554,6 @@ be able to develop MVC based Web Applications.
 CO6 : Students will be able to understand Web API implementation and its
 applications in real life scenario.
 
-## Page 38
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1725,7 +1677,6 @@ Introduction to Web Services
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 39
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1768,7 +1719,6 @@ Total Hours (Theory): 36
 Total Hours (Lab): 36
 Total Hours: 72
 
-## Page 40
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1810,7 +1760,6 @@ your databases, viewing available data and collections, inserting data, querying
 and skip functions, retrieving single document, using aggregation commands, working with
 condition, updating data, upsert and save command, rename a collection
 
-## Page 41
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1851,7 +1800,6 @@ Architectures and common features of the basic types of NoSQL databases
 Able to design Schema and implement CRUD operations, distributed data
 operations, and implement various column store internals
 
-## Page 42
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1954,7 +1902,6 @@ MongoDB
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation "-"
 
-## Page 43
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -1967,7 +1914,6 @@ Page 30
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 44
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2058,7 +2004,6 @@ Code
 ### CAOE510
 Python Web framework
 
-## Page 45
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2102,7 +2047,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) :36
 Total Hours:72
 
-## Page 46
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2138,7 +2082,6 @@ Unit VI: Admin, Security, Performance & Optimization Hours 05
 Admin characterization in Django, Security facility in Django, Performance issues Django and
 Optimization in Django framework.
 
-## Page 47
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2171,7 +2114,6 @@ with it.
 To get some idea about unit testing concepts and its implementation through
 Django.
 
-## Page 48
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2259,7 +2201,6 @@ Optimization
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 49
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2306,7 +2247,6 @@ Total Hours (Theory): 36
 Total Hours (Lab): 36
 Total Hours: 72
 
-## Page 50
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2344,7 +2284,6 @@ widgets, Flutter's philosophy of UI as code. The lists and conditionals in Dart.
 Understand Object Oriented Dart. Dart Constructors for Flutter widgets. Design patterns to
 structure Flutter apps. Structuring and organizing Flutter apps.
 
-## Page 51
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2377,7 +2316,6 @@ platform mobile applications with Flutter and Dart 2: Packt publication: Septemb
 3. https://www.javatpoint.com/flutter
 4. https://fluttertutorial.in/
 
-## Page 52
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2423,7 +2361,6 @@ Integrating Flutter Application with
 Firebase and State Management
 √
 
-## Page 53
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2500,7 +2437,6 @@ Page 40
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 54
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2544,7 +2480,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) :36
 Total Hours:72
 
-## Page 55
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2583,7 +2518,6 @@ Hours 06
 Introduction to Mongo DB, Installation of MongoDB – MongoDB Server & MongoDB Shell,
 MongoDB Compass, MongoDB Database, Collections, and documents, Basic operations
 
-## Page 56
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2622,7 +2556,6 @@ CO4 : Able to create Restful API to access data from MongoDB.
 CO5 : Able to create Single page application and MEAN stack
 application.
 
-## Page 57
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2750,13 +2683,11 @@ Moderate
 3
 2
 
-## Page 58
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
 Page 45
 
-## Page 59
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2797,7 +2728,6 @@ Software maintenance and risk management
 Total Hours (Theory): 36
 Total Hours:36
 
-## Page 60
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2835,7 +2765,6 @@ to software maintenance, types of maintenance.
 Concept of software reengineering, Business Process Reengineering(BPR), BPR life cycle, reverse engineering,
 Applications of Software Engineering.
 
-## Page 61
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2865,7 +2794,6 @@ CO3 : Get familiar with the concepts of Unified Modeling Language
 CO4: Understanding of the Agile software development concepts
 CO5 : Able to apply DevOps concepts and understand risk management
 
-## Page 62
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2947,7 +2875,6 @@ management
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 63
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -2960,7 +2887,6 @@ Online MCA PROGRAMME
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 64
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3038,7 +2964,6 @@ Data Analytics
 ### CAOE604
 Internet of Things
 
-## Page 65
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3082,7 +3007,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) : 36
 Total Hours: 72
 
-## Page 66
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3125,7 +3049,6 @@ education, 2017
 2. Milan Sonka, Vaclav Hlavac, Roger Boyle: Image Processing, Analysis, and Machine Vision,
 CL Engineering, 2007
 
-## Page 67
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3164,7 +3087,6 @@ Recognition
 6 Image Compressions
 √
 
-## Page 68
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3232,7 +3154,6 @@ Page 55
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 69
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3277,7 +3198,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) : 36
 Total Hours: 72
 
-## Page 70
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3314,7 +3234,6 @@ Hours 04
 Smart contracts in trading, investing, gaming, healthcare and real estate
 ### Core Books:
 
-## Page 71
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3344,7 +3263,6 @@ Able to test, debug and deploy smart contract.
 ### CO5 :
 Able to understand use cases of smart contract in real world.
 
-## Page 72
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3446,7 +3364,6 @@ Smart contracts in Real World
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 73
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3494,7 +3411,6 @@ Total Hours (Theory): 36
 Total Hours (Lab): 36
 Total Hours: 72
 
-## Page 74
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3528,7 +3444,6 @@ Data Visualization - Basic principles, ideas and tools for data visualization, D
 Issues - Discussions on privacy, security, ethics , Next-generation data scientists, Basics of Big Data
 analytics,
 
-## Page 75
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3563,7 +3478,6 @@ andunsupervised methods tutorials]
 7. https://yourstory.com/2017/12/data-analytics-future-trends/ [ Future Trends of Data
 Analytics]
 
-## Page 76
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3607,7 +3521,6 @@ Data visualization
 Recent trends and future directions
 √
 
-## Page 77
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3680,7 +3593,6 @@ Page 64
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 78
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3726,7 +3638,6 @@ Total Hours (Theory): 36
 Total Hours (Lab) :36
 Total Hours:72
 
-## Page 79
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3764,7 +3675,6 @@ Introduction to Raspberry Pi, Why Raspberry pi, Features of Raspberry pi, Basic 
 configuration, Different uses of Raspberry pi, Different Versions of Raspberry pi, Vision of Raspberry
 pi, Different components of the Board.
 
-## Page 80
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3791,7 +3701,6 @@ CO3 : Understanding use of sensors and actuators
 CO4 : Learning Mobile app for IOT Projects
 CO5 : Designing IOT projects using ESP8266 and ESP32 and Raspberry PI
 
-## Page 81
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3896,7 +3805,6 @@ Raspberry Pi for IOT Projects
 3
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 82
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3940,7 +3848,6 @@ Total Hours (Theory): 36
 Total Hours(Lab): 36
 Total Hours: 72
 
-## Page 83
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -3980,7 +3887,6 @@ Acceptance Testing in extreme Programming, Entry criteria and exit criteria for 
 and test closure in software testing life cycle.
 Unit - VI: Software Quality Assurance Hours: 05
 
-## Page 84
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4012,7 +3918,6 @@ CO3 : Able to apply black box testing methods
 CO4 : Familiar with different concepts of software testing techniques
 CO5 : Able to understand various standards of quality
 
-## Page 85
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4109,7 +4014,6 @@ Software Quality Assurance
 1
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 86
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4149,7 +4053,6 @@ in format of project report. Placement coordinator will provide the format of pr
 has to submit one copy of Mini Project to the institute. Each Student is required to make a copy of
 Mini Project in CD and submit along with Mini Project report.
 
-## Page 87
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4202,7 +4105,6 @@ Testing]
 6. http://www.cs.uics.edu/~jbell/CourseNotes/OO_SoftwareEngineering/SE_Project_Report
 _Template .pdf[ For guidelines to prepare software project report]
 
-## Page 88
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4246,7 +4148,6 @@ Page 75
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation
 
-## Page 89
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4300,7 +4201,6 @@ Bill
 ● Measuring and monitoring use of
 Power in XXX Company.
 
-## Page 90
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4344,7 +4244,6 @@ datacentres for efficient cooling
 ● Impact of Datacenters on the
 environment.
 
-## Page 91
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4390,7 +4289,6 @@ distributing.
 Total Hours (Practical): 24
 Total Hours:24
 
-## Page 92
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4423,7 +4321,6 @@ Can understand the issues related with Green compliance.
 ### CO5 :
 Can study and develop various applications and case studies.
 
-## Page 93
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4507,13 +4404,11 @@ applications
 2
 1: Slight (Low) 2: Moderate (Medium) 3: Substantial (High) No correlation “-”
 
-## Page 94
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
 Page 81
 
-## Page 95
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4526,7 +4421,6 @@ Online MCA PROGRAMME
 ### EFFECTIVE FROM
 ### ACADEMIC YEAR 2025-26
 
-## Page 96
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4568,7 +4462,6 @@ Work
 280
 800
 
-## Page 97
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025
@@ -4603,7 +4496,6 @@ in format of project report. Placement coordinator will provide the format of pr
 has to submit one copy of Dissertation to the institute. Each Student is required to make a copy of
 Dissertation in CD and submit along with Dissertation report.
 
-## Page 98
 
 Smt. Chandaben Mohanbhai Patel Institute of Computer Applications
 Online M CA Syllabus 2024-2025

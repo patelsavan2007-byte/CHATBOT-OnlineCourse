@@ -42,6 +42,14 @@ _WHO_ARE_YOU_RE = re.compile(
     r"\b(?:who\s+are\s+you|what\s+is\s+your\s+name|what\s+can\s+you\s+do|introduce\s+yourself|tell\s+me\s+about\s+yourself)\b",
     re.IGNORECASE,
 )
+_NAME_INTRO_RE = re.compile(
+    r"\b(?:my\s+name\s+is|call\s+me|i\s+am|i'm)\s+([A-Za-z][A-Za-z'’.-]*(?:\s+[A-Za-z][A-Za-z'’.-]*)?)",
+    re.IGNORECASE,
+)
+_NAME_QUERY_RE = re.compile(
+    r"\b(?:what(?:'s|\s+is)\s+my\s+name|do\s+you\s+(?:know|remember)\s+my\s+name|who\s+am\s+i)\b",
+    re.IGNORECASE,
+)
 _RUDE_RE = re.compile(
     r"\b(?:idiot|stupid|useless|dumb|fool|shut\s+up|hate\s+you|rubbish|garbage|worst\s+bot)\b",
     re.IGNORECASE,
@@ -164,8 +172,16 @@ def is_smalltalk(question: str) -> bool:
         or _THANKS_RE.match(q)
         or _BYE_RE.match(q)
         or _WHO_ARE_YOU_RE.search(q)
+        or _NAME_QUERY_RE.search(q)
     ):
         return True
+
+    # A name introduction with no course/programme context is conversational.
+    match = _NAME_INTRO_RE.search(q)
+    if match:
+        from app.conversation import _clean_name
+        if _clean_name(match.group(1)):
+            return True
 
     return False
 
@@ -190,6 +206,20 @@ def converse(
             return random.choice(_OFFTOPIC_TEMPLATES)
         if _RUDE_RE.search(q):
             return random.choice(_RUDE_TEMPLATES)
+
+    if _NAME_QUERY_RE.search(q):
+        from app.conversation import extract_user_name
+        name = extract_user_name(question="", history=history)
+        if name:
+            return f"Your name is {name}. How can I help you with your programme today?"
+        return "I don't have your name yet. Tell me your name and I'll remember it for this chat."
+
+    name_match = _NAME_INTRO_RE.search(q)
+    if name_match and not has_course_context:
+        from app.conversation import _clean_name
+        name = _clean_name(name_match.group(1))
+        if name:
+            return f"Nice to meet you, {name}! What would you like to know about CHARUSAT's online programmes?"
 
     if _BYE_RE.search(q):
         return random.choice(_BYE_TEMPLATES)

@@ -737,6 +737,94 @@ class RAGRetriever:
 
         return results
 
+    def _faculty_candidate_search(
+        self, prog: str = "",
+    ) -> List[Tuple[Document, float]]:
+        """Retrieve faculty roster and teaching staff chunks."""
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is None:
+            return []
+
+        try:
+            data = collection.get(include=["documents", "metadatas"])
+        except Exception as exc:
+            logger.warning("Faculty search failed: %s", exc)
+            return []
+
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+        prog_lower = (prog or "").lower()
+
+        prominent_faculty = (
+            "dr. dharmendra patel", "dr. atul patel", "dr. binit patel",
+            "dr. reshma sable", "dr. sanskruti patel", "dr. jaimin undavia",
+            "dr. rajesh sadhwani", "dr. bhaskar pandya", "dr. gaurav rajput",
+        )
+
+        for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+            if not doc_text or not doc_text.strip():
+                continue
+            doc_lower = doc_text.lower()
+            src = str(meta.get("source", "")).lower()
+
+            if "testimonial" in doc_lower:
+                continue
+
+            is_match = False
+            if "our faculty" in doc_lower or "faculty for b" in doc_lower or "faculty for m" in doc_lower or "faculty of computer" in doc_lower:
+                is_match = True
+            elif any(prof in doc_lower for prof in prominent_faculty):
+                is_match = True
+
+            if is_match:
+                score = 0.92
+                if "home.md" in src and ("faculty for bba" in doc_lower or "faculty for bca" in doc_lower):
+                    score = 0.98
+                p_name = str(meta.get("program_name", "")).lower()
+                if prog_lower and p_name:
+                    if prog_lower in p_name:
+                        score = 0.96
+                    else:
+                        score = 0.86
+                cid = meta.get("chunk_id")
+                key = (src, meta.get("page"), cid, doc_text[:50])
+                if key not in seen:
+                    seen.add(key)
+                    results.append((Document(page_content=doc_text, metadata=meta), score))
+
+        results.sort(key=lambda item: item[1], reverse=True)
+        return results
+
+    def _contact_candidate_search(self) -> List[Tuple[Document, float]]:
+        """Retrieve official contact directory chunks."""
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is None:
+            return []
+        try:
+            data = collection.get(
+                where={"source": "programs/contact.md"},
+                include=["documents", "metadatas"],
+            )
+        except Exception:
+            try:
+                data = collection.get(include=["documents", "metadatas"])
+            except Exception as exc:
+                logger.warning("Contact search failed: %s", exc)
+                return []
+
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+        for doc_text, meta in zip(data.get("documents", []), data.get("metadatas", [])):
+            if not doc_text or not doc_text.strip():
+                continue
+            src = str(meta.get("source", "")).lower()
+            if "contact.md" in src or "contact details" in doc_text.lower():
+                key = (src, meta.get("chunk_id"))
+                if key not in seen:
+                    seen.add(key)
+                    results.append((Document(page_content=doc_text, metadata=meta), 0.96))
+        return results
+
     def _compare_candidate_search(
         self, query: str, plan: TurnPlan,
     ) -> List[Tuple[Document, float]]:
@@ -909,6 +997,12 @@ class RAGRetriever:
             elif plan.topic in ("fees", "refund", "taxes_hidden_charges", "emi"):
                 fee_pool = self._fee_candidate_search(program_name)
                 pool = self._merge_targeted_pool(pool, fee_pool)
+            elif plan.topic == "faculty":
+                fac_pool = self._faculty_candidate_search(program_name)
+                pool = self._merge_targeted_pool(pool, fac_pool)
+            elif plan.topic == "contact":
+                contact_pool = self._contact_candidate_search()
+                pool = self._merge_targeted_pool(pool, contact_pool)
         elif _is_programme_overview_query(search_query):
             program_name = ""
             intent = INTENT_OVERVIEW
@@ -917,6 +1011,12 @@ class RAGRetriever:
             program_name = ""
             intent = INTENT_GENERAL
             pool = self._candidate_search(search_query, "", intent=intent, phrases=phrases)
+            if plan and plan.topic == "faculty":
+                fac_pool = self._faculty_candidate_search("")
+                pool = self._merge_targeted_pool(pool, fac_pool)
+            elif plan and plan.topic == "contact":
+                contact_pool = self._contact_candidate_search()
+                pool = self._merge_targeted_pool(pool, contact_pool)
 
         self.last_program = program_name
         self.last_intent = intent
@@ -966,6 +1066,12 @@ class RAGRetriever:
             target_progs = plan.programmes if plan.programmes else ALL_PROGRAM_NAMES
             final = self._ensure_multi_program_coverage(relevant_scored, target_progs, min_per_prog=2)
         elif plan.topic in ("subjects", "specializations", "grading", "exams_grading", "faculty"):
+            if plan.topic == "faculty":
+                relevant_scored = [
+                    item for item in relevant_scored
+                    if not item[0].page_content.strip().startswith("## Testimonials")
+                    and "testimonial" not in str(item[0].metadata.get("source", "")).lower()
+                ]
             kept, _removed_dup = deduplicate_results(relevant_scored)
             kept, _removed_div = apply_diversity_cap(kept, max_per_source_page=8)
             top_k = 12 if (plan.topic in ("subjects", "specializations", "grading", "exams_grading", "faculty") and not plan.year and not plan.semester) else config.TOP_K
@@ -992,6 +1098,22 @@ class RAGRetriever:
                     key = fdoc.page_content.strip()[:100]
                     if not any(d.page_content.strip()[:100] == key for d, _ in final):
                         final.insert(0, (fdoc, max(fscore, 0.90)))
+
+        # Step 4d: Faculty and contact questions: guarantee faculty & contact chunks in the context
+        query_lower = search_query.lower()
+        if plan and (plan.topic == "faculty" or any(w in query_lower for w in ("faculty", "facult", "professor", "teacher", "who teaches"))):
+            fac_chunks = self._faculty_candidate_search(program_name)
+            for fdoc, fscore in fac_chunks[:6]:
+                key = fdoc.page_content.strip()[:100]
+                if not any(d.page_content.strip()[:100] == key for d, _ in final):
+                    final.insert(0, (fdoc, max(fscore, 0.92)))
+
+        if plan and (plan.topic == "contact" or any(w in query_lower for w in ("contact", "phone", "email", "helpline", "reach out", "office", "call"))):
+            contact_chunks = self._contact_candidate_search()
+            for cdoc, cscore in contact_chunks[:4]:
+                key = cdoc.page_content.strip()[:100]
+                if not any(d.page_content.strip()[:100] == key for d, _ in final):
+                    final.insert(0, (cdoc, max(cscore, 0.95)))
 
         return final
 

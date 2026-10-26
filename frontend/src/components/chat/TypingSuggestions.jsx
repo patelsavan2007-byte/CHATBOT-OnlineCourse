@@ -46,7 +46,7 @@ export default function TypingSuggestions({
       id={listId}
       role="listbox"
       aria-label="Question suggestions"
-      className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-xl border border-[var(--border-primary)] bg-[var(--surface-primary)] shadow-xl backdrop-blur-md animate-fade-up"
+      className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-xl border border-[var(--border-primary)] bg-[var(--surface-primary)] shadow-xl backdrop-blur-md"
     >
       <div className="border-b border-[var(--border-primary)] bg-[var(--surface-hover)]/60 px-3 py-1.5 text-[11px] font-medium text-[var(--text-tertiary)] flex items-center justify-between">
         <span>Suggested questions</span>

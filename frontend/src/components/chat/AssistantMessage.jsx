@@ -6,6 +6,8 @@
 import { useState, useCallback } from "react";
 import RichText from "../RichText.jsx";
 import { apiFetch } from "../../services/api.js";
+import { ASSISTANT_AVATAR, ASSISTANT_NAME } from "../../config/branding.js";
+
 
 function formatTime(t) {
   try {
@@ -149,6 +151,24 @@ function RegenerateButton({ onRegenerate }) {
   );
 }
 
+function QuickReplies({ replies, onSelect }) {
+  if (!replies || replies.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Choose a programme">
+      {replies.map((reply) => (
+        <button
+          key={reply}
+          onClick={() => onSelect?.(reply)}
+          className="inline-flex items-center rounded-full border border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/10 px-3.5 py-1.5 text-xs font-medium text-[var(--accent-primary)] transition hover:bg-[var(--accent-primary)] hover:text-white"
+          type="button"
+        >
+          {reply}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function AssistantMessage({
   messageId,
   content,
@@ -156,15 +176,19 @@ export default function AssistantMessage({
   timestamp,
   onRetry,
   onRegenerate,
+  isStreaming,
+  suggestedQuestions,
+  quickReplies,
+  onSuggestedQuestion,
 }) {
   return (
-    <div className="group flex gap-3 animate-fade-up">
+    <div className="group flex gap-3">
       {/* Avatar */}
-      <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 ring-1 ring-[var(--border-primary)]">
-        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5 fill-[var(--accent-primary)]" aria-hidden>
-          <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-        </svg>
-      </div>
+      <img
+        src={ASSISTANT_AVATAR}
+        alt={ASSISTANT_NAME}
+        className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border-primary)]"
+      />
 
       {/* Content */}
       <div className="min-w-0 flex-1">
@@ -196,15 +220,41 @@ export default function AssistantMessage({
               <RichText text={content} />
             </div>
 
-            {/* Actions — copy + feedback + regenerate + timestamp */}
-            <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">
-              <CopyButton text={content} />
-              <FeedbackButtons messageId={messageId || (timestamp ? `${timestamp}` : "msg")} />
-              <RegenerateButton onRegenerate={onRegenerate} />
-              <span className="ml-1 text-[10px] text-[var(--text-tertiary)]">
-                {formatTime(timestamp)}
-              </span>
-            </div>
+            {!isStreaming && (
+              <>
+                {/* Actions — copy + feedback + regenerate + timestamp */}
+                <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">
+                  <CopyButton text={content} />
+                  <FeedbackButtons messageId={messageId || (timestamp ? `${timestamp}` : "msg")} />
+                  <RegenerateButton onRegenerate={onRegenerate} />
+                  <span className="ml-1 text-[10px] text-[var(--text-tertiary)]">
+                    {formatTime(timestamp)}
+                  </span>
+                </div>
+
+                <QuickReplies replies={quickReplies} onSelect={onSuggestedQuestion} />
+
+                {/* Dynamic suggested follow-up questions */}
+                {suggestedQuestions && suggestedQuestions.length > 0 && (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {suggestedQuestions.map((q, i) => (
+                      <button
+                        key={i}
+                        onClick={() => onSuggestedQuestion?.(q)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 hover:text-[var(--accent-primary)] cursor-pointer"
+                        type="button"
+                      >
+                        <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                          <circle cx="11" cy="11" r="8" />
+                          <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
           </>
         )}
       </div>

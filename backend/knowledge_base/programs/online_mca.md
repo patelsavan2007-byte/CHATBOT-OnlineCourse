@@ -81,7 +81,7 @@ Upon successful completion of the MCA programme, CHARUSAT issues an official deg
 
 ## Our Faculty (MCA Programme)
 
-The MCA programme faculty is the same as the BCA programme faculty — experienced professionals from the field of Computer Applications and Information Technology:
+See [Faculty](../faculty.md) for the consolidated list (BCA & MCA section). The MCA programme faculty is the same as the BCA programme faculty.
 
 - Dr. Dharmendra Patel – Principal - CMPICA; Ph.D.
 - Dr. Sanskruti Patel – DEAN - FCA

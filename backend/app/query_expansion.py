@@ -36,13 +36,30 @@ def extract_key_terms(text: str) -> List[str]:
 def is_vague_query(query: str) -> bool:
     """Return True if the query is a short, ambiguous or vague question without enough detail."""
     q = query.strip().lower().rstrip("?").strip()
-    return q in {
+    core = re.sub(
+        r"^(?:what(?:'s|\s+is|\s+are)?|how(?:\s+about)?|tell\s+me|can\s+you|please)\s+",
+        "",
+        q,
+    ).strip()
+    core = re.sub(r"^(?:the|a|an)\s+", "", core).strip()
+    vague_terms = {
         "fees", "fee", "cost", "price", "it", "this", "that",
         "tell me more", "more", "tell me", "details",
         "courses", "course", "program", "programme", "programs", "programmes",
         "duration", "eligibility", "admission", "syllabus", "exam", "exams",
         "subjects", "specialization", "specialisation",
-    } or bool(re.match(r"^(?:fees?|it|tell\s+me\s+more|more|details?)\??$", q))
+        "fee structure", "fees structure", "fee details", "fees details",
+        "eligibility criteria", "admission process", "admission procedure",
+        "passing marks", "passing criteria", "minimum passing marks",
+        "grading", "grading system", "cgpa", "examination pattern",
+        "syllabus details", "course structure", "programme structure",
+    }
+    return (q in vague_terms or core in vague_terms) or bool(re.match(
+        r"^(?:fees?|it|tell\s+me\s+more|more|details?"
+        r"|(?:fee|fees|grading)\s+(?:structure|details)"
+        r"|passing\s+(?:marks|criteria))\??$",
+        core,
+    ))
 
 
 def vague_clarification_message() -> str:

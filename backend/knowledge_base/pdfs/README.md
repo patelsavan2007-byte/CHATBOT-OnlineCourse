@@ -8,7 +8,7 @@ knowledge_base/pdfs/
 ├── README.md                        ← This file
 │
 ├── [ACTIVE – ingested by PDF pipeline]
-├── Fees Refund Policy.pdf           ← Fees refund rules (general)
+├── (removed; use refund_policy.md)           ← Fees refund rules (general)
 ├── PPR_Online BBA.pdf               ← Programme & Pedagogy Report – Online BBA
 ├── PPR_Online BCA.pdf               ← Programme & Pedagogy Report – Online BCA
 ├── PPR_Online MBA.pdf               ← Programme & Pedagogy Report – Online MBA

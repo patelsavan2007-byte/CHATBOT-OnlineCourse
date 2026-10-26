@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import * as chatService from "../services/chat.js";
+import { DEFAULT_THINKING_MESSAGE } from "../config/branding.js";
 
 let _localId = 1;
 const localId = () => `local-${_localId++}`;
@@ -20,6 +21,7 @@ export function useChat() {
   const [activeConversationId, setActiveConversationId] = useState(urlConversationId || null);
   const [messages, setMessages] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [thinkingStatus, setThinkingStatus] = useState(DEFAULT_THINKING_MESSAGE);
   const [showGuestLimit, setShowGuestLimit] = useState(false);
 
   const guestMessagesRef = useRef([]);
@@ -106,19 +108,61 @@ export function useChat() {
       const userMsg = { id: localId(), role: "user", content: question, timestamp: nowIso() };
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
+      setThinkingStatus(DEFAULT_THINKING_MESSAGE);
+
+      const assistantId = localId();
+      let finalContent = "";
+      let receivedAnswer = false;
+      let thinkingTimer = null;
+      thinkingTimer = setTimeout(() => {
+        setIsLoading(true);
+      }, 400);
+
+      const appendChunk = (chunk) => {
+        // Classic mode: we still accept chunks but will render full answer at end
+        if (thinkingTimer) {
+          clearTimeout(thinkingTimer);
+          thinkingTimer = null;
+        }
+        setIsLoading(false);
+      };
 
       try {
-        const response = await chatService.sendMessage(
-          question,
-          isGuest ? null : activeConversationId,
-          messages
-        );
+        let response;
+        try {
+          response = await chatService.streamMessage(
+            question,
+            isGuest ? null : activeConversationId,
+            messages,
+            {
+              onThinking: (message) => setThinkingStatus(message || DEFAULT_THINKING_MESSAGE),
+              onChunk: appendChunk,
+            }
+          );
+        } catch (streamErr) {
+          // Fall back to the non-streaming endpoint only if nothing rendered yet.
+          if (receivedChunk) throw streamErr;
+          response = await chatService.sendMessage(
+            question,
+            isGuest ? null : activeConversationId,
+            messages
+          );
+        }
 
+        if (thinkingTimer) {
+          clearTimeout(thinkingTimer);
+          thinkingTimer = null;
+        }
+        setIsLoading(false);
+        const finalContentAnswer = response.answer ?? "";
         const assistantMsg = {
-          id: response.message_id || localId(),
+          id: response.message_id || assistantId,
           role: "assistant",
-          content: response.answer,
+          content: finalContentAnswer,
           timestamp: nowIso(),
+          suggestedQuestions: response.suggested_questions || [],
+          quickReplies: response.quick_replies || [],
+          isStreaming: false,
         };
         setMessages((prev) => [...prev, assistantMsg]);
 
@@ -137,6 +181,11 @@ export function useChat() {
           navigate(`/chat/${response.conversation_id}`, { replace: true });
         }
       } catch (err) {
+        if (thinkingTimer) {
+          clearTimeout(thinkingTimer);
+          thinkingTimer = null;
+        }
+        setIsLoading(false);
         const errMsg = {
           id: localId(),
           role: "assistant",
@@ -147,7 +196,12 @@ export function useChat() {
         };
         setMessages((prev) => [...prev, errMsg]);
       } finally {
+        if (thinkingTimer) {
+          clearTimeout(thinkingTimer);
+          thinkingTimer = null;
+        }
         setIsLoading(false);
+        setThinkingStatus(DEFAULT_THINKING_MESSAGE);
       }
     },
     [
@@ -198,12 +252,18 @@ export function useChat() {
   const clearChat = useCallback(() => {
     setActiveConversationId(null);
     setMessages([]);
+    guestMessagesRef.current = [];
+    setThinkingStatus(DEFAULT_THINKING_MESSAGE);
+    try {
+      sessionStorage.removeItem(GUEST_MESSAGES_KEY);
+    } catch {/* ignore */}
     navigate("/chat", { replace: true });
   }, [navigate]);
 
   return {
     messages,
     isLoading,
+    thinkingStatus,
     activeConversationId,
     setActiveConversationId,
     showGuestLimit,

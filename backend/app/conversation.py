@@ -100,6 +100,90 @@ _SEM_RE = re.compile(
 
 _WORD_TO_NUM = {"first": 1, "second": 2, "third": 3}
 
+_NAME_INTRO_RE = re.compile(
+    r"\b(?:my\s+name\s+is|call\s+me|i\s+am|i'm)\s+([A-Za-z][A-Za-z'’.-]*(?:\s+[A-Za-z][A-Za-z'’.-]*)?)",
+    re.IGNORECASE,
+)
+_NAME_STOPWORDS = {
+    "a", "an", "the", "interested", "looking", "planning", "from", "here",
+    "currently", "not", "just", "only", "still", "also", "very", "so",
+    "and", "or", "but", "with", "in", "for", "about", "trying", "considering",
+    "student", "studying", "working", "applying", "asking", "sorry", "good",
+    "fine", "okay", "ok", "confused", "new", "unable", "not",
+}
+_NAME_QUERY_RE = re.compile(
+    r"\b(?:what(?:'s|\s+is)\s+my\s+name|do\s+you\s+(?:know|remember)\s+my\s+name|who\s+am\s+i)\b",
+    re.IGNORECASE,
+)
+
+
+def _clean_name(value: str) -> Optional[str]:
+    tokens = [t for t in (value or "").replace("’", "'").split() if t]
+    kept: List[str] = []
+    for token in tokens:
+        cleaned = token.strip(".,!?;:'\"")
+        if not cleaned:
+            continue
+        if cleaned.lower() in _NAME_STOPWORDS:
+            break
+        kept.append(cleaned)
+        if len(kept) == 2:
+            break
+    if not kept:
+        return None
+    name = " ".join(kept)
+    if len(name) < 2:
+        return None
+    return name
+
+
+def extract_user_name(
+    question: str = "",
+    history: Optional[List[Dict[str, Any]]] = None,
+) -> Optional[str]:
+    """Return the user's name from the current turn or earlier user turns."""
+    candidates: List[str] = []
+    if question:
+        candidates.append(question)
+    for msg in reversed(history or []):
+        if isinstance(msg, dict) and msg.get("role") == "user":
+            content = (msg.get("content") or "").strip()
+            if content:
+                candidates.append(content)
+        elif isinstance(msg, (tuple, list)) and msg:
+            candidates.append(str(msg[0]))
+
+    for text in candidates:
+        match = _NAME_INTRO_RE.search(text)
+        if match:
+            name = _clean_name(match.group(1))
+            if name:
+                return name
+    return None
+
+
+def build_session_state(
+    question: str,
+    plan: TurnPlan,
+    history: Optional[List[Dict[str, Any]]] = None,
+) -> Dict[str, Any]:
+    """Build the compact session state sent to the prompt and the client."""
+    last_topic = plan.topic if plan.topic != "general" else ""
+    if not last_topic:
+        for msg in reversed(history or []):
+            if isinstance(msg, dict) and msg.get("role") == "user":
+                content = (msg.get("content") or "").strip()
+                if content:
+                    prior = analyze_turn(content, history=None)
+                    if prior.topic != "general":
+                        last_topic = prior.topic
+                        break
+    return {
+        "activeProgrammes": list(plan.programmes),
+        "userName": extract_user_name(question, history),
+        "lastTopic": last_topic or "general",
+    }
+
 
 @dataclass
 class TurnPlan:

@@ -139,7 +139,6 @@ SOURCE_AUTHORITY_TIERS: List[Tuple[str, float]] = [
     (r"pdfs/PPR_Online", 1.00),               # official programme PDFs
     (r"pdfs/Fees Refund Policy", 0.95),       # official policy PDF
     (r"programs/online_", 0.90),              # official website programme pages
-    (r"-admission-data", 0.85),               # admission procedure pages
     (r"mandatory-disclosures", 0.80),         # statutory disclosures
     (r"terms-conditions", 0.75),              # general terms & conditions
     (r"privacy-policy", 0.75),                # privacy policy
@@ -156,7 +155,6 @@ GENERAL_POLICY_SOURCE_PATTERNS: List[str] = [
     "terms-conditions",
     "privacy-policy",
     "mandatory-disclosures",
-    "-admission-data",
     "ciqa",
 ]
 
@@ -335,3 +333,87 @@ PREFERRED_MODELS: List[str] = [
 # mixtral-8x7b-32768 are gone and cause silent fallback to deterministic mode.
 GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_TIMEOUT = 10.0  # seconds
+
+# ---------------------------------------------------------------------------
+# Official links (verified from the knowledge base only)
+# ---------------------------------------------------------------------------
+# The assistant may only surface links from this map. Add new entries here
+# after confirming the URL appears in a knowledge-base source.
+OFFICIAL_LINKS: Dict[str, str] = {
+    "home": "https://charusat.online/",
+    "admission_portal": "https://admission.charusat.ac.in/",
+    "student_login": "https://admission.charusat.ac.in/Login.aspx",
+    "bca_programme": "https://charusat.online/programs/bca.html",
+    "bba_programme": "https://charusat.online/programs/bba.html",
+    "mba_programme": "https://charusat.online/programs/mba.html",
+    "mca_programme": "https://charusat.online/programs/mca.html",
+    "contact": "https://charusat.online/programs/contact.html",
+    "cancellation_form": "https://charusat.online/catalogs/Adm_Can_Frm.docx",
+    "ugc_approval": "https://deb.ugc.ac.in/pdf/OLEtl2024.pdf",
+    "ciqa": "https://charusat.online/ciqa.html",
+    "mandatory_disclosures": "https://charusat.online/mandatory-disclosures.html",
+    "feedback": "https://charusat.online/feedback/",
+    "privacy_policy": "https://charusat.online/privacy-policy.html",
+    "terms_conditions": "https://charusat.online/terms-conditions.html",
+}
+
+# Topic / programme -> preferred official link key. The prompt receives a
+# compact rendered list so the model can choose a relevant link without
+# inventing URLs.
+LINK_MAP: Dict[str, Dict[str, str]] = {
+    "admission": {
+        "default": "admission_portal",
+        "online_bca": "bca_programme",
+        "online_bba": "bba_programme",
+        "online_mba": "mba_programme",
+        "online_mca": "mca_programme",
+    },
+    "fees": {
+        "default": "home",
+        "online_bca": "bca_programme",
+        "online_bba": "bba_programme",
+        "online_mba": "mba_programme",
+        "online_mca": "mca_programme",
+    },
+    "eligibility": {
+        "default": "admission_portal",
+        "online_bca": "bca_programme",
+        "online_bba": "bba_programme",
+        "online_mba": "mba_programme",
+        "online_mca": "mca_programme",
+    },
+    "subjects": {
+        "default": "home",
+        "online_bca": "bca_programme",
+        "online_mca": "mca_programme",
+    },
+    "grading": {
+        "default": "home",
+        "online_bca": "bca_programme",
+        "online_mca": "mca_programme",
+    },
+    "lms": {"default": "contact"},
+    "contact": {"default": "contact"},
+    "career": {"default": "home"},
+    "refund": {"default": "terms_conditions"},
+    "cancellation": {"default": "cancellation_form"},
+    "admission_cancellation": {"default": "cancellation_form"},
+    "duration": {"default": "home"},
+    "specializations": {"default": "home"},
+    "general": {"default": "home"},
+}
+
+AVATAR_PATH = "/assistant-avatar.svg"
+ASSISTANT_NAME = "CHARUSAT Online Assistant"
+
+
+def get_official_link(topic: str = "general", programme: str = "") -> str:
+    """Return the best verified official link for a topic/programme pair."""
+    topic_map = LINK_MAP.get((topic or "general").lower(), LINK_MAP["general"])
+    key = topic_map.get(programme or "") or topic_map.get("default", "home")
+    return OFFICIAL_LINKS.get(key, OFFICIAL_LINKS["home"])
+
+
+def format_link_map() -> str:
+    """Render the verified link list for the system prompt."""
+    return "\n".join(f"- {name}: {url}" for name, url in OFFICIAL_LINKS.items())

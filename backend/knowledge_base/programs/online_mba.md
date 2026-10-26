@@ -82,7 +82,7 @@ Graduates will be able to:
 
 ## Our Faculty (MBA Programme)
 
-The MBA programme faculty includes experienced professionals from management, finance, HR, marketing, and humanities. The faculty for the MBA programme is the same as the BBA programme faculty:
+See [Faculty](../faculty.md) for the consolidated list (BBA & MBA section). The faculty for the MBA programme is the same as the BBA programme faculty:
 
 - Dr. Binit Patel – Registrar, CHARUSAT; PhD, MBA(Marketing), BE(Computer Science), EP(BA), CORe - Harvard Business School (Online)
 - Dr. Reshma Sable – Principal - IIIM; PhD, MBA(HRM), M.Ed., MSc

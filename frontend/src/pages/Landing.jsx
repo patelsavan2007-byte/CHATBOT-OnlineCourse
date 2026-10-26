@@ -181,26 +181,26 @@ export default function Landing() {
 
           <div className="relative mx-auto w-full max-w-3xl text-center">
             {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-secondary)] animate-fade-up">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3.5 py-1.5 text-xs font-medium text-[var(--text-secondary)]">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden />
               CHARUSAT Online Degree Assistant
             </div>
 
             {/* Headline */}
-            <h1 className="font-display mt-6 text-4xl font-normal leading-tight text-[var(--text-primary)] sm:text-5xl lg:text-6xl animate-fade-up">
+            <h1 className="font-display mt-6 text-4xl font-normal leading-tight text-[var(--text-primary)] sm:text-5xl lg:text-6xl">
               Official information on CHARUSAT online degrees,
               <br />
               <span className="text-[var(--accent-primary)]">answered directly.</span>
             </h1>
 
             {/* Subtitle */}
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[var(--text-tertiary)] sm:text-lg animate-fade-up">
+            <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-[var(--text-tertiary)] sm:text-lg">
               Explore eligibility, fees, semester syllabi, admission guidelines, and academic
               regulations for Charotar University of Science and Technology's online programmes.
             </p>
 
             {/* CTAs */}
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center animate-fade-up">
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 to="/chat"
                 className="inline-flex items-center gap-2 rounded-xl bg-[var(--accent-primary)] px-6 py-3 text-sm font-semibold text-white shadow-md transition hover:bg-[var(--accent-primary-hover)] focus-visible:outline-2"

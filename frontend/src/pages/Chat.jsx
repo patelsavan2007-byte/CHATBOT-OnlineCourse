@@ -28,6 +28,7 @@ export default function Chat() {
   const {
     messages,
     isLoading,
+    thinkingStatus,
     activeConversationId,
     setActiveConversationId,
     showGuestLimit,
@@ -111,8 +112,10 @@ export default function Chat() {
             <MessageList
               messages={messages}
               isLoading={isLoading}
+              thinkingStatus={thinkingStatus}
               onRetry={retryMessage}
               onRegenerate={regenerateLastMessage}
+              onSuggestedQuestion={sendMessage}
             />
           ) : (
             <div className="flex-1 overflow-y-auto chat-scroll">

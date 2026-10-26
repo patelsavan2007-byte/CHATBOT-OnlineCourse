@@ -20,7 +20,7 @@ export default function GuestLimitModal({ onClose }) {
       />
 
       {/* Panel */}
-      <div className="relative w-full max-w-sm rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-6 shadow-[var(--shadow-lg)] animate-fade-up">
+      <div className="relative w-full max-w-sm rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-6 shadow-[var(--shadow-lg)]">
         {/* Close */}
         <button
           onClick={onClose}

@@ -261,6 +261,11 @@ body {
   50%      { transform: translateY(-6px); }
 }
 
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
 @keyframes scale-in {
   from {
     opacity: 0;
@@ -274,7 +279,6 @@ body {
 
 /* ---- Animation utility classes ---- */
 .animate-fade-in    { animation: fade-in 0.3s ease-out both; }
-.animate-fade-up    { animation: fade-up 0.4s ease-out both; }
 .animate-fade-in-left { animation: fade-in-left 0.3s ease-out both; }
 .animate-slide-in   { animation: slide-in-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
 .animate-slide-in-right { animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
@@ -362,11 +366,19 @@ body {
   color: var(--text-secondary);
 }
 
-/* ---- Conflict / warning notice inside answers ---- */
-.prose-chat .notice-conflict,
-.prose-chat .notice-conflict p {
-  color: var(--warning);
+/* Tables stay inside the message column and scroll horizontally instead of
+   stretching the chat layout on narrow screens. */
+.prose-chat table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
 }
+
+.prose-chat > div > div:has(> table) {
+  max-width: 100%;
+}
+
+
 .prose-chat .notice-conflict strong {
   color: var(--warning);
   font-weight: 600;

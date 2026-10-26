@@ -1,5 +1,4 @@
 Title: AICTE EOA Report 2024-2025 - Online BCA & MCA
-URL: https://charusat.online/eoa-report-bca-mca
 Category: AICTE EOA Report
 Source PDF: 2.1.18 EOA Report 2024-2025 AICTE BCA MCA.pdf
 

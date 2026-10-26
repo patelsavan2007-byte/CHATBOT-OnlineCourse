@@ -12,6 +12,13 @@ Last Scraped: 2026-10-20T14:44:00+00:00
 - Ranked amongst Top 3 universities in Gujarat by GSIRF
 - Center of Excellence by Government of Gujarat
 
+## Degree Offered By CHARUSAT
+
+- ![BCA Front Sample](https://charusat.online/images/BCA-Front.webp "BCA Front Sample")  
+  _Sample certificate (front)_
+- ![BCA Back Sample](https://charusat.online/images/BCA-Back%20web.webp "BCA Back Sample")  
+  _Sample certificate (back)_
+
 ## Why choose Charusat Online?
 
 - UGC-Entitled Online Degrees
@@ -66,11 +73,7 @@ To be a leading institution that provides innovative, accessible, and quality on
 
 ## Our Faculty
 
-CHARUSAT Online programmes are taught by experienced and qualified faculty members. The faculty is broadly organized into two groups based on the programmes they support:
-
-### Faculty for BBA & MBA Programmes (Business/Management Faculty)
-
-These faculty members are associated with IIIM (Indus Institute of Integrated Management), CLASS (College of Liberal Arts and Social Sciences), FMS (Faculty of Management Studies), and FOH (Faculty of Humanities).
+CHARUSAT Online programmes are taught by experienced and qualified faculty members. See [Faculty](faculty.md) for the consolidated list by group (Leadership/common, BBA & MBA, BCA & MCA). The faculty is broadly organized into two groups based on the programmes they support:
 
 - Dr. Atul Patel – Provost, CHARUSAT; Dean - Academics; Professor - CMPICA
 - Dr. Binit Patel – Registrar, CHARUSAT; PhD, MBA(Marketing), BE(Computer Science), EP(BA), CORe - Harvard Business School (Online)
@@ -84,7 +87,6 @@ These faculty members are associated with IIIM (Indus Institute of Integrated Ma
 - Ms. Margie Mehta – PhD(Pursuing), MBA(Marketing), BBA
 - Ms. Khushboo Bhatt
 - Dr. Mukesh Pal – PhD, MBA
-- Dr. Ruma Pal – Assistant Professor; PhD, MBA, BCom
 - Dr. Shabana Anjum – PhD, MBA, BCom
 - Ms. Dharti Patel – PhD(Pursuing), MBA(Finance), BCom
 - Dr. Hardi Raval – PhD, MBA(HR)
@@ -211,7 +213,7 @@ These companies regularly visit CHARUSAT for campus placements and recruit stude
 ## Contact Information (Footer)
 
 ### Quick Contact
-- **Phone**: +91-743 405 5556
+- **Phone**: +91-743 405 5556 | +91-743 405 5554
 - **Admission Email**: online-admissions@charusat.ac.in
 - **General Enquiry Email**: info.ccoe@charusat.ac.in
 - **Apply Now / Admission Portal**: https://admission.charusat.ac.in/

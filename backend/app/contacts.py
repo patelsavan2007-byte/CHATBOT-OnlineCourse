@@ -44,25 +44,74 @@ class ContactDirectory:
         lines = content.splitlines()
         current_service = ""
 
+        service_aliases = {
+            "admissions": "Admissions",
+            "student services": "Student Services",
+            "learning management system": "Learning Management System",
+            "learning management system (lms)": "Learning Management System",
+            "lms": "Learning Management System",
+            "course mentor": "Course Mentor",
+            "examinations": "Examinations",
+            "exam": "Examinations",
+            "accounts & payments": "Accounts & Payments",
+            "accounts and payments": "Accounts & Payments",
+            "general contact": "General Contact",
+            "general": "General Contact",
+        }
+
         for line in lines:
             line_str = line.strip()
-            if not line_str.startswith("|"):
-                continue
-            cells = [c.strip() for c in line_str.split("|")[1:-1]]
-            if not cells or cells[0] == "#" or "---" in cells[0]:
+            if not line_str:
                 continue
 
-            # Row format 1: | 1 | Service | Person | Email | Mobile |
-            if len(cells) >= 5 and cells[0].isdigit():
-                current_service = cells[1].strip()
-                person = cells[2].strip()
-                phone_digits = re.sub(r"\D", "", cells[4].strip())
-                self._add_entry(current_service, person, phone_digits)
-            # Row format 2: continuation row | Person | Email | Mobile |
-            elif len(cells) >= 3 and current_service:
-                person = cells[0].strip()
-                phone_digits = re.sub(r"\D", "", cells[2].strip())
-                self._add_entry(current_service, person, phone_digits)
+            # Check for Markdown heading: e.g. "## 1. Admissions" or "## General Contact"
+            if line_str.startswith("## "):
+                raw_sec = re.sub(r"^##\s*(?:\d+\.?\s*)?", "", line_str).strip()
+                sec_lower = raw_sec.lower()
+                matched_sec = service_aliases.get(sec_lower)
+                if not matched_sec:
+                    for alias, canonical in service_aliases.items():
+                        if alias in sec_lower:
+                            matched_sec = canonical
+                            break
+                current_service = matched_sec or raw_sec
+                continue
+
+            # Check for bullet format: "- **Mr. Darshit Patel** – Email: ... | Mobile: 7434055553"
+            if line_str.startswith("- ") and current_service:
+                # Extract person name (between ** ** if present)
+                person_m = re.search(r"\*\*(.*?)\*\*", line_str)
+                person = person_m.group(1).strip() if person_m else ""
+                # Check for programme tag like (BCA/MCA)
+                tag_m = re.search(r"\((BCA/MCA|BBA/MBA)\)", line_str)
+                if tag_m and person and tag_m.group(0) not in person:
+                    person = f"{person} {tag_m.group(0)}"
+                # Extract phone/mobile
+                phone_m = re.search(r"(?:Mobile|Phone|Helpline)[^:]*:\s*([+\d\s\-()]+)", line_str, re.I)
+                phone_raw = phone_m.group(1) if phone_m else ""
+                phone_digits = re.sub(r"\D", "", phone_raw)
+                if phone_digits:
+                    if not person:
+                        person = current_service
+                    self._add_entry(current_service, person, phone_digits)
+                continue
+
+            # Check for Pipe Table format: "| 1 | Service | Person | Email | Mobile |"
+            if line_str.startswith("|"):
+                cells = [c.strip() for c in line_str.split("|")[1:-1]]
+                if not cells or cells[0] == "#" or "---" in cells[0]:
+                    continue
+
+                if len(cells) >= 5 and cells[0].isdigit():
+                    raw_svc = cells[1].strip()
+                    current_service = service_aliases.get(raw_svc.lower(), raw_svc)
+                    person = cells[2].strip()
+                    phone_digits = re.sub(r"\D", "", cells[4].strip())
+                    self._add_entry(current_service, person, phone_digits)
+                elif len(cells) >= 3 and current_service:
+                    person = cells[0].strip()
+                    phone_digits = re.sub(r"\D", "", cells[2].strip())
+                    self._add_entry(current_service, person, phone_digits)
 
         logger.info(
             "Parsed contact directory with %d services from %s",

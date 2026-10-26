@@ -1,5 +1,4 @@
 Title: AICTE EOA Report 2024-2025 - Online BBA & MBA
-URL: https://charusat.online/eoa-report-bba-mba
 Category: AICTE EOA Report
 Source PDF: 2.1.18 EOA Report 2024-2025 AICTE BBA MBA.pdf
 

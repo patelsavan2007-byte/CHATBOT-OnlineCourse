@@ -65,14 +65,14 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
       </div>
 
       <h1
-        className="mt-5 text-center text-2xl font-semibold sm:text-3xl animate-fade-up"
+        className="mt-5 text-center text-2xl font-semibold sm:text-3xl"
         style={{ color: "var(--text-primary)" }}
       >
         CHARUSAT Assistant
       </h1>
 
       <p
-        className="mt-3 max-w-md text-center text-sm leading-relaxed sm:text-base animate-fade-up"
+        className="mt-3 max-w-md text-center text-sm leading-relaxed sm:text-base"
         style={{ color: "var(--text-tertiary)", animationDelay: "60ms" }}
       >
         Ask anything about CHARUSAT's online degree programmes — fees,
@@ -81,7 +81,7 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
 
       {/* Suggestion grid */}
       <div
-        className="mt-8 grid w-full max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2 animate-fade-up"
+        className="mt-8 grid w-full max-w-xl grid-cols-1 gap-2.5 sm:grid-cols-2"
         style={{ animationDelay: "120ms" }}
       >
         {starters.map((s) => {
@@ -117,7 +117,7 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
 
       {/* Footer */}
       <p
-        className="mt-8 text-center text-[11px] animate-fade-up"
+        className="mt-8 text-center text-[11px]"
         style={{ color: "var(--text-muted)", animationDelay: "180ms" }}
       >
         Answers are generated from CHARUSAT's official programme documents.

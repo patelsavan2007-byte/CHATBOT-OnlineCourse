@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CHARUSAT Online Assistant">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="6" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="0.55" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="cap" x1="18" y1="20" x2="46" y2="42" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#E0E7FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="url(#bg)"/>
+  <circle cx="49" cy="15" r="9" fill="#FFFFFF" opacity="0.12"/>
+  <path d="M32 17 13 27l19 10 15-7.9V38h4V27L32 17z" fill="url(#cap)"/>
+  <path d="M21 32.6V39c0 3.3 4.9 6 11 6s11-2.7 11-6v-6.4l-11 5.8-11-5.8z" fill="url(#cap)" opacity="0.92"/>
+  <path d="M15 46c5.6 3 11 4.5 17 4.5S43.4 49 49 46" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" opacity="0.9"/>
+  <circle cx="49" cy="46" r="3" fill="#FDE68A"/>
+  <path d="M16 19.5 12 18l4-1.5L17.5 12 19 16l4 1.5-4 1.5L17.5 24 16 19.5z" fill="#FFFFFF" opacity="0.85"/>
+</svg>

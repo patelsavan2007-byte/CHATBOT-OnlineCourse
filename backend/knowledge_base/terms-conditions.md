@@ -37,7 +37,7 @@ If several discounts or promotional offers potentially apply to a course, only o
 
 ## WITHDRAWALS AND REFUNDS
 
-Refund policy as per the University Guidelines.
+Refund policy as per the University Guidelines. See [Refund Policy](refund_policy.md) for the applicable slabs, charges, and mode of refund.
 
 ## USE AND DURATION OF CONTENT ACCESS
 
