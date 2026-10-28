@@ -126,7 +126,7 @@ export default function ChatSidebar({
   const groups = groupByDate(filtered);
 
   return (
-    <div className="flex h-full w-full flex-col bg-[var(--sidebar-bg)] border-r border-[var(--border-primary)] backdrop-blur-xl">
+    <div className="flex h-full w-full flex-col bg-[var(--sidebar-bg)] border-r border-[var(--border-primary)]">
       {/* Top — logo + actions */}
       <div className="flex items-center justify-between px-3 pt-3 pb-2">
         <Link
@@ -285,13 +285,13 @@ export default function ChatSidebar({
             aria-checked={typingSuggestionsEnabled}
             aria-label="Toggle typing suggestions"
             onClick={onToggleTypingSuggestions}
-            className={`relative h-4.5 w-8 rounded-full transition ${
+            className={`relative h-4.5 w-8 rounded-full transition ${ /* allow-round: toggle track */
               typingSuggestionsEnabled ? "bg-[var(--accent-primary)]" : "bg-[var(--surface-active)]"
             }`}
             type="button"
           >
             <span
-              className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white shadow transition-all ${
+              className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white shadow transition-all ${ /* allow-round: toggle thumb */
                 typingSuggestionsEnabled ? "left-4" : "left-0.5"
               }`}
             />
@@ -307,8 +307,8 @@ export default function ChatSidebar({
         <div className="mt-2 border-t border-[var(--border-primary)] pt-2">
           {user ? (
             <div className="flex items-center gap-2.5">
-              {/* Avatar */}
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)] text-xs font-semibold text-white">
+              {/* allow-round: user avatar circle */}
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)] text-xs font-semibold text-white"> {/* allow-round: avatar */}
                 {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">

@@ -159,7 +159,8 @@ function QuickReplies({ replies, onSelect }) {
         <button
           key={reply}
           onClick={() => onSelect?.(reply)}
-          className="inline-flex items-center rounded-full border border-[var(--accent-primary)]/40 bg-[var(--accent-primary)]/10 px-3.5 py-1.5 text-xs font-medium text-[var(--accent-primary)] transition hover:bg-[var(--accent-primary)] hover:text-white"
+          className="inline-flex items-center rounded-md border border-[var(--accent)]/40 bg-[var(--accent-surface)] px-3.5 py-1.5 text-xs font-medium transition hover:bg-[var(--accent)] hover:text-white"
+          style={{ color: "var(--accent)" }}
           type="button"
         >
           {reply}
@@ -241,7 +242,8 @@ export default function AssistantMessage({
                       <button
                         key={i}
                         onClick={() => onSuggestedQuestion?.(q)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs text-[var(--text-secondary)] transition hover:border-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/10 hover:text-[var(--accent-primary)] cursor-pointer"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs transition hover:border-[var(--accent)] hover:bg-[var(--accent-surface)] hover:text-[var(--accent)] cursor-pointer"
+                        style={{ color: "var(--text-2)" }}
                         type="button"
                       >
                         <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>

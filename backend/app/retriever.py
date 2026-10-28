@@ -802,7 +802,7 @@ class RAGRetriever:
             return []
         try:
             data = collection.get(
-                where={"source": "programs/contact.md"},
+                where={"source": "contact_directory.md"},
                 include=["documents", "metadatas"],
             )
         except Exception:

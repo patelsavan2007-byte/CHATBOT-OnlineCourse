@@ -116,7 +116,7 @@ export default function MessageList({
       {!stickToBottom && !isLoading && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-4 right-6 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] shadow-md transition hover:bg-[var(--surface-active)] hover:text-[var(--text-primary)] animate-scale-in"
+          className="absolute bottom-4 right-6 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] shadow-md transition hover:bg-[var(--surface-active)] hover:text-[var(--text-primary)] animate-scale-in" /* allow-round: scroll FAB circle is a standard UI convention */
           aria-label="Scroll to latest message"
           title="Scroll to latest"
           type="button"

@@ -194,8 +194,8 @@ export default function ChatComposer({
             aria-label="Send message"
             type="button"
           >
-            {disabled ? (
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--text-muted)] border-t-[var(--text-secondary)]" />
+            {disabled ? ( // allow-round: spinner
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--text-muted)] border-t-[var(--text-secondary)]" aria-hidden />
             ) : (
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />

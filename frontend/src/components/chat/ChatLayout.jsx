@@ -105,7 +105,7 @@ export default function ChatLayout({
       {drawerOpen && (
         <>
           <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
             onClick={closeDrawer}
             aria-hidden="true"
           />

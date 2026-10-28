@@ -259,8 +259,8 @@ class RAGChain:
             pass
         response_text, status = self.llm_client.generate(
             prompt,
-            context_chunks=chunks,
-            conflicts=conflicts,
+            context_chunks=evidence,
+            conflicts=_conflicts,
         )
         llm_time = time.time() - t_llm
 
@@ -305,7 +305,8 @@ class RAGChain:
                         )
                     ]
                     if safe_sentences:
-                        response_text = " ".join(safe_sentences)
+                        # Preserve line structure: rebuild without flattening
+                        response_text = "\n".join(s.strip() for s in safe_sentences if s.strip())
                     else:
                         response_text = (
                             "I wasn't able to confirm the exact figures for that. "

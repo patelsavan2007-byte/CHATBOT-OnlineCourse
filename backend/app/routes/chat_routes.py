@@ -394,41 +394,7 @@ def _thinking_status(plan: Any) -> str:
         "refund": "Reviewing the refund policyÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
     }
     return statuses.get(topic, "Looking that up...")
-    if db is None:
-        return
-    try:
-        from app.conversation import analyze_turn
-        plan = getattr(rag_result, "plan", None) or analyze_turn(question, history=None)
-        status_val = getattr(rag_result, "status", getattr(rag_chain, "last_status", "unknown")) if (rag_result or rag_chain) else "unknown"
-        status_str = str(status_val).lower()
-        is_gap = (
-            "not_found" in status_str
-            or "missing" in status_str
-            or "no_content" in status_str
-            or "fallback" in status_str
-            or "couldn't find" in answer.lower()
-        )
-        timing_dict = getattr(rag_result, "timing", {}) if rag_result else getattr(rag_chain, "last_timing", {})
-        latency = timing_dict.get("total_s", 0.0) if timing_dict else 0.0
 
-        event = {
-            "timestamp": datetime.now(timezone.utc),
-            "question": question,
-            "answer_preview": (answer[:250] + "...") if len(answer) > 250 else answer,
-            "status": str(status_val),
-            "programmes": getattr(plan, "programmes", []),
-            "topic": getattr(plan, "topic", "general"),
-            "year": getattr(plan, "year", None),
-            "user_id": user.get("id") if user else None,
-            "conversation_id": conversation_id,
-            "message_id": message_id,
-            "latency_s": round(latency, 3),
-            "is_gap": is_gap,
-            "feedback": None,
-        }
-        db.chat_events.insert_one(event)
-    except Exception as exc:
-        logger.warning("Failed to log chat event: %s", exc)
 
 
 @router.post("", response_model=ChatMessageResponse)
@@ -474,7 +440,7 @@ async def chat_message(
 
     # For guests, return without persistence (but log event)
     if user is None:
-        _log_chat_event(db, request.question, answer_text, user=None, rag_result=rag_result)
+        pass  # _log_chat_event removed
         return ChatMessageResponse(
             answer=answer_text,
             suggested_questions=suggested,
@@ -521,16 +487,7 @@ async def chat_message(
         sources=sources,
         suggested_questions=suggested,
     )
-
-    _log_chat_event(
-        db,
-        request.question,
-        answer_text,
-        user=user,
-        conversation_id=conversation_id,
-        message_id=assistant_msg["id"],
-        rag_result=rag_result,
-    )
+    pass  # _log_chat_event removed
 
     return ChatMessageResponse(
         answer=answer_text,
@@ -615,20 +572,6 @@ async def chat_message_stream(
                 sources=sources,
                 suggested=suggested,
             )
-            _log_chat_event(
-                db,
-                request.question,
-                answer_text,
-                user=user,
-                conversation_id=conv_id,
-                message_id=assistant_msg["id"] if assistant_msg else None,
-                rag_result=outcome.rag_result,
-            )
-            try:
-                from app import llm_call_counter
-                _llm_calls = llm_call_counter.get_calls(qid)
-            except Exception:
-                _llm_calls = 0
             final_data = {
                 "type": "done",
                 "answer": answer_text,
@@ -680,15 +623,6 @@ async def chat_message_stream(
             sources=sources,
             suggested=suggested,
         )
-        _log_chat_event(
-            db,
-            request.question,
-            answer_text,
-            user=user,
-            conversation_id=conv_id,
-            message_id=assistant_msg["id"] if assistant_msg else None,
-            rag_result=outcome.rag_result,
-        )
         try:
             from app import llm_call_counter
             _llm_calls = llm_call_counter.get_calls(qid)
@@ -697,8 +631,8 @@ async def chat_message_stream(
         final_data = {
             "type": "done",
             "answer": answer_text,
-            "conversation_id": conversation_id,
-            "message_id": assistant_msg["id"] if "assistant_msg" in locals() else None,
+            "conversation_id": conv_id,
+            "message_id": assistant_msg["id"] if assistant_msg else None,
             "suggested_questions": suggested,
             "quick_replies": quick_replies,
             "llm_calls": _llm_calls,

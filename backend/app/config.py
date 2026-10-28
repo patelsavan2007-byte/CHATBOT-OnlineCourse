@@ -12,10 +12,10 @@ VECTOR_DB_DIR = BASE_DIR / "vector_db"
 PDF_DIR = KNOWLEDGE_BASE_DIR / "pdfs"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 FALLBACK_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
-CHUNK_SIZE = 600
-CHUNK_OVERLAP = 100
-PDF_CHUNK_SIZE = 800
-PDF_TABLE_CHUNK_SIZE = 3600
+CHUNK_SIZE = 1000
+CHUNK_OVERLAP = 200
+PDF_CHUNK_SIZE = 1200
+PDF_TABLE_CHUNK_SIZE = 4000
 SCRAPE_START_URL = "https://charusat.online/"
 SCRAPE_MAX_PAGES = 250
 CRAWL_DELAY = 0.5
@@ -137,6 +137,10 @@ PROGRAMME_MATCH_PRIORITY_BONUS = 0.2
 # Priority is a float in [0, 1].
 SOURCE_AUTHORITY_TIERS: List[Tuple[str, float]] = [
     (r"pdfs/PPR_Online", 1.00),               # official programme PDFs
+    (r"ppr_online_", 1.00),                   # programme project reports (converted to md)
+    (r"online_(bba|bca|mba|mca)_comprehensive", 0.95),  # merged per-programme guides
+    (r"admissions_guide|online_examination|aicte_eoa|eoa_report|ugc_public|admission_cancellation", 0.90),
+    (r"contact_directory", 0.60),             # verified contact directory
     (r"pdfs/Fees Refund Policy", 0.95),       # official policy PDF
     (r"programs/online_", 0.90),              # official website programme pages
     (r"mandatory-disclosures", 0.80),         # statutory disclosures

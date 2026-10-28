@@ -2,26 +2,61 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231e293b'/%3E%3Cpath d='M16 6L5 12l11 6 9-4.9V17h2V12L16 6zM9 14.2v4L16 22l7-3.8v-4L16 18l-7-3.8z' fill='%23818cf8'/%3E%3C/svg%3E"
-    />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Theme applied before first paint: no flash -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var pref = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+          var theme = stored === "dark" || stored === "light" ? stored : pref;
+          if (theme === "dark") document.documentElement.classList.add("dark");
+        } catch (e) {/* localStorage blocked */}
+      })();
+    </script>
+
+    <!-- Primary meta -->
+    <title>CHARUSAT Online Programmes Assistant</title>
     <meta
       name="description"
-      content="CHARUSAT AI Assistant — ask anything about CHARUSAT Online BBA, BCA, MBA and MCA programmes. Fees, eligibility, curriculum, admissions and exams, answered from official documents."
+      content="Get accurate, instant answers about CHARUSAT's online BBA, BCA, MBA and MCA programmes - fees, eligibility, curriculum, and admissions."
     />
-    <meta name="theme-color" content="#0f172a" />
-    <title>CHARUSAT Assistant — AI answers for Online Programmes</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;1,14..32,400&family=DM+Serif+Display:ital@0;1&display=swap"
-      rel="stylesheet"
-    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://CONFIRM/" />
+
+    <!-- Favicon set -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAFAF9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#121211" />
+
+    <!-- Open Graph (social sharing) -->
+    <meta property="og:type"        content="website" />
+    <meta property="og:url"         content="https://CONFIRM/" />
+    <meta property="og:title"       content="CHARUSAT Online Programmes Assistant" />
+    <meta property="og:description" content="Get accurate, instant answers about CHARUSAT's online BBA, BCA, MBA and MCA programmes." />
+    <meta property="og:image"       content="https://CONFIRM/og-image.png" />
+    <meta name="twitter:card"       content="summary_large_image" />
+    <meta name="twitter:title"      content="CHARUSAT Online Programmes Assistant" />
+    <meta name="twitter:description" content="Official AI assistant for CHARUSAT online degree programmes." />
+    <meta name="twitter:image"      content="https://CONFIRM/og-image.png" />
   </head>
   <body>
+    <!-- Skip navigation for keyboard / screen-reader users -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-1.5 focus:text-sm focus:font-medium focus:shadow-md focus:outline-none dark:focus:bg-[#1A1A18] dark:focus:text-white"
+    >
+      Skip to main content
+    </a>
+
     <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

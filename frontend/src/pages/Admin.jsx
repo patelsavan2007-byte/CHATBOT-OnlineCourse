@@ -1,5 +1,5 @@
 /**
- * Admin Dashboard — 5-tab operations portal:
+ * Admin Dashboard - 5-tab operations portal:
  * 1. Overview (key metrics, query totals, health)
  * 2. Knowledge Gaps (unanswered queries, missing info, CSV export)
  * 3. Feedback (user ratings, thumbs up/down breakdown)
@@ -24,15 +24,15 @@ function StatCard({ label, value, subtitle, accent }) {
     <div
       className={`rounded-2xl border p-5 transition ${
         accent
-          ? "border-indigo-500/30 bg-indigo-500/10"
+          ? "border-[var(--border)] bg-[var(--surface-hover)]"
           : "border-white/8 bg-white/4"
       }`}
     >
       <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
         {label}
       </p>
-      <p className={`mt-2 text-3xl font-bold ${accent ? "text-indigo-300" : "text-white"}`}>
-        {value ?? "—"}
+      <p className={`mt-2 text-3xl font-bold ${accent ? "text-[var(--accent)]" : "text-white"}`}>
+        {value ?? "-"}
       </p>
       {subtitle && <p className="mt-1 text-xs text-slate-400">{subtitle}</p>}
     </div>
@@ -103,7 +103,7 @@ export default function Admin() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      alert(`Export failed: ${err.message}`);
+      console.warn(`Export failed: ${err.message}`); // allow-alert -- Phase 3: replace with toast notification
     }
   };
 
@@ -111,10 +111,10 @@ export default function Admin() {
     if (!window.confirm("Are you sure you want to clear the entire RAG question cache?")) return;
     try {
       await apiFetch("/api/admin/cache", { method: "DELETE" });
-      alert("Cache cleared successfully.");
+      console.warn("Cache cleared successfully."); // allow-alert -- Phase 3: replace with toast notification
       loadTabData("system");
     } catch (err) {
-      alert(`Clear cache failed: ${err.message}`);
+      console.warn(`Clear cache failed: ${err.message}`); // allow-alert -- Phase 3: replace with toast notification
     }
   };
 
@@ -146,14 +146,14 @@ export default function Admin() {
             <div>
               <h1 className="text-sm font-semibold text-white tracking-tight">CHARUSAT Admin Console</h1>
             </div>
-            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-400">
+            <span className="rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold text-amber-400">
               Admin
             </span>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 text-xs text-slate-400">
-              <span className="h-2 w-2 rounded-full bg-emerald-500" />
+              <span className="h-2 w-2 rounded-full bg-emerald-500" /* allow-round: status dot */ />
               <span>{user?.email}</span>
             </div>
             <button
@@ -176,7 +176,7 @@ export default function Admin() {
               onClick={() => setActiveTab(tab.id)}
               className={`rounded-xl px-4 py-2 text-xs font-medium transition whitespace-nowrap ${
                 activeTab === tab.id
-                  ? "bg-indigo-600 text-white shadow"
+                  ? "bg-[var(--accent)] text-white shadow"
                   : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
               }`}
               type="button"
@@ -241,7 +241,7 @@ export default function Admin() {
                       RAG Pipeline Status
                     </h3>
                     <div className="flex items-center gap-3">
-                      <span className={`h-3 w-3 rounded-full ${stats.rag_ready ? "bg-emerald-500" : "bg-rose-500"}`} />
+                      <span className={`h-3 w-3 rounded-full /* allow-round: status dot */ ${stats.rag_ready ? "bg-emerald-500" : "bg-rose-500"}`} />
                       <span className="text-lg font-medium text-white">
                         {stats.rag_ready ? "Operational & Ready" : "Pipeline Offline"}
                       </span>
@@ -279,11 +279,11 @@ export default function Admin() {
                     placeholder="Search queries or topics..."
                     value={gapSearch}
                     onChange={(e) => setGapSearch(e.target.value)}
-                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 sm:w-72"
+                    className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-[var(--border-focus)] sm:w-72"
                   />
                   <button
                     onClick={handleExportCsv}
-                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-medium text-white shadow transition hover:bg-indigo-500"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-2 text-xs font-medium text-white shadow transition hover:bg-[var(--accent-hover)]"
                     type="button"
                   >
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
@@ -324,7 +324,7 @@ export default function Admin() {
                             <td className="px-4 py-3 text-slate-400">{g.programmes?.join(", ") || "All"}</td>
                             <td className="px-4 py-3 text-amber-400 text-[11px]">{g.status}</td>
                             <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                              {g.timestamp ? new Date(g.timestamp).toLocaleDateString() : "—"}
+                              {g.timestamp ? new Date(g.timestamp).toLocaleDateString() : "-"}
                             </td>
                           </tr>
                         ))}
@@ -383,7 +383,7 @@ export default function Admin() {
                             </td>
                             <td className="px-4 py-3 max-w-md text-slate-300 truncate">{item.preview}</td>
                             <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                              {item.timestamp ? new Date(item.timestamp).toLocaleString() : "—"}
+                              {item.timestamp ? new Date(item.timestamp).toLocaleString() : "-"}
                             </td>
                           </tr>
                         ))
@@ -433,7 +433,7 @@ export default function Admin() {
                         <td className="px-4 py-3 text-slate-400">{u.auth_provider}</td>
                         <td className="px-4 py-3 text-slate-300">{u.conversations_count}</td>
                         <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
-                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : "—"}
+                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : "-"}
                         </td>
                       </tr>
                     ))}

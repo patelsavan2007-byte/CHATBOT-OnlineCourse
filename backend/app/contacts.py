@@ -1,6 +1,6 @@
 """Dynamic contact routing parsed from knowledge base.
 
-Parses programs/contact.md at startup to map user inquiry topics
+Parses contact_directory.md at startup to map user inquiry topics
 and programmes to the appropriate university department contact lines.
 Contains zero hard-coded phone numbers or names.
 """
@@ -26,7 +26,13 @@ class ContactDirectory:
     """Dynamically parses and provides official contact details."""
 
     def __init__(self, contact_path: Optional[Path] = None) -> None:
-        self.contact_path = contact_path or (config.KNOWLEDGE_BASE_DIR / "programs" / "contact.md")
+        if contact_path is None:
+            # contact_directory.md is the consolidated contact file; the old
+            # programs/contact.md is kept as a fallback for older checkouts.
+            primary = config.KNOWLEDGE_BASE_DIR / "contact_directory.md"
+            legacy = config.KNOWLEDGE_BASE_DIR / "programs" / "contact.md"
+            contact_path = primary if primary.exists() else legacy
+        self.contact_path = contact_path
         self._services: Dict[str, List[ContactEntry]] = {}
         self._load()
 

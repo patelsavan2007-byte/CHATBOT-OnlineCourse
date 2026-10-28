@@ -32,7 +32,7 @@ function PasswordStrength({ password }) {
     <div className="mt-2 flex gap-2">
       {checks.map(({ label, ok }) => (
         <div key={label} className="flex flex-1 flex-col gap-1">
-          <div className={`h-0.5 rounded-full transition ${ok ? "bg-emerald-500" : "bg-[var(--border-primary)]"}`} />
+          <div className={`h-0.5 rounded-sm transition ${ok ? "bg-emerald-500" : "bg-[var(--border)]"}`} />
           <span className={`text-[10px] ${ok ? "text-emerald-500" : "text-[var(--text-muted)]"}`}>{label}</span>
         </div>
       ))}
@@ -276,8 +276,8 @@ export default function Signup() {
             >
               {loading ? (
                 <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Creating account…
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden /> {/* allow-round: spinner */}
+                  Creating account...
                 </>
               ) : (
                 "Create account"

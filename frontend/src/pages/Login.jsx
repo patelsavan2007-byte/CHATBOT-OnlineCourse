@@ -85,21 +85,17 @@ export default function Login() {
         </Link>
 
         <div>
-          <blockquote className="font-display text-2xl font-normal leading-snug text-[var(--text-primary)]">
-            "Access official programme information anytime — fees, eligibility, curriculum, and more."
-          </blockquote>
-          <p className="mt-6 text-sm text-[var(--text-tertiary)]">
+          <p className="text-2xl font-semibold leading-snug" style={{ color: "var(--text)" }}>
+            Access official programme information anytime - fees, eligibility, curriculum, and more.
+          </p>
+          <p className="mt-4 text-sm" style={{ color: "var(--muted)" }}>
             Sign in to save your conversations and pick up where you left off.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {["NAAC A+", "UGC Recognised", "NIRF Top 200"].map((a) => (
-            <span key={a} className="rounded-md border border-[var(--border-primary)] bg-[var(--surface-hover)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-tertiary)]">
-              {a}
-            </span>
-          ))}
-        </div>
+        <p className="text-xs" style={{ color: "var(--muted)" }}>
+          Officially operated by CHARUSAT for prospective and enrolled students.
+        </p>
       </div>
 
       {/* Right panel — form */}
@@ -159,16 +155,9 @@ export default function Login() {
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="login-password" className="text-xs font-medium text-[var(--text-secondary)]">
+                <label htmlFor="login-password" className="text-xs font-medium" style={{ color: "var(--text-2)" }}>
                   Password
                 </label>
-                <button
-                  type="button"
-                  className="text-xs text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
-                  onClick={() => {/* forgot password */}}
-                >
-                  Forgot password?
-                </button>
               </div>
               <div className="relative">
                 <input
@@ -199,8 +188,8 @@ export default function Login() {
             >
               {loading ? (
                 <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Signing in…
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden /> {/* allow-round: spinner */}
+                  Signing in...
                 </>
               ) : (
                 "Sign in"

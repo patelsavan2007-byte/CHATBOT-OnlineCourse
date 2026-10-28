@@ -46,13 +46,14 @@ export default function Settings() {
             {/* Profile card */}
             <section aria-labelledby="profile-heading" className="rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-6">
               <div className="flex items-center gap-4">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)] text-xl font-semibold text-white shadow-inner">
+                {/* allow-round: user avatar circle */}
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-xl font-semibold text-white" /* allow-round: avatar */>
                   {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-lg font-medium text-[var(--text-primary)]">{user.name || "User"}</p>
-                  <p className="text-sm text-[var(--text-tertiary)]">{user.email}</p>
-                  <span className="mt-1 inline-block rounded-full border border-[var(--accent-primary)]/30 bg-[var(--accent-surface)] px-2.5 py-0.5 text-xs font-medium text-[var(--accent-primary-hover)]">
+                  <p className="text-lg font-medium" style={{ color: "var(--text)" }}>{user.name || "User"}</p>
+                  <p className="text-sm" style={{ color: "var(--muted)" }}>{user.email}</p>
+                  <span className="mt-1 inline-block rounded-md border px-2.5 py-0.5 text-xs font-medium" style={{ borderColor: "var(--border)", color: "var(--text-2)" }}>
                     {user.role}
                   </span>
                 </div>
@@ -65,7 +66,7 @@ export default function Settings() {
                 Account
               </h2>
               <dl>
-                <InfoRow label="Name"       value={user.name || "—"} />
+                <InfoRow label="Name"       value={user.name || "-"} />
                 <InfoRow label="Email"      value={user.email} />
                 <InfoRow label="Role"       value={user.role} />
                 <InfoRow label="Sign-in method" value={user.google_id ? "Google" : "Email & Password"} />

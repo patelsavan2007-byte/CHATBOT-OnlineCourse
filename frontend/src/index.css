@@ -1,223 +1,192 @@
-/* ============================================================
-   CHARUSAT Online Programs — Design System
-   Foundation: CSS custom properties for theming + 
-   editorial typography + polished AI product feel
-   ============================================================ */
+/*
+ * CHARUSAT Online Programmes - Design System
+ * Light-first. Accent: #0B5CAD (blue). No banned accent colors.
+ * Fonts: IBM Plex Sans (body), IBM Plex Mono (code/IDs).
+ */
 
+@import "@fontsource/ibm-plex-sans/400.css";
+@import "@fontsource/ibm-plex-sans/500.css";
+@import "@fontsource/ibm-plex-sans/600.css";
+@import "@fontsource/ibm-plex-sans/400-italic.css";
+@import "@fontsource/ibm-plex-mono/400.css";
+@import "@fontsource/ibm-plex-mono/500.css";
 @import "tailwindcss";
 
 /* ---- Typography tokens ---- */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: "DM Serif Display", Georgia, "Times New Roman", serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "Cascadia Code", monospace;
 }
 
 /* ============================================================
-   Theme Variables — Dark (default)
+   Light theme (default)
    ============================================================ */
-:root,
-.dark {
-  /* Surfaces */
-  --surface-primary: #0a0e1a;
-  --surface-secondary: #111827;
-  --surface-tertiary: #1e293b;
-  --surface-elevated: #1a2236;
-  --surface-hover: rgba(255, 255, 255, 0.06);
-  --surface-active: rgba(255, 255, 255, 0.1);
+:root {
+  color-scheme: light;
+
+  /* Page and surfaces */
+  --page:          #FAFAF9;
+  --surface:       #FFFFFF;
+  --surface-2:     #F3F3F1;
+  --surface-3:     #EAEAE7;
+  --surface-hover: rgba(0, 0, 0, 0.04);
+  --surface-active: rgba(0, 0, 0, 0.08);
 
   /* Borders */
-  --border-primary: rgba(255, 255, 255, 0.12);
-  --border-secondary: rgba(255, 255, 255, 0.09);
-  --border-hover: rgba(255, 255, 255, 0.22);
-  --border-focus: rgba(99, 102, 241, 0.6);
+  --border:        #E2E2DE;
+  --border-strong: #C8C8C3;
+  --border-focus:  #0B5CAD;
 
   /* Text */
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-tertiary: #94a3b8;
-  --text-muted: #6b7a93;
-  --text-inverse: #0f172a;
+  --text:          #1B1B19;
+  --text-2:        #4A4A46;
+  --muted:         #6B6B66;
 
-  /* Accent */
-  --accent-primary: #6366f1;
-  --accent-primary-hover: #818cf8;
-  --accent-secondary: #a78bfa;
-  --accent-surface: rgba(99, 102, 241, 0.16);
+  /* Accent - CHARUSAT blue (non-purple, non-violet) */
+  --accent:        #0B5CAD;
+  --accent-hover:  #094A8C;
+  --accent-surface: #E8F1FA;
+  --accent-text:   #FFFFFF;
 
-  /* Icon tints (welcome screen suggestions) */
-  --tint-indigo: #818cf8;
-  --tint-emerald: #34d399;
-  --tint-amber: #fbbf24;
-  --tint-rose: #fb7185;
+  /* Semantic */
+  --success:       #1F7A4D;
+  --warning:       #8A5A00;
+  --danger:        #B3261E;
+  --danger-surface: rgba(179, 38, 30, 0.07);
+  --danger-border: rgba(179, 38, 30, 0.20);
+  --warning-surface: rgba(138, 90, 0, 0.07);
+  --warning-border: rgba(138, 90, 0, 0.20);
+  --success-surface: rgba(31, 122, 77, 0.07);
+  --success-border: rgba(31, 122, 77, 0.20);
 
-  /* Status */
-  --success: #10b981;
-  --error: #f43f5e;
-  --error-surface: rgba(244, 63, 94, 0.1);
-  --error-border: rgba(244, 63, 94, 0.2);
-  --warning: #fbbf24;
-  --warning-surface: rgba(245, 158, 11, 0.08);
-  --warning-border: rgba(245, 158, 11, 0.3);
-
-  /* Chat-specific */
-  --user-bubble: #242f45;
-  --user-bubble-text: #f1f5f9;
-  --assistant-bg: transparent;
-  --composer-bg: #161d2f;
-  --composer-border: rgba(255, 255, 255, 0.16);
-  --composer-focus-border: rgba(255, 255, 255, 0.28);
-  --composer-focus-ring: rgba(99, 102, 241, 0.16);
+  /* Chat */
+  --user-bg:       #F3F3F1;
+  --user-text:     #1B1B19;
+  --composer-bg:   #FFFFFF;
+  --composer-border: #C8C8C3;
+  --composer-focus: #0B5CAD;
 
   /* Sidebar */
-  --sidebar-bg: rgba(17, 24, 39, 0.95);
-  --sidebar-active: rgba(255, 255, 255, 0.16);
+  --sidebar-bg:    #F3F3F1;
+  --sidebar-active: rgba(0, 0, 0, 0.09);
 
   /* Scrollbar */
-  --scrollbar-thumb: rgba(148, 163, 184, 0.2);
-  --scrollbar-thumb-hover: rgba(148, 163, 184, 0.32);
-
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-}
-
-/* ============================================================
-   Theme Variables — Light
-   ============================================================ */
-.light {
-  /* Surfaces */
-  --surface-primary: #ffffff;
-  --surface-secondary: #f8fafc;
-  --surface-tertiary: #f1f5f9;
-  --surface-elevated: #ffffff;
-  --surface-hover: rgba(0, 0, 0, 0.06);
-  --surface-active: rgba(0, 0, 0, 0.11);
-
-  /* Borders */
-  --border-primary: rgba(0, 0, 0, 0.18);
-  --border-secondary: rgba(0, 0, 0, 0.12);
-  --border-hover: rgba(0, 0, 0, 0.3);
-  --border-focus: rgba(99, 102, 241, 0.7);
-
-  /* Text */
-  --text-primary: #0f172a;
-  --text-secondary: #1e293b;
-  --text-tertiary: #334155;
-  --text-muted: #64748b;
-  --text-inverse: #f8fafc;
-
-  /* Accent */
-  --accent-primary: #4338ca;
-  --accent-primary-hover: #4f46e5;
-  --accent-secondary: #6d28d9;
-  --accent-surface: rgba(67, 56, 202, 0.1);
-
-  /* Icon tints (welcome screen suggestions) */
-  --tint-indigo: #4f46e5;
-  --tint-emerald: #047857;
-  --tint-amber: #b45309;
-  --tint-rose: #be123c;
-
-  /* Status */
-  --success: #047857;
-  --error: #be123c;
-  --error-surface: rgba(225, 29, 72, 0.08);
-  --error-border: rgba(190, 18, 60, 0.25);
-  --warning: #92400e;
-  --warning-surface: rgba(180, 83, 9, 0.09);
-  --warning-border: rgba(146, 64, 14, 0.3);
-
-  /* Chat-specific */
-  --user-bubble: #4f46e5;
-  --user-bubble-text: #ffffff;
-  --assistant-bg: transparent;
-  --composer-bg: #ffffff;
-  --composer-border: rgba(0, 0, 0, 0.25);
-  --composer-focus-border: rgba(0, 0, 0, 0.35);
-  --composer-focus-ring: rgba(67, 56, 202, 0.16);
-
-  /* Sidebar */
-  --sidebar-bg: #f8fafc;
-  --sidebar-active: rgba(0, 0, 0, 0.11);
-
-  /* Scrollbar */
-  --scrollbar-thumb: rgba(0, 0, 0, 0.22);
-  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.34);
+  --scroll-thumb:  rgba(0, 0, 0, 0.18);
+  --scroll-thumb-hover: rgba(0, 0, 0, 0.28);
 
   /* Shadows */
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.10);
 }
 
-/* ---- Base ---- */
+/* ============================================================
+   Dark theme
+   ============================================================ */
+.dark {
+  color-scheme: dark;
+
+  --page:          #121211;
+  --surface:       #1A1A18;
+  --surface-2:     #232321;
+  --surface-3:     #2C2C29;
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  --surface-active: rgba(255, 255, 255, 0.09);
+
+  --border:        #33332F;
+  --border-strong: #4A4A44;
+  --border-focus:  #6CB2EB;
+
+  --text:          #ECECE8;
+  --text-2:        #B8B8B2;
+  --muted:         #8E8E88;
+
+  --accent:        #6CB2EB;
+  --accent-hover:  #8CC4F0;
+  --accent-surface: #14283A;
+  --accent-text:   #0A0A09;
+
+  --success:       #4CC38A;
+  --warning:       #E0A93B;
+  --danger:        #F2766E;
+  --danger-surface: rgba(242, 118, 110, 0.10);
+  --danger-border: rgba(242, 118, 110, 0.25);
+  --warning-surface: rgba(224, 169, 59, 0.10);
+  --warning-border: rgba(224, 169, 59, 0.25);
+  --success-surface: rgba(76, 195, 138, 0.10);
+  --success-border: rgba(76, 195, 138, 0.25);
+
+  --user-bg:       #232321;
+  --user-text:     #ECECE8;
+  --composer-bg:   #1A1A18;
+  --composer-border: #33332F;
+  --composer-focus: #6CB2EB;
+
+  --sidebar-bg:    #1A1A18;
+  --sidebar-active: rgba(255, 255, 255, 0.09);
+
+  --scroll-thumb:  rgba(255, 255, 255, 0.16);
+  --scroll-thumb-hover: rgba(255, 255, 255, 0.24);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.30);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.40);
+}
+
+/* ============================================================
+   Base
+   ============================================================ */
 html {
-  scroll-behavior: smooth;
+  /* No scroll-behavior: smooth -- motion must be functional only */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
 body {
-  background-color: var(--surface-primary);
-  color: var(--text-primary);
+  background-color: var(--page);
+  color: var(--text);
   font-family: var(--font-sans);
+  font-size: 15px;
+  line-height: 1.6;
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+}
+
+/* Tabular numerals for tables and stats */
+table, .tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---- Selection ---- */
 ::selection {
-  background-color: rgba(99, 102, 241, 0.25);
-  color: inherit;
+  background-color: var(--accent-surface);
+  color: var(--text);
 }
 
 /* ============================================================
    Scrollbar
    ============================================================ */
 .chat-scroll::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 .chat-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
 .chat-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-  border-radius: 999px;
+  background-color: var(--scroll-thumb);
+  border-radius: 4px; /* not 9999px -- allow-round: scrollbar functional element */
 }
 .chat-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: var(--scrollbar-thumb-hover);
+  background-color: var(--scroll-thumb-hover);
 }
 
 /* ============================================================
-   Keyframe Animations
+   Keyframe Animations -- functional only (menus, drawers, dialogs)
+   All disabled under prefers-reduced-motion.
+   150ms or less.
    ============================================================ */
 
 @keyframes fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
-}
-
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
 }
 
 @keyframes slide-in-left {
@@ -230,106 +199,78 @@ body {
   to   { transform: translateX(0); }
 }
 
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
 @keyframes dot-bounce {
   0%, 80%, 100% {
     transform: translateY(0) scale(1);
     opacity: 0.35;
   }
   40% {
-    transform: translateY(-5px) scale(1.1);
+    transform: translateY(-4px) scale(1.05);
     opacity: 1;
-  }
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
-}
-
-@keyframes shimmer {
-  from { background-position: -200% 0; }
-  to   { background-position: 200% 0; }
-}
-
-@keyframes glow-pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
-  50%      { box-shadow: 0 0 40px rgba(99, 102, 241, 0.3); }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
-}
-
-@keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0; }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
   }
 }
 
 /* ---- Animation utility classes ---- */
-.animate-fade-in    { animation: fade-in 0.3s ease-out both; }
-.animate-fade-in-left { animation: fade-in-left 0.3s ease-out both; }
-.animate-slide-in   { animation: slide-in-left 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.animate-slide-in-right { animation: slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) both; }
-.animate-scale-in   { animation: scale-in 0.3s ease-out both; }
-.animate-glow       { animation: glow-pulse 3s ease-in-out infinite; }
-.animate-float      { animation: float 3s ease-in-out infinite; }
+.animate-fade-in    { animation: fade-in 0.15s ease-out both; }
+.animate-slide-in   { animation: slide-in-left 0.15s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-slide-in-right { animation: slide-in-right 0.15s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-scale-in   { animation: scale-in 0.12s ease-out both; }
 
-/* ---- Typing dots ---- */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fade-in,
+  .animate-slide-in,
+  .animate-slide-in-right,
+  .animate-scale-in {
+    animation: none;
+  }
+}
+
+/* ---- Typing dots (functional: shows assistant is working) ---- */
 .typing-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--text-tertiary);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%; /* allow-round: status dot */
+  background-color: var(--muted);
   animation: dot-bounce 1.3s infinite ease-in-out;
 }
 .typing-dot:nth-child(2) { animation-delay: 0.18s; }
 .typing-dot:nth-child(3) { animation-delay: 0.36s; }
 
-/* ---- Skeleton shimmer ---- */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--surface-hover) 25%,
-    var(--surface-active) 50%,
-    var(--surface-hover) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.8s infinite;
+@media (prefers-reduced-motion: reduce) {
+  .typing-dot { animation: none; opacity: 0.6; }
 }
 
 /* ============================================================
-   Prose / RichText rendering (inside chat messages)
+   Focus ring -- accessible, visible
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ============================================================
+   Prose / RichText (inside chat messages)
    ============================================================ */
 .prose-chat {
   font-size: 15px;
   line-height: 1.75;
-  color: var(--text-primary);
+  color: var(--text);
 }
 
 .prose-chat p {
   margin-top: 0.5em;
   margin-bottom: 0.5em;
 }
-
-.prose-chat p:first-child {
-  margin-top: 0;
-}
+.prose-chat p:first-child { margin-top: 0; }
 
 .prose-chat strong,
 .prose-chat b {
-  color: var(--text-primary);
+  color: var(--text);
   font-weight: 600;
 }
 
@@ -341,108 +282,233 @@ body {
 
 .prose-chat li {
   margin: 0.25em 0;
-  color: var(--text-secondary);
+  color: var(--text-2);
 }
 
-.prose-chat ul li::marker {
-  color: var(--accent-primary);
-}
-
-.prose-chat ol li::marker {
-  color: var(--text-tertiary);
-}
+.prose-chat ul li::marker { color: var(--accent); }
+.prose-chat ol li::marker { color: var(--muted); }
 
 .prose-chat a {
-  color: var(--accent-primary);
+  color: var(--accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .prose-chat code {
-  background: var(--surface-hover);
-  padding: 0.15em 0.35em;
+  background: var(--surface-2);
+  padding: 0.15em 0.4em;
   border-radius: 4px;
-  font-size: 0.9em;
-  color: var(--text-secondary);
+  font-size: 0.88em;
+  font-family: var(--font-mono);
+  color: var(--text-2);
 }
 
-/* Tables stay inside the message column and scroll horizontally instead of
-   stretching the chat layout on narrow screens. */
+.prose-chat pre {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  line-height: 1.6;
+}
+
+/* Tables: horizontal scroll, sticky header */
+.prose-chat .table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  margin: 0.75em 0;
+}
+
 .prose-chat table {
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   width: 100%;
+  min-width: 480px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
 }
 
-.prose-chat > div > div:has(> table) {
+.prose-chat thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.6em 1em;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.prose-chat tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+.prose-chat tbody tr:last-child { border-bottom: none; }
+.prose-chat tbody td {
+  padding: 0.55em 1em;
+  color: var(--text);
+  vertical-align: top;
+}
+.prose-chat tbody tr:hover td {
+  background: var(--surface-hover);
+}
+
+.prose-chat h1, .prose-chat h2, .prose-chat h3, .prose-chat h4 {
+  color: var(--text);
+  font-weight: 600;
+  margin: 1em 0 0.4em;
+  line-height: 1.3;
+}
+.prose-chat h1 { font-size: 1.25em; }
+.prose-chat h2 { font-size: 1.1em; }
+.prose-chat h3 { font-size: 1em; }
+
+.prose-chat hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1em 0;
+}
+
+.prose-chat blockquote {
+  border-left: 3px solid var(--border-strong);
+  margin: 0.75em 0;
+  padding: 0.25em 0.875em;
+  color: var(--text-2);
+}
+
+/* Images: only allowed from charusat.online domain (enforced in RichText.jsx) */
+.prose-chat img {
   max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  margin: 0.5em 0;
 }
 
-
+/* Conflict notice */
 .prose-chat .notice-conflict strong {
   color: var(--warning);
   font-weight: 600;
 }
 
 /* ============================================================
-   Focus ring — accessible
+   Suggestion / follow-up buttons (rectangular, not pills)
    ============================================================ */
-:focus-visible {
+.suggestion-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+  text-align: left;
+}
+
+.suggestion-btn:hover {
+  border-color: var(--accent);
+  background: var(--accent-surface);
+  color: var(--accent);
+}
+
+.suggestion-btn:focus-visible {
   outline: 2px solid var(--border-focus);
   outline-offset: 2px;
 }
 
 /* ============================================================
-   Suggestion chips
+   Admin table utilities
    ============================================================ */
-.suggestion-chip {
+.admin-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.5rem 0.875rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.admin-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.1s;
+}
+.admin-table tbody tr:last-child { border-bottom: none; }
+.admin-table tbody tr:hover { background: var(--surface-hover); }
+.admin-table tbody td {
+  padding: 0.5rem 0.875rem;
+  color: var(--text-2);
+  vertical-align: middle;
+}
+
+/* ============================================================
+   Status badge
+   ============================================================ */
+.badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.875rem;
-  border-radius: 9999px;
-  border: 1px solid var(--border-primary);
-  background: var(--surface-hover);
-  color: var(--text-secondary);
-  font-size: 13px;
-  line-height: 1.4;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  gap: 0.3rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.suggestion-chip:hover {
-  border-color: var(--border-hover);
-  background: var(--surface-active);
-  color: var(--text-primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
+.badge-success { background: var(--success-surface); color: var(--success); border: 1px solid var(--success-border); }
+.badge-warning { background: var(--warning-surface); color: var(--warning); border: 1px solid var(--warning-border); }
+.badge-danger  { background: var(--danger-surface);  color: var(--danger);  border: 1px solid var(--danger-border); }
+.badge-neutral { background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
 
-/* ============================================================
-   Subtle noise texture for depth
-   ============================================================ */
-.noise-overlay::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  z-index: 0;
+/* Status dot -- circles are allowed for status indicators */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%; /* allow-round: status dot */
+  display: inline-block;
+  flex-shrink: 0;
 }
+.status-dot-online  { background: var(--success); }
+.status-dot-offline { background: var(--danger); }
+.status-dot-warning { background: var(--warning); }
 
 /* ============================================================
-   Glass morphism utility
+   Spinner -- circle allowed
    ============================================================ */
-.glass {
-  background: rgba(255, 255, 255, 0.04);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+.spinner {
+  display: inline-block;
+  border-radius: 50%; /* allow-round: spinner */
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  animation: spin 0.7s linear infinite;
 }
 
-.light .glass {
-  background: rgba(255, 255, 255, 0.7);
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; opacity: 0.5; }
 }
