@@ -1,5 +1,5 @@
 /**
- * ThemeContext — light/dark/system theme provider.
+ * ThemeContext - light/dark/system theme provider.
  * Persists preference to localStorage and respects system preference.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";

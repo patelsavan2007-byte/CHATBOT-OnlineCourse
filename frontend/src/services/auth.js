@@ -1,5 +1,5 @@
 /**
- * Authentication service — handles signup, login, logout, and session management.
+ * Authentication service - handles signup, login, logout, and session management.
  */
 import { apiFetch, setAuthToken, clearAuth } from "./api.js";
 

@@ -188,7 +188,7 @@ class ContactDirectory:
             if e.prog_tag and e.prog_tag not in e.person:
                 formatted_contacts.append(f"{e.person} ({e.prog_tag}) ({e.phone})")
             else:
-                # Tag may already be embedded in person string — show as-is plus phone
+                # Tag may already be embedded in person string - show as-is plus phone
                 formatted_contacts.append(f"{e.person} ({e.phone})")
 
         contacts_str = ", ".join(formatted_contacts)

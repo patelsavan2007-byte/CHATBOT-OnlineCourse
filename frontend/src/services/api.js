@@ -78,7 +78,7 @@ export async function apiFetch(path, options = {}) {
       /* keep default message */
     }
 
-    // Handle unauthorized — clear auth state
+    // Handle unauthorized - clear auth state
     if (res.status === 401) {
       clearAuth();
     }

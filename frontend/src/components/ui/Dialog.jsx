@@ -1,5 +1,5 @@
 /**
- * Dialog — accessible, plain modal dialog for confirmations, alerts, and help.
+ * Dialog - accessible, plain modal dialog for confirmations, alerts, and help.
  * No backdrop-filter, no smooth animation hijacking. 150ms transition.
  */
 import { useEffect, useRef } from "react";

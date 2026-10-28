@@ -1,5 +1,5 @@
 /**
- * TypingSuggestions — dropdown list of matched question bank suggestions
+ * TypingSuggestions - dropdown list of matched question bank suggestions
  * rendered directly above the composer.
  *
  * Highlights matched query tokens in bold.

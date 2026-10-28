@@ -1,5 +1,5 @@
 /**
- * RichText — markdown renderer for assistant answers using react-markdown and remark-gfm.
+ * RichText - markdown renderer for assistant answers using react-markdown and remark-gfm.
  * Supports: tables (with responsive overflow wrapper), links (opening safely in new tabs),
  * headings, bold text, bullet/numbered/nested lists, inline code, and "Conflict Notice" callouts.
  * Theme-aware via index.css CSS custom properties.

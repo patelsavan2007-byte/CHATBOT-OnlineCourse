@@ -1,5 +1,5 @@
 /**
- * GuestLimitModal — restyled guest message limit dialog.
+ * GuestLimitModal - restyled guest message limit dialog.
  * Plain backdrop, 8px card radius, standard design tokens.
  */
 import { Link } from "react-router-dom";

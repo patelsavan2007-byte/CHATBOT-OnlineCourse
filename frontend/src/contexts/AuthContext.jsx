@@ -2,12 +2,12 @@
  * Authentication context for the CHARUSAT Online Course Assistant.
  *
  * Provides:
- *  - user state (null = guest, object = authenticated)
- *  - loading state during initial auth check
- *  - login, signup, logout, googleLogin functions
- *  - isGuest, isAdmin computed flags
- *  - guest message tracking
- *  - dev auto-login on mount (development only)
+ * - user state (null = guest, object = authenticated)
+ * - loading state during initial auth check
+ * - login, signup, logout, googleLogin functions
+ * - isGuest, isAdmin computed flags
+ * - guest message tracking
+ * - dev auto-login on mount (development only)
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import * as authService from "../services/auth.js";
@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
       const token = getAuthToken();
 
       if (token) {
-        // We have a stored token — verify it
+        // We have a stored token - verify it
         try {
           const me = await authService.getMe();
           if (!cancelled) setUser(me);
@@ -48,12 +48,12 @@ export function AuthProvider({ children }) {
           }
         }
       } else if (import.meta.env.DEV) {
-        // No token — try dev auto-login in development
+        // No token - try dev auto-login in development
         try {
           const me = await authService.devLogin();
           if (!cancelled) setUser(me);
         } catch {
-          /* dev login not available — stay as guest */
+          /* dev login not available - stay as guest */
         }
       }
 

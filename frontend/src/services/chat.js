@@ -1,5 +1,5 @@
 /**
- * Chat service — handles conversations, messages, and chat API calls.
+ * Chat service - handles conversations, messages, and chat API calls.
  */
 import API_BASE, { apiFetch, getAuthToken } from "./api.js";
 

@@ -1,5 +1,5 @@
 /**
- * Chat page — full-screen ChatGPT/Claude-style AI assistant.
+ * Chat page - full-screen ChatGPT/Claude-style AI assistant.
  * Powered by useChat and useSidebar hooks.
  */
 import { useCallback, useEffect, useState, useMemo } from "react";

@@ -120,19 +120,10 @@ function checkFile(filePath) {
       }
     }
 
-    // Rule 6: No em dash in user-visible strings (use a hyphen or " - ")
-    // Skip comment-only lines: // ... , /* ... , * ... , and JSX {/* ... */}
+    // Rule 6: No em dash anywhere in src, public, or index.html (use a hyphen or " - ")
     if (/[\u2014]/.test(line) && !/allow-emdash/i.test(line)) {
       if (/\.(jsx?|html)$/.test(filePath)) {
-        const trimmed = line.trimStart();
-        const isComment =
-          trimmed.startsWith("//") ||
-          trimmed.startsWith("*") ||
-          trimmed.startsWith("/*") ||
-          /^\{?\/\*/.test(trimmed);  // JSX {/* ... */}
-        if (!isComment) {
-          check(filePath, content, n, line, /\u2014/, "Rule 6 -- em dash in UI text (use - or hyphen-minus instead)");
-        }
+        check(filePath, content, n, line, /\u2014/, "Rule 6 -- em dash in UI text or source (use - or hyphen-minus instead)");
       }
     }
 

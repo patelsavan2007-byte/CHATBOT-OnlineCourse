@@ -1,5 +1,5 @@
 /**
- * ChatComposer — message input bar with real-time typing suggestions.
+ * ChatComposer - message input bar with real-time typing suggestions.
  * Auto-growing textarea (1 to 6 lines), rounded floating style,
  * 1000-character limit with counter near limit, keyboard navigation (Up/Down/Enter/Esc),
  * accessible ARIA combobox + listbox dropdown.

@@ -1,21 +1,101 @@
 /**
- * Settings page — clean account management for authenticated users.
+ * Settings page - account, appearance, chat preferences, data management, and legal links.
+ * Dense, plain, accessible, and strictly follows design system tokens.
  */
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
-
-function InfoRow({ label, value }) {
-  return (
-    <div className="flex items-center justify-between gap-4 py-3.5 border-b border-[var(--border-primary)] last:border-0">
-      <dt className="text-sm text-[var(--text-tertiary)]">{label}</dt>
-      <dd className="text-sm font-medium text-[var(--text-primary)] text-right">{value}</dd>
-    </div>
-  );
-}
+import { useTheme } from "../contexts/ThemeContext.jsx";
+import { apiFetch, clearAuth } from "../services/api.js";
+import Dialog from "../components/ui/Dialog.jsx";
+import Toast from "../components/ui/Toast.jsx";
 
 export default function Settings() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
+
+  // Typing suggestions preference
+  const [typingSuggestions, setTypingSuggestions] = useState(() => {
+    try {
+      return localStorage.getItem("typing_suggestions") !== "false";
+    } catch {
+      return true;
+    }
+  });
+
+  // UI state
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("info");
+  const [confirmSignout, setConfirmSignout] = useState(false);
+  const [confirmDeleteConvs, setConfirmDeleteConvs] = useState(false);
+  const [confirmDeleteAccount, setConfirmDeleteAccount] = useState(false);
+  const [deleteAccountInput, setDeleteAccountInput] = useState("");
+  const [exporting, setExporting] = useState(false);
+
+  const showToast = (msg, type = "info") => {
+    setToastMessage(msg);
+    setToastType(type);
+  };
+
+  const handleToggleSuggestions = () => {
+    const next = !typingSuggestions;
+    setTypingSuggestions(next);
+    try {
+      localStorage.setItem("typing_suggestions", String(next));
+      showToast(next ? "Typing suggestions enabled" : "Typing suggestions disabled", "success");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleExportData = async () => {
+    setExporting(true);
+    try {
+      const data = await apiFetch("/api/auth/me/export");
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type: "application/json",
+      });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `charusat_conversations_${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      showToast("Conversation data exported as JSON", "success");
+    } catch (err) {
+      showToast(err.message || "Failed to export conversations", "danger");
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  const handleDeleteAllConversations = async () => {
+    try {
+      await apiFetch("/api/conversations", { method: "DELETE" });
+      setConfirmDeleteConvs(false);
+      showToast("All conversations deleted successfully", "success");
+    } catch (err) {
+      showToast(err.message || "Failed to delete conversations", "danger");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteAccountInput !== "DELETE") {
+      showToast("Type DELETE to confirm account deletion", "danger");
+      return;
+    }
+    try {
+      await apiFetch("/api/auth/me", { method: "DELETE" });
+      setConfirmDeleteAccount(false);
+      clearAuth();
+      navigate("/login", { replace: true });
+    } catch (err) {
+      showToast(err.message || "Failed to delete account", "danger");
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -23,111 +103,433 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-dvh bg-[var(--surface-primary)]">
+    <div className="min-h-dvh flex flex-col font-sans" style={{ background: "var(--page)", color: "var(--text)" }}>
+      <Toast
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setToastMessage("")}
+      />
+
       {/* Header */}
-      <header className="border-b border-[var(--border-primary)] bg-[var(--surface-primary)]/90 px-4 py-3.5 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
+      <header
+        className="sticky top-0 z-30 border-b px-4 py-3"
+        style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+      >
+        <div className="mx-auto flex max-w-2xl items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              to="/chat"
+              className="flex h-8 w-8 items-center justify-center rounded-md border text-xs font-medium transition hover:border-[var(--border-focus)]"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--surface-2)",
+                color: "var(--text)",
+              }}
+              aria-label="Back to chat"
+            >
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M19 12H5M12 5l-7 7 7 7" />
+              </svg>
+            </Link>
+            <h1 className="text-sm font-semibold tracking-tight" style={{ color: "var(--text)" }}>
+              Settings
+            </h1>
+          </div>
           <Link
             to="/chat"
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
-            aria-label="Back to chat"
+            className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)]"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--surface)",
+              color: "var(--text)",
+            }}
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M19 12H5M12 5l-7 7 7 7" />
-            </svg>
+            Done
           </Link>
-          <h1 className="text-[15px] font-semibold text-[var(--text-primary)]">Account Settings</h1>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
+      {/* Main Settings List */}
+      <main className="mx-auto max-w-2xl flex-1 px-4 py-6 sm:px-6 w-full space-y-6">
         {user ? (
-          <div className="space-y-5">
-            {/* Profile card */}
-            <section aria-labelledby="profile-heading" className="rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-6">
-              <div className="flex items-center gap-4">
-                {/* allow-round: user avatar circle */}
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-[var(--accent)] text-xl font-semibold text-white" /* allow-round: avatar */>
+          <>
+            {/* Account Card */}
+            <section
+              className="rounded-lg border p-5"
+              style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            >
+              <div className="flex items-center gap-4 mb-4">
+                <div
+                  className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-semibold font-mono text-white" /* allow-round: avatar */
+                  style={{ background: "var(--accent)" }}
+                >
                   {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
                 </div>
-                <div>
-                  <p className="text-lg font-medium" style={{ color: "var(--text)" }}>{user.name || "User"}</p>
-                  <p className="text-sm" style={{ color: "var(--muted)" }}>{user.email}</p>
-                  <span className="mt-1 inline-block rounded-md border px-2.5 py-0.5 text-xs font-medium" style={{ borderColor: "var(--border)", color: "var(--text-2)" }}>
-                    {user.role}
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold truncate" style={{ color: "var(--text)" }}>
+                    {user.name || "User"}
+                  </p>
+                  <p className="text-xs font-mono truncate" style={{ color: "var(--muted)" }}>
+                    {user.email}
+                  </p>
+                </div>
+                <span
+                  className="rounded-md border px-2 py-0.5 text-[11px] font-mono font-medium uppercase shrink-0"
+                  style={{
+                    borderColor: "var(--border)",
+                    background: "var(--surface-2)",
+                    color: "var(--text-2)",
+                  }}
+                >
+                  {user.role}
+                </span>
+              </div>
+
+              <div className="border-t pt-3 text-xs divide-y" style={{ borderColor: "var(--border)" }}>
+                <div className="flex items-center justify-between py-2">
+                  <span style={{ color: "var(--muted)" }}>Sign-in method</span>
+                  <span className="font-medium" style={{ color: "var(--text)" }}>
+                    {user.google_id ? "Google OAuth" : "Email and password"}
                   </span>
+                </div>
+                {user.role === "admin" && (
+                  <div className="flex items-center justify-between py-2">
+                    <span style={{ color: "var(--muted)" }}>Staff Administration</span>
+                    <Link
+                      to="/admin"
+                      className="rounded-md border px-2.5 py-1 text-xs font-medium transition hover:border-[var(--accent)]"
+                      style={{
+                        background: "var(--accent-surface)",
+                        borderColor: "var(--border)",
+                        color: "var(--accent)",
+                      }}
+                    >
+                      Admin Console
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </section>
+
+            {/* Appearance */}
+            <section
+              className="rounded-lg border p-5 space-y-3"
+              style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            >
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                Appearance
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: "system", label: "System" },
+                  { id: "light", label: "Light" },
+                  { id: "dark", label: "Dark" },
+                ].map((item) => {
+                  const isSelected = theme === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setTheme(item.id)}
+                      className="rounded-md border px-3 py-2 text-xs font-medium transition"
+                      style={{
+                        background: isSelected ? "var(--accent)" : "var(--surface-2)",
+                        borderColor: isSelected ? "var(--accent)" : "var(--border)",
+                        color: isSelected ? "#FFFFFF" : "var(--text)",
+                      }}
+                      type="button"
+                    >
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* Chat Preferences */}
+            <section
+              className="rounded-lg border p-5 space-y-3"
+              style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            >
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                Chat Preferences
+              </h2>
+              <div className="flex items-center justify-between py-1">
+                <div>
+                  <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                    Typing Suggestions
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                    Display recommended questions from official bank as you type
+                  </p>
+                </div>
+                <button
+                  onClick={handleToggleSuggestions}
+                  className="rounded-md border px-3 py-1.5 text-xs font-medium transition"
+                  style={{
+                    background: typingSuggestions ? "var(--accent-surface)" : "var(--surface-2)",
+                    borderColor: typingSuggestions ? "var(--accent)" : "var(--border)",
+                    color: typingSuggestions ? "var(--accent)" : "var(--muted)",
+                  }}
+                  type="button"
+                >
+                  {typingSuggestions ? "Enabled" : "Disabled"}
+                </button>
+              </div>
+            </section>
+
+            {/* Data Management */}
+            <section
+              className="rounded-lg border p-5 space-y-3"
+              style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            >
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                Data and Privacy
+              </h2>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-1 border-b pb-3" style={{ borderColor: "var(--border)" }}>
+                  <div>
+                    <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                      Export Conversations
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                      Download all your chat history and messages in JSON format
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleExportData}
+                    disabled={exporting}
+                    className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)] disabled:opacity-50"
+                    style={{
+                      background: "var(--surface)",
+                      borderColor: "var(--border)",
+                      color: "var(--text)",
+                    }}
+                    type="button"
+                  >
+                    {exporting ? "Exporting..." : "Export JSON"}
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between py-1">
+                  <div>
+                    <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                      Clear Conversation History
+                    </p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                      Delete all chat threads while keeping your user account active
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setConfirmDeleteConvs(true)}
+                    className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)]"
+                    style={{
+                      background: "var(--surface)",
+                      borderColor: "var(--border)",
+                      color: "var(--danger)",
+                    }}
+                    type="button"
+                  >
+                    Clear history
+                  </button>
                 </div>
               </div>
             </section>
 
-            {/* Account details */}
-            <section aria-labelledby="account-heading" className="rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-6">
-              <h2 id="account-heading" className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--text-muted)]">
-                Account
+            {/* Legal and Support */}
+            <section
+              className="rounded-lg border p-5 space-y-3"
+              style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+            >
+              <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                About and Legal
               </h2>
-              <dl>
-                <InfoRow label="Name"       value={user.name || "-"} />
-                <InfoRow label="Email"      value={user.email} />
-                <InfoRow label="Role"       value={user.role} />
-                <InfoRow label="Sign-in method" value={user.google_id ? "Google" : "Email & Password"} />
-              </dl>
-            </section>
-
-            {/* Navigation */}
-            <section className="rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] p-4">
-              <nav className="flex flex-col gap-1">
+              <div className="grid grid-cols-3 gap-2">
                 <Link
-                  to="/chat"
-                  className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-[var(--text-secondary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
+                  to="/about"
+                  className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
+                  style={{
+                    background: "var(--surface-2)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-2)",
+                  }}
                 >
-                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                  </svg>
-                  Open Assistant
+                  About Assistant
                 </Link>
-                {user.role === "admin" && (
-                  <Link
-                    to="/admin"
-                    className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-amber-600 transition hover:bg-amber-500/10 dark:text-amber-500 dark:hover:bg-amber-500/8"
-                  >
-                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                      <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                      <circle cx="12" cy="12" r="3" />
-                    </svg>
-                    Admin Dashboard
-                  </Link>
-                )}
-              </nav>
+                <Link
+                  to="/privacy"
+                  className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
+                  style={{
+                    background: "var(--surface-2)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-2)",
+                  }}
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
+                  style={{
+                    background: "var(--surface-2)",
+                    borderColor: "var(--border)",
+                    color: "var(--text-2)",
+                  }}
+                >
+                  Terms of Service
+                </Link>
+              </div>
             </section>
 
-            {/* Danger zone */}
-            <section className="rounded-2xl border border-[var(--error-border)] bg-[var(--error-surface)] p-6">
-              <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-[var(--error)]">
-                Sign out
-              </h2>
-              <p className="mb-4 text-sm text-[var(--text-tertiary)]">
-                You'll need to sign in again to access your saved conversations.
-              </p>
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 rounded-lg border border-[var(--error-border)] bg-[var(--error-surface)] px-4 py-2.5 text-sm font-medium text-[var(--error)] transition hover:opacity-80"
-              >
-                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-                </svg>
-                Sign out
-              </button>
+            {/* Sign Out and Danger Zone */}
+            <section
+              className="rounded-lg border p-5 space-y-4"
+              style={{
+                background: "var(--surface)",
+                borderColor: "var(--border)",
+              }}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
+                    Sign Out
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                    End your current session on this device
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConfirmSignout(true)}
+                  className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)]"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
+                  }}
+                  type="button"
+                >
+                  Sign out
+                </button>
+              </div>
+
+              <div className="border-t pt-4 flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+                <div>
+                  <p className="text-xs font-semibold" style={{ color: "var(--danger)" }}>
+                    Delete Account
+                  </p>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--muted)" }}>
+                    Permanently delete your profile and all conversation data
+                  </p>
+                </div>
+                <button
+                  onClick={() => setConfirmDeleteAccount(true)}
+                  className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)]"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--danger)",
+                  }}
+                  type="button"
+                >
+                  Delete account
+                </button>
+              </div>
             </section>
-          </div>
+          </>
         ) : (
-          <div className="rounded-2xl border border-[var(--border-primary)] bg-[var(--surface-secondary)] px-8 py-12 text-center">
-            <p className="text-sm text-[var(--text-tertiary)]">You're not signed in.</p>
-            <Link to="/login" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-[var(--accent-primary)] px-4 py-2 text-sm font-medium text-white transition hover:bg-[var(--accent-primary-hover)]">
-              Sign in
-            </Link>
+          <div
+            className="rounded-lg border p-10 text-center"
+            style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+          >
+            <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+              You are currently using guest mode.
+            </p>
+            <p className="text-xs mt-1" style={{ color: "var(--muted)" }}>
+              Sign in or create an account to access persistent chat history across devices.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-3">
+              <Link
+                to="/login"
+                className="rounded-md px-4 py-2 text-xs font-medium text-white transition hover:opacity-90"
+                style={{ background: "var(--accent)" }}
+              >
+                Sign in
+              </Link>
+              <Link
+                to="/signup"
+                className="rounded-md border px-4 py-2 text-xs font-medium transition hover:border-[var(--border-focus)]"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--surface)",
+                  color: "var(--text)",
+                }}
+              >
+                Create account
+              </Link>
+            </div>
           </div>
         )}
       </main>
+
+      {/* Confirm Sign Out Modal */}
+      <Dialog
+        open={confirmSignout}
+        onClose={() => setConfirmSignout(false)}
+        title="Sign Out"
+        confirmLabel="Sign Out"
+        onConfirm={handleLogout}
+      >
+        <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+          Are you sure you want to sign out of your account? Your saved conversations remain safely stored on the server.
+        </p>
+      </Dialog>
+
+      {/* Confirm Delete Conversations Modal */}
+      <Dialog
+        open={confirmDeleteConvs}
+        onClose={() => setConfirmDeleteConvs(false)}
+        title="Delete All Conversations"
+        confirmLabel="Delete All"
+        danger
+        onConfirm={handleDeleteAllConversations}
+      >
+        <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+          Are you sure you want to delete all your conversations? This action cannot be undone.
+        </p>
+      </Dialog>
+
+      {/* Confirm Delete Account Modal */}
+      <Dialog
+        open={confirmDeleteAccount}
+        onClose={() => {
+          setConfirmDeleteAccount(false);
+          setDeleteAccountInput("");
+        }}
+        title="Delete Account and Data"
+        confirmLabel="Permanently Delete"
+        danger
+        onConfirm={handleDeleteAccount}
+      >
+        <div className="space-y-3">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+            This will permanently delete your account, saved conversations, and associated settings.
+          </p>
+          <p className="text-xs font-semibold" style={{ color: "var(--danger)" }}>
+            Type DELETE below to confirm:
+          </p>
+          <input
+            type="text"
+            value={deleteAccountInput}
+            onChange={(e) => setDeleteAccountInput(e.target.value)}
+            placeholder="DELETE"
+            className="w-full rounded-md border p-2 text-xs font-mono uppercase focus:outline-none"
+            style={{
+              background: "var(--surface)",
+              borderColor: "var(--border)",
+              color: "var(--text)",
+            }}
+          />
+        </div>
+      </Dialog>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 /**
- * MessageList — scrolling container for chat messages.
+ * MessageList - scrolling container for chat messages.
  * Auto-scrolls to bottom; shows a scroll-to-bottom button when the user is
  * scrolled away from the latest message. Theme-aware.
  */

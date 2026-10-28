@@ -1,5 +1,5 @@
 /**
- * ProtectedRoute — wraps routes requiring authentication.
+ * ProtectedRoute - wraps routes requiring authentication.
  * Redirects to login with state so user can return after auth.
  * adminOnly flag redirects non-admin users to /chat.
  */

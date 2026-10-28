@@ -1,5 +1,5 @@
 /**
- * Sidebar — left sidebar for the /chat application.
+ * Sidebar - left sidebar for the /chat application.
  * 280px width, client-side search, grouping (Today, Yesterday, This week, Older),
  * inline rename, delete with confirmation Dialog, keyboard shortcuts help,
  * pagination for 50+ conversations, footer links to Settings, Privacy, Terms, About.

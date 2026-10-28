@@ -1,5 +1,5 @@
 /**
- * UserMessage — renders a user's chat message.
+ * UserMessage - renders a user's chat message.
  * Right-aligned block on surface-2, 8px radius, normal text color (no accent bubble).
  */
 function formatTime(date) {

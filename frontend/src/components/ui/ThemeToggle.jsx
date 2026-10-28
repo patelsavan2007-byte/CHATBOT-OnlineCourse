@@ -1,5 +1,5 @@
 /**
- * ThemeToggle — cycles through dark → light → system.
+ * ThemeToggle - cycles through dark / light / system.
  * Shows sun/moon/auto icon with tooltip.
  */
 import { useTheme } from "../../contexts/ThemeContext.jsx";
@@ -44,11 +44,12 @@ export default function ThemeToggle({ className = "" }) {
   return (
     <button
       onClick={cycleTheme}
-      className={`flex h-7 w-7 items-center justify-center rounded-lg transition
-        text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]
+      className={`flex h-7 w-7 items-center justify-center rounded-md transition
+        text-[var(--text-2)] hover:bg-[var(--surface-2)]
         ${className}`}
       aria-label={labels[theme]}
       title={labels[theme]}
+      type="button"
     >
       {icons[theme]}
     </button>

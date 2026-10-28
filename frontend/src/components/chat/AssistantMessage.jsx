@@ -1,5 +1,5 @@
 /**
- * AssistantMessage — renders the assistant's response.
+ * AssistantMessage - renders the assistant's response.
  * Rich text, sources disclosure, feedback (thumbs with optional reason and rollback),
  * copy, regenerate (last only), quick replies, dynamic suggested questions.
  */

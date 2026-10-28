@@ -1,9 +1,16 @@
-# Render Infrastructure-as-Code — CHARUSAT Online Course Chatbot Backend
+# Render Infrastructure-as-Code - CHARUSAT Online Course Chatbot Backend
 # https://docs.render.com/blueprint-spec
 #
-# This file tells Render how to deploy the FastAPI backend automatically
-# from the `deploy` branch.  The vector database is rebuilt during each
-# deploy from the knowledge_base files that are tracked in git.
+# Free Plan Operational Caveats:
+# 1. Inactivity Spin-Down: Free web services spin down after 15 minutes of idle
+#    traffic. The first inbound request experiences a cold start of 30 to 50 seconds
+#    while container boots and models load.
+# 2. Memory Cap: Free instances have a strict 512 MB RAM limit. Chroma vector
+#    database is loaded with lightweight ONNX embeddings (bge-small-en-v1.5) to
+#    fit comfortably within bounds.
+# 3. Ephemeral Disk: Local disk changes do not persist across restarts or redeploys.
+#    Vector database is tracked in git and loaded at startup; conversations, feedback,
+#    and audit trails are persisted remotely in MongoDB Atlas.
 
 services:
   - type: web
@@ -14,10 +21,15 @@ services:
     rootDir: backend
     buildCommand: chmod +x build.sh && ./build.sh
     startCommand: uvicorn api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: GOOGLE_API_KEY
-        sync: false          # You set this manually in the Render dashboard
+        sync: false
       - key: GROQ_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
         sync: false
       - key: PYTHON_VERSION
         value: "3.11.9"

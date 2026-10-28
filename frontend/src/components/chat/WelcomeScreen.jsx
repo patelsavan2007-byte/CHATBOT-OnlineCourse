@@ -1,5 +1,5 @@
 /**
- * WelcomeScreen — empty state for the chat page.
+ * WelcomeScreen - empty state for the chat page.
  * Plain scope statement, source disclosure, and 4 starter questions
  * taken from the real question bank as rectangular buttons.
  */

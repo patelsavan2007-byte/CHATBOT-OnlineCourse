@@ -1,5 +1,5 @@
 /**
- * ChatLayout — full-screen chat application shell.
+ * ChatLayout - full-screen chat application shell.
  * Desktop: sidebar 280px, collapsible; toggle button in header.
  * Mobile: sidebar as a slide-in drawer with plain overlay (no backdrop blur).
  * Skip-to-content link, keyboard shortcuts, accessible ARIA landmarks.

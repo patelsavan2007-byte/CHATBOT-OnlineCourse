@@ -1,12 +1,12 @@
 """Authentication API routes.
 
 Endpoints:
-  POST /api/auth/signup      — create account (email/password)
-  POST /api/auth/login       — email/password login
-  POST /api/auth/logout      — logout (client-side token removal)
-  GET  /api/auth/me          — current user info
-  POST /api/auth/google      — Google OAuth login/signup
-  POST /api/auth/dev-login   — development-only auto-login
+  POST /api/auth/signup      - create account (email/password)
+  POST /api/auth/login       - email/password login
+  POST /api/auth/logout      - logout (client-side token removal)
+  GET  /api/auth/me          - current user info
+  POST /api/auth/google      - Google OAuth login/signup
+  POST /api/auth/dev-login   - development-only auto-login
 """
 from __future__ import annotations
 

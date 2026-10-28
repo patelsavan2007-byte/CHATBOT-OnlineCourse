@@ -65,38 +65,27 @@ function NotFound() {
       style={{ background: "var(--page)" }}
     >
       <p
-        className="text-8xl font-semibold leading-none"
-        style={{ color: "var(--border-strong)" }}
+        className="text-7xl font-semibold leading-none font-mono"
+        style={{ color: "var(--border)" }}
       >
         404
       </p>
       <p className="text-base font-semibold" style={{ color: "var(--text)" }}>
         Page not found
       </p>
-      <p className="max-w-xs text-sm" style={{ color: "var(--muted)" }}>
+      <p className="max-w-xs text-xs" style={{ color: "var(--muted)" }}>
         The page you are looking for does not exist or has been moved.
       </p>
-      <div className="mt-2 flex gap-3">
+      <div className="mt-2">
         <a
           href="/chat"
-          className="rounded-lg px-5 py-2.5 text-sm font-medium transition hover:opacity-90"
+          className="rounded-md px-4 py-2 text-xs font-medium transition hover:opacity-90 inline-block"
           style={{
             background: "var(--accent)",
-            color: "var(--accent-text)",
+            color: "#FFFFFF",
           }}
         >
-          Open Assistant
-        </a>
-        <a
-          href="/"
-          className="rounded-lg border px-5 py-2.5 text-sm font-medium transition hover:opacity-80"
-          style={{
-            borderColor: "var(--border)",
-            background: "var(--surface)",
-            color: "var(--text-2)",
-          }}
-        >
-          Home
+          Return to chat
         </a>
       </div>
     </div>
