@@ -9,11 +9,12 @@ Run with::
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -127,14 +128,51 @@ app = FastAPI(
     version="2.0.0",
 )
 
-# Allow CORS for local frontend development.
+def get_allowed_origins() -> List[str]:
+    """Return restricted CORS allowed origins (localhost and configured production domains)."""
+    origins = [
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:3000",
+    ]
+    prod_domain = (os.getenv("PRODUCTION_DOMAIN") or "").strip()
+    if prod_domain:
+        if not prod_domain.startswith("http://") and not prod_domain.startswith("https://"):
+            origins.append(f"https://{prod_domain}")
+            origins.append(f"http://{prod_domain}")
+        else:
+            origins.append(prod_domain)
+    extra = os.getenv("ALLOWED_ORIGINS", "")
+    if extra:
+        origins.extend([o.strip() for o in extra.split(",") if o.strip()])
+    return list(dict.fromkeys(origins))
+
+
+# Restrict CORS to localhost and production domain(s)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_security_checks():
+    """Assert security requirements at startup."""
+    env = os.getenv("ENVIRONMENT", os.getenv("NODE_ENV", "development")).lower()
+    is_prod = env in ("production", "prod") or bool(os.getenv("RENDER") or os.getenv("VERCEL"))
+    jwt_secret = os.getenv("JWT_SECRET", "").strip()
+    dev_auto_login = os.getenv("DEV_AUTO_LOGIN", "false").strip().lower() in ("true", "1", "yes")
+
+    if is_prod:
+        if dev_auto_login:
+            raise RuntimeError("CRITICAL SECURITY ERROR: DEV_AUTO_LOGIN must be false in production!")
+        if not jwt_secret or jwt_secret == "charusat-dev-jwt-secret-change-in-production":
+            raise RuntimeError("CRITICAL SECURITY ERROR: JWT_SECRET must be set to a secure secret in production!")
+
 
 # -----------------------------------------------------------------------
 # Mount new API routes
@@ -160,6 +198,7 @@ class ChatRequest(BaseModel):
     question: str = Field(
         ...,
         min_length=1,
+        max_length=1000,
         description="The user's question.",
     )
     history: Optional[List[Dict[str, Any]]] = Field(
@@ -200,7 +239,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
         raise HTTPException(status_code=503, detail="Chatbot RAG pipeline is not available.")
 
     try:
-        answer_text, _retrieved = rag_chain.answer(request.question, history=request.history)
+        result = rag_chain.answer(request.question, history=request.history)
+        answer_text = result.answer if hasattr(result, "answer") else str(result)
     except Exception as exc:
         logger.error("RAG chain failed: %s", exc)
         raise HTTPException(status_code=500, detail="Failed to generate answer") from exc
@@ -306,4 +346,23 @@ async def get_contacts():
         "examinations": format_entries(exams_entries),
         "admissions_line": directory.get_contact_line(topic="admission"),
     }
+
+
+# -----------------------------------------------------------------------
+# /api/me aliases
+# -----------------------------------------------------------------------
+
+from app.auth import get_current_user
+
+
+@app.get("/api/me/export")
+async def api_me_export(user: Dict[str, Any] = Depends(get_current_user)):
+    from app.routes.auth_routes import export_my_data
+    return await export_my_data(user)
+
+
+@app.delete("/api/me")
+async def api_me_delete(user: Dict[str, Any] = Depends(get_current_user)):
+    from app.routes.auth_routes import delete_my_account
+    return await delete_my_account(user)
 

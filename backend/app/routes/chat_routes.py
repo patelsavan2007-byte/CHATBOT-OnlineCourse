@@ -57,7 +57,7 @@ from app.suggestions import generate_suggestions
 # ---------------------------------------------------------------------------
 
 class ChatMessageRequest(BaseModel):
-    question: str = Field(..., min_length=1)
+    question: str = Field(..., min_length=1, max_length=1000)
     conversation_id: Optional[str] = None
     history: Optional[List[Dict[str, Any]]] = None
     use_cache: Optional[bool] = True
@@ -67,12 +67,13 @@ class ChatMessageResponse(BaseModel):
     answer: str
     conversation_id: Optional[str] = None
     message_id: Optional[str] = None
+    sources: Optional[List[Dict[str, Any]]] = None
     suggested_questions: Optional[List[str]] = None
     quick_replies: Optional[List[str]] = None
 
 
 class StreamChatRequest(BaseModel):
-    question: str = Field(..., min_length=1)
+    question: str = Field(..., min_length=1, max_length=1000)
     conversation_id: Optional[str] = None
     history: Optional[List[Dict[str, Any]]] = None
 
@@ -80,6 +81,7 @@ class StreamChatRequest(BaseModel):
 class FeedbackRequest(BaseModel):
     message_id: str = Field(..., description="Message ID to add feedback to")
     feedback: str = Field(..., description="Feedback type: 'thumbs_up' or 'thumbs_down'")
+    reason: Optional[str] = Field(None, max_length=500, description="Optional feedback explanation")
 
 
 class UserCorrectionRequest(BaseModel):
@@ -382,18 +384,67 @@ def _thinking_status(plan: Any) -> str:
     """Natural, topic-aware status shown before the first answer token."""
     topic = getattr(plan, "topic", "general")
     statuses = {
-        "fees": "Checking the fee detailsÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "subjects": "Looking through the curriculumÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "eligibility": "Checking the eligibility criteriaÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "admission": "Reviewing the admission processÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "duration": "Checking the programme structureÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "grading": "Reviewing the examination and grading rulesÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "lms": "Checking the LMS guidanceÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "contact": "Finding the right support contactÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "career": "Checking career and placement detailsÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
-        "refund": "Reviewing the refund policyÃÂÃÂ¢ÃÂÃÂÃÂÃÂ¦",
+        "fees": "Checking the fee details...",
+        "subjects": "Looking through the curriculum...",
+        "eligibility": "Checking the eligibility criteria...",
+        "admission": "Reviewing the admission process...",
+        "duration": "Checking the programme structure...",
+        "grading": "Reviewing the examination and grading rules...",
+        "lms": "Checking the LMS guidance...",
+        "contact": "Finding the right support contact...",
+        "career": "Checking career and placement details...",
+        "refund": "Reviewing the refund policy...",
     }
     return statuses.get(topic, "Looking that up...")
+
+
+def _log_chat_event(
+    db: Any,
+    question: str,
+    outcome: _TurnOutcome,
+    message_id: Optional[str] = None,
+    latency_s: float = 0.0,
+    conversation_id: Optional[str] = None,
+    user_id: Optional[str] = None,
+):
+    """Log a chat query event to MongoDB for admin analytics and knowledge gap detection.
+    Does not store raw client IP addresses.
+    """
+    if db is None:
+        return
+    try:
+        from datetime import datetime, timezone
+        plan = outcome.plan
+        rag_res = outcome.rag_result
+        topic = getattr(plan, "topic", "general") or "general"
+        programmes = getattr(plan, "programmes", []) or []
+        status_str = str(getattr(rag_res, "status", "") or "")
+        is_gap = (
+            outcome.kind == "unrelated"
+            or "not_found" in status_str
+            or "gap" in status_str
+            or "vague" in status_str
+        )
+
+        doc = {
+            "timestamp": datetime.now(timezone.utc),
+            "question": question,
+            "answer_preview": (outcome.answer[:200] + "...") if len(outcome.answer) > 200 else outcome.answer,
+            "status": status_str or outcome.kind,
+            "programmes": programmes,
+            "topic": topic,
+            "year": getattr(plan, "year", None),
+            "user_id": user_id,
+            "conversation_id": conversation_id,
+            "message_id": message_id,
+            "latency_s": round(latency_s, 3),
+            "is_gap": is_gap,
+            "review_status": "open" if is_gap else None,
+            "feedback": None,
+        }
+        db.chat_events.insert_one(doc)
+    except Exception as exc:
+        logger.warning("Failed to log chat event: %s", exc)
 
 
 
@@ -403,10 +454,11 @@ async def chat_message(
     user: Optional[Dict[str, Any]] = Depends(get_optional_user),
 ):
     """Send a chat message.
-
     For authenticated users: creates/uses a conversation, persists messages.
     For guests: just calls RAG pipeline, no persistence.
     """
+    import time
+    t_start = time.time()
     conversation_id = request.conversation_id
     rag_chain, rag_ready = _get_rag_chain()
 
@@ -440,9 +492,18 @@ async def chat_message(
 
     # For guests, return without persistence (but log event)
     if user is None:
-        pass  # _log_chat_event removed
+        _log_chat_event(
+            db,
+            request.question,
+            outcome,
+            message_id=None,
+            latency_s=time.time() - t_start,
+            conversation_id=None,
+            user_id=None,
+        )
         return ChatMessageResponse(
             answer=answer_text,
+            sources=sources,
             suggested_questions=suggested,
             quick_replies=quick_replies,
         )
@@ -487,12 +548,21 @@ async def chat_message(
         sources=sources,
         suggested_questions=suggested,
     )
-    pass  # _log_chat_event removed
+    _log_chat_event(
+        db,
+        request.question,
+        outcome,
+        message_id=assistant_msg["id"],
+        latency_s=time.time() - t_start,
+        conversation_id=conversation_id,
+        user_id=user["id"],
+    )
 
     return ChatMessageResponse(
         answer=answer_text,
         conversation_id=conversation_id,
         message_id=assistant_msg["id"],
+        sources=sources,
         suggested_questions=suggested,
         quick_replies=quick_replies,
     )
@@ -572,9 +642,19 @@ async def chat_message_stream(
                 sources=sources,
                 suggested=suggested,
             )
+            _log_chat_event(
+                db,
+                request.question,
+                outcome,
+                message_id=assistant_msg["id"] if assistant_msg else None,
+                latency_s=time.time() - t_stream_start if 't_stream_start' in locals() else 0.0,
+                conversation_id=conv_id,
+                user_id=user["id"] if user else None,
+            )
             final_data = {
                 "type": "done",
                 "answer": answer_text,
+                "sources": sources,
                 "conversation_id": conv_id,
                 "message_id": assistant_msg["id"] if assistant_msg else None,
                 "suggested_questions": suggested,
@@ -623,6 +703,15 @@ async def chat_message_stream(
             sources=sources,
             suggested=suggested,
         )
+        _log_chat_event(
+            db,
+            request.question,
+            outcome,
+            message_id=assistant_msg["id"] if assistant_msg else None,
+            latency_s=time.time() - t_stream_start if 't_stream_start' in locals() else 0.0,
+            conversation_id=conv_id,
+            user_id=user["id"] if user else None,
+        )
         try:
             from app import llm_call_counter
             _llm_calls = llm_call_counter.get_calls(qid)
@@ -631,6 +720,7 @@ async def chat_message_stream(
         final_data = {
             "type": "done",
             "answer": answer_text,
+            "sources": sources,
             "conversation_id": conv_id,
             "message_id": assistant_msg["id"] if assistant_msg else None,
             "suggested_questions": suggested,
@@ -751,10 +841,19 @@ async def add_feedback(
         )
 
     try:
+        update_fields = {"feedback": request.feedback}
+        if request.reason:
+            update_fields["reason"] = request.reason
         db.chat_events.update_one(
             {"message_id": request.message_id},
-            {"$set": {"feedback": request.feedback}},
+            {"$set": update_fields},
         )
+        if request.reason:
+            from app.models import _oid
+            db.messages.update_one(
+                {"_id": _oid(request.message_id)},
+                {"$set": {"feedback_reason": request.reason}},
+            )
     except Exception:
         pass
 
@@ -789,7 +888,7 @@ async def add_correction(
             detail="Message not found",
         )
 
-    return {"message": "Correction added successfully", "message": updated_message}
+    return {"status": "success", "message": "Correction added successfully", "updated_message": updated_message}
 
 
 @router.get("/feedback/stats")
