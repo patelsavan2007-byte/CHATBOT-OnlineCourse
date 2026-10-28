@@ -14,6 +14,7 @@ const CHAR_WARN_THRESHOLD = 800;
 
 export default function ChatComposer({
   onSend,
+  onStop,
   disabled,
   typingSuggestionsEnabled = true,
   currentProgramme = null,
@@ -128,7 +129,7 @@ export default function ChatComposer({
       : undefined;
 
   return (
-    <div className="shrink-0 border-t border-[var(--border-primary)] bg-[var(--surface-primary)] px-3 py-3 sm:px-4 sm:py-4">
+    <div className="shrink-0 border-t px-3 py-3 sm:px-4 sm:py-4" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
       <div className="mx-auto max-w-3xl relative">
         {/* Typing Suggestions Dropdown */}
         {suggestions.length > 0 && suggestionsOpen && (
@@ -140,18 +141,22 @@ export default function ChatComposer({
           />
         )}
 
-        {/* Floating Composer Bar */}
+        {/* Floating Composer Bar (radius: 12px = rounded-xl) */}
         <div
           role="combobox"
           aria-haspopup="listbox"
           aria-expanded={suggestions.length > 0 && suggestionsOpen}
           aria-owns={listId}
           aria-controls={listId}
-          className={`flex items-end gap-2 rounded-2xl border bg-[var(--composer-bg)] px-4 py-2.5 shadow-sm transition ${
+          className={`flex items-end gap-2 rounded-xl border px-3.5 py-2 shadow-xs transition ${
             disabled
-              ? "border-[var(--border-primary)] opacity-70"
-              : "border-[var(--composer-border)] focus-within:border-[var(--composer-focus-border)] focus-within:shadow-[0_0_0_3px_var(--composer-focus-ring)]"
+              ? "opacity-75"
+              : "focus-within:border-[var(--border-focus)] focus-within:ring-1 focus-within:ring-[var(--border-focus)]"
           }`}
+          style={{
+            borderColor: "var(--composer-border)",
+            background: "var(--composer-bg)",
+          }}
         >
           <textarea
             ref={textareaRef}
@@ -168,14 +173,16 @@ export default function ChatComposer({
             aria-activedescendant={highlightedOptionId}
             aria-multiline="true"
             enterKeyHint="send"
-            className="flex-1 resize-none bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] outline-none leading-6 py-0.5 disabled:cursor-not-allowed"
+            className="flex-1 resize-none bg-transparent text-xs sm:text-sm outline-none leading-5 py-1 disabled:cursor-not-allowed"
+            style={{ color: "var(--text)" }}
           />
 
           {showCount && (
             <span
-              className={`shrink-0 select-none text-[11px] font-mono px-1 ${
-                isNearLimit ? "text-[var(--error)] font-medium" : "text-[var(--text-muted)]"
+              className={`shrink-0 select-none text-[10px] font-mono px-1 py-1 ${
+                isNearLimit ? "font-semibold" : ""
               }`}
+              style={{ color: isNearLimit ? "var(--danger)" : "var(--muted)" }}
               aria-live="polite"
               aria-label={`${charLen} of ${MAX_CHAR_LIMIT} characters`}
             >
@@ -183,32 +190,55 @@ export default function ChatComposer({
             </span>
           )}
 
-          <button
-            onClick={() => submit()}
-            disabled={!canSend}
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition focus-visible:outline-2 ${
-              canSend
-                ? "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-primary-hover)] shadow-sm"
-                : "bg-[var(--surface-hover)] text-[var(--text-muted)] cursor-not-allowed"
-            }`}
-            aria-label="Send message"
-            type="button"
-          >
-            {disabled ? ( // allow-round: spinner
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--text-muted)] border-t-[var(--text-secondary)]" aria-hidden />
-            ) : (
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
+          {/* When loading: show Stop button. When idle: show Send button. */}
+          {disabled ? (
+            <button
+              onClick={onStop}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs transition hover:opacity-80 focus-visible:outline-2 cursor-pointer"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--surface-2)",
+                color: "var(--danger)",
+              }}
+              aria-label="Stop generating"
+              title="Stop"
+              type="button"
+            >
+              <svg className="h-3 w-3" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <rect x="5" y="5" width="14" height="14" rx="1" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              onClick={() => submit()}
+              disabled={!canSend}
+              className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition focus-visible:outline-2 cursor-pointer ${
+                canSend
+                  ? "text-white shadow-xs hover:opacity-90"
+                  : "cursor-not-allowed opacity-40"
+              }`}
+              style={{
+                background: canSend ? "var(--accent)" : "var(--surface-3)",
+                color: canSend ? "white" : "var(--muted)",
+              }}
+              aria-label="Send message"
+              type="button"
+            >
+              <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 19V5M5 12l7-7 7 7" />
               </svg>
-            )}
-          </button>
+            </button>
+          )}
         </div>
 
-        {/* Keyboard hint */}
-        <p className="mt-1.5 text-center text-[10px] text-[var(--text-muted)]">
-          <kbd className="rounded border border-[var(--border-primary)] bg-[var(--surface-hover)] px-1 py-0.5 text-[9px]">↵ Enter</kbd> to send ·{" "}
-          <kbd className="rounded border border-[var(--border-primary)] bg-[var(--surface-hover)] px-1 py-0.5 text-[9px]">Shift + ↵</kbd> for new line
-        </p>
+        {/* Keyboard hint -- hidden while loading */}
+        {!disabled && (
+          <p className="mt-1.5 text-center text-[10px]" style={{ color: "var(--muted)" }}>
+            <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Enter</kbd> to send
+            {" "}&middot;{" "}
+            <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Shift + Enter</kbd> for new line
+          </p>
+        )}
       </div>
     </div>
   );

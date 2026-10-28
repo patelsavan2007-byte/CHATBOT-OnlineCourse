@@ -1,12 +1,14 @@
 /**
  * ChatLayout — full-screen chat application shell.
- * Desktop: sidebar collapses smoothly with transition; toggle button is ALWAYS visible in the header.
- * Mobile: sidebar as a slide-in drawer with overlay, scroll-locking and Escape-to-close.
- * State persisted in localStorage (charusat_sidebar_open) with full ARIA accessibility.
+ * Desktop: sidebar 280px, collapsible; toggle button in header.
+ * Mobile: sidebar as a slide-in drawer with plain overlay (no backdrop blur).
+ * Skip-to-content link, keyboard shortcuts, accessible ARIA landmarks.
  */
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import ChatSidebar from "./Sidebar.jsx";
 import ThemeToggle from "../ui/ThemeToggle.jsx";
+import { useAuth } from "../../contexts/AuthContext.jsx";
 
 const SIDEBAR_STORAGE_KEY = "charusat_sidebar_open";
 
@@ -29,6 +31,7 @@ export default function ChatLayout({
   onToggleTypingSuggestions,
   children,
 }) {
+  const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(getInitialSidebarOpen);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -37,7 +40,9 @@ export default function ChatLayout({
       const next = !prev;
       try {
         localStorage.setItem(SIDEBAR_STORAGE_KEY, String(next));
-      } catch {/* ignore */}
+      } catch {
+        /* ignore */
+      }
       return next;
     });
   }, []);
@@ -58,7 +63,7 @@ export default function ChatLayout({
     setDrawerOpen(false);
   }, [onNewChat]);
 
-  // Lock body scroll while the mobile drawer is open
+  // Lock body scroll while mobile drawer is open
   useEffect(() => {
     document.body.style.overflow = drawerOpen ? "hidden" : "";
     return () => {
@@ -66,7 +71,7 @@ export default function ChatLayout({
     };
   }, [drawerOpen]);
 
-  // Escape key closes the mobile drawer
+  // Escape key closes mobile drawer
   useEffect(() => {
     if (!drawerOpen) return;
     const onKey = (e) => {
@@ -85,16 +90,30 @@ export default function ChatLayout({
     onRenameConversation,
     typingSuggestionsEnabled,
     onToggleTypingSuggestions,
+    onToggleSidebar: toggleSidebar,
   };
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-[var(--surface-primary)] text-[var(--text-primary)]">
-      {/* ---- Desktop sidebar ---- */}
+    <div className="flex h-dvh overflow-hidden bg-[var(--page)] text-[var(--text)]">
+      {/* Skip to main content link for keyboard & screen reader accessibility */}
+      <a
+        href="#main-chat-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:border focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:shadow-md"
+        style={{
+          borderColor: "var(--border)",
+          background: "var(--surface)",
+          color: "var(--text)",
+        }}
+      >
+        Skip to main content
+      </a>
+
+      {/* ---- Desktop sidebar (280px) ---- */}
       <aside
         id="desktop-sidebar"
         aria-hidden={!sidebarOpen}
-        className={`hidden md:flex shrink-0 flex-col transition-[width] duration-200 ease-in-out overflow-hidden ${
-          sidebarOpen ? "w-64" : "w-0"
+        className={`hidden md:flex shrink-0 flex-col transition-[width] duration-150 ease-in-out overflow-hidden ${
+          sidebarOpen ? "w-[280px]" : "w-0"
         }`}
         style={{ minWidth: 0 }}
       >
@@ -104,14 +123,15 @@ export default function ChatLayout({
       {/* ---- Mobile drawer overlay ---- */}
       {drawerOpen && (
         <>
+          {/* Plain semi-transparent overlay */}
           <div
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            className="fixed inset-0 z-40 bg-black/40 md:hidden"
             onClick={closeDrawer}
             aria-hidden="true"
           />
           <div
             id="mobile-sidebar-drawer"
-            className="fixed inset-y-0 left-0 z-50 w-72 md:hidden animate-slide-in"
+            className="fixed inset-y-0 left-0 z-50 w-[280px] md:hidden shadow-lg"
             role="dialog"
             aria-modal="true"
             aria-label="Conversation history"
@@ -123,16 +143,20 @@ export default function ChatLayout({
 
       {/* ---- Main area ---- */}
       <div className="flex min-w-0 flex-1 flex-col">
-        {/* Top bar */}
-        <header className="flex h-11 shrink-0 items-center justify-between border-b border-[var(--border-primary)] bg-[var(--surface-primary)]/90 px-3 backdrop-blur-sm">
-          {/* Left — toggle sidebar (desktop) / open drawer (mobile) */}
-          <div className="flex items-center gap-1.5">
+        {/* Top bar -- plain solid background, no backdrop blur */}
+        <header
+          className="flex h-12 shrink-0 items-center justify-between border-b px-3 sm:px-4"
+          style={{ borderColor: "var(--border)", background: "var(--surface)" }}
+        >
+          {/* Left: toggle sidebar (desktop) / open drawer (mobile) + Product wordmark */}
+          <div className="flex items-center gap-2.5">
             <button
               id="desktop-sidebar-toggle"
               onClick={toggleSidebar}
               aria-expanded={sidebarOpen}
               aria-controls="desktop-sidebar"
-              className="md:flex hidden h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)] focus-visible:outline-2"
+              className="hidden md:flex h-7 w-7 items-center justify-center rounded-md border text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text)] focus-visible:outline-2 cursor-pointer"
+              style={{ borderColor: "var(--border)" }}
               aria-label={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
               title={sidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
               type="button"
@@ -150,43 +174,48 @@ export default function ChatLayout({
               onClick={openDrawer}
               aria-expanded={drawerOpen}
               aria-controls="mobile-sidebar-drawer"
-              className="md:hidden flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)] focus-visible:outline-2"
-              aria-label="Open conversation history menu"
+              className="flex md:hidden h-7 w-7 items-center justify-center rounded-md border text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text)] focus-visible:outline-2 cursor-pointer"
+              style={{ borderColor: "var(--border)" }}
+              aria-label="Open menu"
               type="button"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M3 12h18M15 5h6M15 19h6M3 12v8a1 1 0 001 1h6V3H4a1 1 0 00-1 1v8z" />
+                <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </button>
+
+            <span className="text-xs font-semibold sm:text-sm" style={{ color: "var(--text)" }}>
+              Online Programmes Assistant
+            </span>
           </div>
 
-          {/* Center — brand */}
+          {/* Right: Theme + Account / Sign In */}
           <div className="flex items-center gap-2">
-            <svg viewBox="0 0 24 24" className="h-4 w-4 fill-[var(--accent-primary)]" aria-hidden="true">
-              <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-            </svg>
-            <span className="text-[13px] font-medium text-[var(--text-tertiary)]">CHARUSAT Assistant</span>
-          </div>
-
-          {/* Right — theme toggle + new chat */}
-          <div className="flex items-center gap-1">
             <ThemeToggle />
-            <button
-              onClick={handleNew}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)] focus-visible:outline-2"
-              aria-label="New chat"
-              title="New chat"
-              type="button"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-            </button>
+            {user ? (
+              <Link
+                to="/settings"
+                className="flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition hover:bg-[var(--surface-hover)]"
+                style={{ borderColor: "var(--border)", color: "var(--text)" }}
+                aria-label="Account settings"
+              >
+                <span className="hidden sm:inline truncate max-w-[120px]">{user.name || user.email}</span>
+                <span className="sm:hidden">Account</span>
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-md px-2.5 py-1 text-xs font-medium text-white transition hover:opacity-90"
+                style={{ background: "var(--accent)" }}
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex min-h-0 flex-1 flex-col">
+        <main id="main-chat-content" className="flex min-h-0 flex-1 flex-col">
           {children}
         </main>
       </div>

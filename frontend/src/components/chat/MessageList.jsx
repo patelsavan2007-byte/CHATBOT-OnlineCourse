@@ -4,30 +4,48 @@
  * scrolled away from the latest message. Theme-aware.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
-import UserMessage      from "./UserMessage.jsx";
+import UserMessage from "./UserMessage.jsx";
 import AssistantMessage from "./AssistantMessage.jsx";
-import { ASSISTANT_AVATAR, DEFAULT_THINKING_MESSAGE } from "../../config/branding.js";
+import { ASSISTANT_AVATAR, ASSISTANT_NAME, DEFAULT_THINKING_MESSAGE } from "../../config/branding.js";
 
 function TypingIndicator({ status }) {
+  const [failed, setFailed] = useState(false);
+
   return (
     <div className="flex gap-3">
-      <img
-        src={ASSISTANT_AVATAR}
-        alt=""
-        className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border-primary)]"
-      />
+      {failed ? (
+        <div
+          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold select-none"
+          style={{
+            borderColor: "var(--border)",
+            background: "var(--accent-surface)",
+            color: "var(--accent)",
+          }}
+          aria-hidden="true"
+        >
+          C
+        </div>
+      ) : (
+        <img
+          src={ASSISTANT_AVATAR}
+          alt={ASSISTANT_NAME}
+          onError={() => setFailed(true)}
+          className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border)]"
+        />
+      )}
       <div
-        className="mt-1 flex items-center gap-2 px-1 text-[13px] text-[var(--text-tertiary)]"
+        className="mt-1 flex items-center gap-2 px-1 text-xs"
+        style={{ color: "var(--muted)" }}
         role="status"
         aria-live="polite"
-        aria-label={status || "Assistant is thinking"}
+        aria-label={status || DEFAULT_THINKING_MESSAGE}
       >
-        <span className="flex items-center gap-1.5">
-          <span className="typing-dot" />
-          <span className="typing-dot" />
-          <span className="typing-dot" />
-        </span>
-        <span className="animate-pulse">{status || DEFAULT_THINKING_MESSAGE}</span>
+        <span
+          className="inline-block h-2 w-2 animate-pulse rounded-full" /* allow-round: status dot */
+          style={{ background: "var(--accent)" }}
+          aria-hidden="true"
+        />
+        <span>{status || DEFAULT_THINKING_MESSAGE}</span>
       </div>
     </div>
   );
@@ -41,9 +59,8 @@ export default function MessageList({
   onRegenerate,
   onSuggestedQuestion,
 }) {
-
-  const scrollRef  = useRef(null);
-  const bottomRef  = useRef(null);
+  const scrollRef = useRef(null);
+  const bottomRef = useRef(null);
   const [stickToBottom, setStickToBottom] = useState(true);
 
   const isNearBottom = useCallback(() => {
@@ -67,7 +84,7 @@ export default function MessageList({
 
   const scrollToBottom = () => {
     setStickToBottom(true);
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    bottomRef.current?.scrollIntoView({ behavior: "instant", block: "end" });
   };
 
   return (
@@ -93,6 +110,7 @@ export default function MessageList({
                 key={msg.id}
                 messageId={msg.id}
                 content={msg.content}
+                sources={msg.sources}
                 isError={msg.isError}
                 timestamp={msg.timestamp}
                 onRetry={msg.isError ? (() => onRetry?.(msg)) : undefined}
@@ -105,10 +123,9 @@ export default function MessageList({
             );
           })}
 
-
           {isLoading && <TypingIndicator status={thinkingStatus} />}
 
-          <div ref={bottomRef} className="h-1" aria-hidden />
+          <div ref={bottomRef} className="h-1" aria-hidden="true" />
         </div>
       </div>
 
@@ -116,12 +133,17 @@ export default function MessageList({
       {!stickToBottom && !isLoading && (
         <button
           onClick={scrollToBottom}
-          className="absolute bottom-4 right-6 flex h-8 w-8 items-center justify-center rounded-full border border-[var(--border-primary)] bg-[var(--surface-elevated)] text-[var(--text-secondary)] shadow-md transition hover:bg-[var(--surface-active)] hover:text-[var(--text-primary)] animate-scale-in" /* allow-round: scroll FAB circle is a standard UI convention */
+          className="absolute bottom-4 right-6 flex h-8 w-8 items-center justify-center rounded-full border shadow-md transition hover:opacity-90" /* allow-round: scroll FAB circle is a standard functional control */
+          style={{
+            borderColor: "var(--border)",
+            background: "var(--surface)",
+            color: "var(--text-2)",
+          }}
           aria-label="Scroll to latest message"
           title="Scroll to latest"
           type="button"
         >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M12 5v14M19 12l-7 7-7-7" />
           </svg>
         </button>

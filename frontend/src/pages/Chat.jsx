@@ -29,11 +29,13 @@ export default function Chat() {
     messages,
     isLoading,
     thinkingStatus,
+    showColdStart,
     activeConversationId,
     setActiveConversationId,
     showGuestLimit,
     setShowGuestLimit,
     sendMessage,
+    stop,
     retryMessage,
     regenerateLastMessage,
     clearChat,
@@ -122,8 +124,20 @@ export default function Chat() {
               <WelcomeScreen onSendPrompt={sendMessage} questionBank={questionBank} />
             </div>
           )}
+          {showColdStart && (
+            <div
+              role="status"
+              aria-live="polite"
+              className="mx-auto max-w-3xl px-4 py-2 sm:px-6"
+            >
+              <p className="rounded-lg border px-3.5 py-2.5 text-xs leading-relaxed" style={{ borderColor: "var(--border)", background: "var(--surface)", color: "var(--muted)" }}>
+                The assistant is starting up -- this may take up to 30 seconds on first load. Please wait.
+              </p>
+            </div>
+          )}
           <ChatComposer
             onSend={sendMessage}
+            onStop={stop}
             disabled={isLoading}
             typingSuggestionsEnabled={typingSuggestionsEnabled}
             currentProgramme={currentProgramme}
