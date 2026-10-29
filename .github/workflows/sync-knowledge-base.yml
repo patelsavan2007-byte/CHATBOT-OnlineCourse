@@ -1,0 +1,133 @@
+name: "🔄 Daily KB Sync – charusat.online"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Runs every day at 01:30 UTC (07:00 IST) on the MAIN branch.
+# Can also be triggered manually with an optional force-rebuild flag.
+# ──────────────────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    - cron: "30 1 * * *"   # 01:30 UTC = 07:00 IST daily
+  workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: "Force vector DB rebuild even if no KB files changed"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      min_diff_ratio:
+        description: "Min diff ratio to overwrite a KB file (0.0–1.0, default 0.05)"
+        required: false
+        default: "0.05"
+
+permissions:
+  contents: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  MIN_DIFF_RATIO: ${{ github.event.inputs.min_diff_ratio || '0.05' }}
+
+jobs:
+  sync-and-rebuild:
+    name: "Scrape → Update KB → Rebuild Vector DB"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      # ── 1. Checkout MAIN branch ────────────────────────────────────────────
+      - name: "📥 Checkout main branch"
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python setup with pip cache ─────────────────────────────────────
+      - name: "🐍 Set up Python ${{ env.PYTHON_VERSION }}"
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      # ── 3. Install Python dependencies ─────────────────────────────────────
+      - name: "📦 Install dependencies"
+        working-directory: backend
+        run: |
+          pip install --upgrade pip
+          # Install lightweight subset needed for scraping + vector DB rebuild
+          pip install \
+            beautifulsoup4>=4.0.0 \
+            requests>=2.31.0 \
+            langchain>=0.3.0 \
+            langchain-core>=0.3.0 \
+            langchain-community>=0.3.0 \
+            langchain-chroma>=0.1.4 \
+            langchain-text-splitters>=0.3.0 \
+            chromadb>=0.5.0 \
+            fastembed>=0.3.0 \
+            pypdf>=4.0.0 \
+            pymupdf>=1.0.0 \
+            python-dotenv>=1.0.1 \
+            numpy>=1.26.0 \
+            tqdm>=4.0.0 \
+            rich>=13.0.0
+
+      # ── 4. Scrape website and update KB markdown files ──────────────────────
+      - name: "🌐 Scrape charusat.online → update knowledge base"
+        working-directory: backend
+        env:
+          MIN_DIFF_RATIO: ${{ env.MIN_DIFF_RATIO }}
+          # Disable playwright in CI (not installed); requests-only mode
+          USE_PLAYWRIGHT_SCRAPER: "false"
+        run: |
+          python -X utf8 -I scripts/sync_website.py
+
+      # ── 5. Force rebuild (manual trigger only) ─────────────────────────────
+      - name: "⚡ Force rebuild vector DB (manual trigger)"
+        if: >
+          github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.force_rebuild == 'true'
+        working-directory: backend
+        run: |
+          echo "[ci] Force rebuild requested – running rebuild_vectordb.py"
+          python -X utf8 -I rebuild_vectordb.py
+
+      # ── 6. Commit updated KB + vector DB back to MAIN ──────────────────────
+      - name: "💾 Commit changes to main"
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Stage knowledge base markdowns and vector DB
+          git add backend/knowledge_base/
+          git add backend/vector_db/ 2>/dev/null || true
+
+          if git diff --cached --quiet; then
+            echo "✅ No changes detected – knowledge base is already up to date."
+          else
+            CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+            git commit -m "chore(kb): auto-sync from charusat.online [skip ci]
+
+Daily scrape: ${CHANGED} file(s) updated.
+Run triggered by: ${{ github.event_name }}
+Workflow: ${{ github.workflow }} @ $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push origin main
+            echo "✅ Pushed ${CHANGED} updated file(s) to main."
+          fi
+
+      # ── 7. Summary ─────────────────────────────────────────────────────────
+      - name: "📊 Print sync summary"
+        if: always()
+        run: |
+          echo "## KB Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`main\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Min diff ratio | \`${{ env.MIN_DIFF_RATIO }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Force rebuild | \`${{ github.event.inputs.force_rebuild || 'false' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp (UTC) | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
