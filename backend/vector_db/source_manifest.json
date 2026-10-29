@@ -1,16 +1,6 @@
 {
   "files": [
     {
-      "path": "_backup/bca_syllabus_2025_26.md",
-      "size": 227261,
-      "modified": 1792854560
-    },
-    {
-      "path": "_backup/mca_syllabus_2025_26.md",
-      "size": 123959,
-      "modified": 1792854567
-    },
-    {
       "path": "admission_cancellation.md",
       "size": 2491,
       "modified": 1792859318
@@ -37,8 +27,8 @@
     },
     {
       "path": "contact_directory.md",
-      "size": 3746,
-      "modified": 1793101575
+      "size": 3756,
+      "modified": 1793152198
     },
     {
       "path": "faculty.md",

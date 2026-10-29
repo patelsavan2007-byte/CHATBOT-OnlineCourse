@@ -98,6 +98,8 @@ class KnowledgeBaseIngester:
             if path.is_file() and path.suffix.lower() == ".md"
             and "__pycache__" not in path.parts
             and "vector_db" not in path.parts
+            and "_backup" not in path.parts
+            and "superseded" not in path.parts
             and path.name.lower() not in self.EXCLUDED_FILES
         ]
         return sorted(files)
