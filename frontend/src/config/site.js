@@ -1,5 +1,5 @@
 /**
- * site.js - Operator configuration for the CHARUSAT Online Programmes Assistant.
+ * site.js - Operator configuration for the CCOE CHARUSAT Assistant.
  *
  * Values marked CONFIRM must be filled in before production launch.
  * The build script (check-rules.mjs) will fail if any value is still "CONFIRM".
@@ -9,14 +9,20 @@
  */
 
 const site = {
-  /** Short name shown in the header wordmark and page titles. */
-  shortName: "CHARUSAT Assistant",
+  /** Short name shown in header, sidebar, top bar, and compact spaces. */
+  shortName: "CCOE CHARUSAT",
 
-  /** Full product name used in meta descriptions. */
-  fullName: "CHARUSAT Online Programmes Assistant",
+  /** Full product name used in meta descriptions and about sections. */
+  fullName: "Center for Online Education (CCOE), CHARUSAT",
+
+  /** Assistant title used in browser tabs and main headers. */
+  assistantTitle: "CCOE CHARUSAT Assistant",
+
+  /** Admin title for admin console. */
+  adminTitle: "CCOE CHARUSAT Admin Console",
 
   /** The organization operating this site. */
-  operatorName: "Charotar University of Science and Technology",
+  operatorName: "Center for Online Education (CCOE), Charotar University of Science and Technology",
 
   /**
    * Set to true only if this site is officially operated by CHARUSAT.

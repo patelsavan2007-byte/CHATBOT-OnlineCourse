@@ -1,3 +1,4 @@
+import LogoLockup from "../components/ui/LogoLockup.jsx";
 /**
  * About - what the CHARUSAT Online Programmes Assistant is, its scope,
  * data sources, limitations, official contacts, and operator details.
@@ -68,8 +69,11 @@ export default function About() {
     <PageShell title="About Assistant">
       <article className="space-y-6 text-xs sm:text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
         <div>
+          <div className="mb-4">
+            <LogoLockup height={36} />
+          </div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
-            About the CHARUSAT Online Programmes Assistant
+            About this assistant
           </h1>
           <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
             Operational reference and directory for students and applicants

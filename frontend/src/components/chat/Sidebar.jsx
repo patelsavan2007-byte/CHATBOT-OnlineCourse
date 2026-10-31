@@ -1,3 +1,4 @@
+import ThemedLogo from "../ui/ThemedLogo.jsx";
 /**
  * Sidebar - left sidebar for the /chat application.
  * 280px width, client-side search, grouping (Today, Yesterday, This week, Older),
@@ -207,14 +208,10 @@ export default function ChatSidebar({
       <div className="flex items-center justify-between px-3 pt-3 pb-2 border-b" style={{ borderColor: "var(--border)" }}>
         <Link
           to="/"
-          className="flex items-center gap-2 rounded-md px-1.5 py-1 text-xs font-semibold transition hover:opacity-80"
-          style={{ color: "var(--text)" }}
-          aria-label="CHARUSAT Online Programmes"
+          className="flex items-center gap-2 rounded-md px-1 py-0.5 transition hover:opacity-80"
+          aria-label="CCOE, CHARUSAT"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="currentColor" style={{ color: "var(--accent)" }} aria-hidden="true">
-            <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-          </svg>
-          <span>CHARUSAT</span>
+          <ThemedLogo variant="ccoe" height={32} />
         </Link>
 
         <div className="flex items-center gap-1">

@@ -6,35 +6,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import UserMessage from "./UserMessage.jsx";
 import AssistantMessage from "./AssistantMessage.jsx";
-import { ASSISTANT_AVATAR, ASSISTANT_NAME, DEFAULT_THINKING_MESSAGE } from "../../config/branding.js";
+import { DEFAULT_THINKING_MESSAGE } from "../../config/branding.js";
 
 function TypingIndicator({ status }) {
-  const [failed, setFailed] = useState(false);
-
   return (
-    <div className="flex gap-3">
-      {failed ? (
-        <div
-          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold select-none"
-          style={{
-            borderColor: "var(--border)",
-            background: "var(--accent-surface)",
-            color: "var(--accent)",
-          }}
-          aria-hidden="true"
-        >
-          C
-        </div>
-      ) : (
-        <img
-          src={ASSISTANT_AVATAR}
-          alt={ASSISTANT_NAME}
-          onError={() => setFailed(true)}
-          className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border)]"
-        />
-      )}
+    <div className="w-full">
       <div
-        className="mt-1 flex items-center gap-2 px-1 text-xs"
+        className="flex items-center gap-2 px-1 text-xs"
         style={{ color: "var(--muted)" }}
         role="status"
         aria-live="polite"

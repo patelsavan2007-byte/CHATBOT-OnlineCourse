@@ -1,3 +1,4 @@
+import LogoLockup from "../components/ui/LogoLockup.jsx";
 /**
  * Login page - clean, straightforward authentication form.
  * No marketing panels, no gradients, strict token styling.
@@ -80,28 +81,16 @@ export default function Login() {
         style={{ background: "var(--surface)", borderColor: "var(--border)" }}
       >
         <div className="mb-6 text-center">
-          <Link
-            to="/chat"
-            className="inline-flex items-center gap-2 mb-3"
-            aria-label="CHARUSAT Assistant home"
-          >
-            <span
-              className="flex h-8 w-8 items-center justify-center rounded-md"
-              style={{ background: "var(--accent-surface)", color: "var(--accent)" }}
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-                <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-              </svg>
-            </span>
-            <span className="text-sm font-semibold tracking-tight" style={{ color: "var(--text)" }}>
-              CHARUSAT Assistant
-            </span>
-          </Link>
+          <div className="flex justify-center mb-4">
+            <Link to="/chat" aria-label="CCOE CHARUSAT home">
+              <LogoLockup height={36} />
+            </Link>
+          </div>
           <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
             Sign in
           </h1>
           <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
-            Sign in to access your saved chat threads
+            Center for Online Education (CCOE), CHARUSAT
           </p>
         </div>
 

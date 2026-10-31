@@ -4,6 +4,7 @@
  * taken from the real question bank as rectangular buttons.
  */
 import { useEffect, useState } from "react";
+import ThemedLogo from "../ui/ThemedLogo.jsx";
 import { getRandomStarterQuestions, loadQuestionBank } from "../../lib/questionBank.js";
 
 export default function WelcomeScreen({ onSendPrompt, questionBank }) {
@@ -27,12 +28,9 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
   return (
     <div className="flex h-full flex-col items-center justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-2xl text-center">
-        {/* Wordmark */}
-        <div className="mb-3 inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium" style={{ borderColor: "var(--border)", background: "var(--surface-2)", color: "var(--accent)" }}>
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden="true">
-            <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-          </svg>
-          <span>CHARUSAT Online Programmes Assistant</span>
+        {/* CCOE Logo */}
+        <div className="mb-4 flex justify-center">
+          <ThemedLogo variant="ccoe" height={40} alt="CCOE Logo" />
         </div>
 
         <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: "var(--text)" }}>

@@ -80,7 +80,7 @@ def _has_course_context(q: str) -> bool:
 
 # Pool of at least 6 varied conversational templates
 _DEFAULT_TEMPLATES = [
-    "Hello! I am the CHARUSAT Online degree assistant. How can I assist you today with our online BCA, BBA, MBA, or MCA programmes?",
+    "Hello! I am the CCOE CHARUSAT Assistant. How can I assist you today with our online BCA, BBA, MBA, or MCA programmes?",
     "Hi there! I am here to help you with admissions, curriculum, fees, and guidelines for CHARUSAT's online degree programmes. What would you like to know?",
     "Greetings! Feel free to ask any questions about CHARUSAT's online programmes (BBA, BCA, MBA, MCA) or admission details.",
     "Welcome! I can assist you with details regarding our online degrees, syllabus, examination policies, and admissions. How may I assist you?",
@@ -108,7 +108,7 @@ _BYE_TEMPLATES = [
 ]
 
 _WHO_ARE_YOU_TEMPLATES = [
-    "I am the CHARUSAT Online Degree Assistant. I help prospective and current learners with information on Online BCA, BBA, MBA, and MCA programmes, including admissions, curriculum, and policies.",
+    "I am the CCOE CHARUSAT Assistant. I help prospective and current learners with information on Online BCA, BBA, MBA, and MCA programmes, including admissions, curriculum, and policies.",
     "I am an AI assistant dedicated to CHARUSAT's online degree programmes. I can help answer questions regarding our online courses, admission criteria, fee structures, and academic guidelines.",
 ]
 

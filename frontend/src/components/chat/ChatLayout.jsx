@@ -185,7 +185,7 @@ export default function ChatLayout({
             </button>
 
             <span className="text-xs font-semibold sm:text-sm" style={{ color: "var(--text)" }}>
-              Online Programmes Assistant
+              CCOE CHARUSAT Assistant
             </span>
           </div>
 

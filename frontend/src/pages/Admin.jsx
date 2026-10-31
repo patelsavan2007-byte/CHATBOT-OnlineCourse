@@ -1,3 +1,4 @@
+import ThemedLogo from "../components/ui/ThemedLogo.jsx";
 /**
  * Admin Console - 8-tab operations portal for university staff.
  *
@@ -586,9 +587,10 @@ export default function Admin() {
                 <path d="M19 12H5M12 5l-7 7 7 7" />
               </svg>
             </button>
+            <ThemedLogo variant="ccoe" height={28} />
             <div>
               <h1 className="text-sm font-semibold tracking-tight" style={{ color: "var(--text)" }}>
-                CHARUSAT Admin Console
+                CCOE CHARUSAT Admin Console
               </h1>
             </div>
             <span

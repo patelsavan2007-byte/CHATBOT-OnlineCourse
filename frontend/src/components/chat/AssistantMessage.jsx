@@ -6,7 +6,7 @@
 import { useState, useCallback } from "react";
 import RichText from "../RichText.jsx";
 import { apiFetch } from "../../services/api.js";
-import { ASSISTANT_AVATAR, ASSISTANT_NAME } from "../../config/branding.js";
+import { ASSISTANT_NAME } from "../../config/branding.js";
 
 function formatTime(t) {
   try {
@@ -16,34 +16,7 @@ function formatTime(t) {
   }
 }
 
-function AssistantAvatar() {
-  const [failed, setFailed] = useState(false);
 
-  if (failed) {
-    return (
-      <div
-        className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border text-xs font-semibold select-none"
-        style={{
-          borderColor: "var(--border)",
-          background: "var(--accent-surface)",
-          color: "var(--accent)",
-        }}
-        aria-hidden="true"
-      >
-        C
-      </div>
-    );
-  }
-
-  return (
-    <img
-      src={ASSISTANT_AVATAR}
-      alt={ASSISTANT_NAME}
-      onError={() => setFailed(true)}
-      className="mt-0.5 h-7 w-7 shrink-0 rounded-lg object-cover ring-1 ring-[var(--border)]"
-    />
-  );
-}
 
 function CopyButton({ text }) {
   const [copied, setCopied] = useState(false);
@@ -336,12 +309,9 @@ export default function AssistantMessage({
   onSuggestedQuestion,
 }) {
   return (
-    <div className="group flex gap-3">
-      {/* Avatar */}
-      <AssistantAvatar />
-
+    <div className="group w-full">
       {/* Content */}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 w-full">
         {isError ? (
           <div
             className="flex items-start gap-2.5 rounded-lg border px-4 py-3 text-sm"
