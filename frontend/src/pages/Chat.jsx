@@ -143,6 +143,7 @@ export default function Chat() {
             currentProgramme={currentProgramme}
             questionBank={questionBank}
             conversationId={activeConversationId}
+            messages={messages}
             history={messages.slice(-4).map((m) => ({ role: m.role, content: m.content }))}
           />
         </div>

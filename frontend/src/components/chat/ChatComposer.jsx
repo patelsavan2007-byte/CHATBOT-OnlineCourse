@@ -7,6 +7,7 @@
 import { useCallback, useRef, useEffect, useState } from "react";
 import TypingSuggestions from "./TypingSuggestions.jsx";
 import { apiFetch } from "../../services/api.js";
+import { shouldShowTip, selectNextTip } from "../../lib/tipSelector.js";
 
 const MAX_ROWS = 6;
 const MAX_CHAR_LIMIT = 1000;
@@ -42,6 +43,7 @@ export default function ChatComposer({
   currentProgramme = null,
   conversationId = null,
   history = [],
+  messages = [],
 }) {
   const [text, setText] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -49,6 +51,10 @@ export default function ChatComposer({
   const [suggestions, setSuggestions] = useState([]);
   const textareaRef = useRef(null);
   const abortControllerRef = useRef(null);
+  const lastTypedTimestampRef = useRef(0);
+  const lastShownTipIdRef = useRef(null);
+  const tipTimerRef = useRef(null);
+  const [activeTip, setActiveTip] = useState(null);
 
   /* Auto-resize textarea between 1 and MAX_ROWS lines */
   useEffect(() => {
@@ -60,6 +66,56 @@ export default function ChatComposer({
     el.style.height = `${Math.min(el.scrollHeight, maxH)}px`;
     el.style.overflowY = el.scrollHeight > maxH ? "auto" : "hidden";
   }, [text]);
+
+  /* Contextual quiet tips under composer */
+  const assistantCount = (messages.length > 0 ? messages : history).filter(
+    (m) => m.role === "assistant" && !m.error && !m.isError
+  ).length;
+
+  useEffect(() => {
+    if (disabled || assistantCount === 0) return;
+
+    let showTipsPref = true;
+    try {
+      showTipsPref = localStorage.getItem("show_tips") !== "false";
+    } catch {
+      showTipsPref = true;
+    }
+
+    const isTouch = typeof window !== "undefined" && Boolean(window.matchMedia?.("(pointer: coarse)")?.matches);
+    const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPod|iPad/i.test(navigator.platform || navigator.userAgent);
+    const hasError = messages.some((m) => m.isError || m.error);
+
+    const eligible = shouldShowTip({
+      assistantCount,
+      showTipsPreference: showTipsPref,
+      lastTypedTimestamp: lastTypedTimestampRef.current,
+      now: Date.now(),
+      hasError,
+    });
+
+    if (eligible) {
+      const tip = selectNextTip({
+        lastTipId: lastShownTipIdRef.current,
+        isTouch,
+        isMac,
+      });
+      if (tip) {
+        lastShownTipIdRef.current = tip.id;
+        setActiveTip(tip);
+        if (tipTimerRef.current) clearTimeout(tipTimerRef.current);
+        tipTimerRef.current = setTimeout(() => {
+          setActiveTip(null);
+        }, 8000);
+      }
+    }
+  }, [assistantCount, disabled, messages]);
+
+  useEffect(() => {
+    return () => {
+      if (tipTimerRef.current) clearTimeout(tipTimerRef.current);
+    };
+  }, []);
 
   /* Auto-focus on mount and when re-enabled */
   useEffect(() => {
@@ -327,13 +383,24 @@ export default function ChatComposer({
           )}
         </div>
 
-        {/* Keyboard hint -- hidden while loading */}
-        {!disabled && (
-          <p className="mt-1.5 text-center text-[10px]" style={{ color: "var(--muted)" }}>
-            <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Enter</kbd> to send
-            {" "}&middot;{" "}
-            <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Shift + Enter</kbd> for new line
+        {/* Quiet Tip or Keyboard hint -- hidden while loading */}
+        {activeTip ? (
+          <p
+            className="mt-1.5 text-center text-[11px] leading-tight transition-opacity duration-300"
+            style={{ color: "var(--muted)" }}
+            role="status"
+            aria-live="polite"
+          >
+            {activeTip.text}
           </p>
+        ) : (
+          !disabled && (
+            <p className="mt-1.5 text-center text-[10px]" style={{ color: "var(--muted)" }}>
+              <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Enter</kbd> to send
+              {" "}&middot;{" "}
+              <kbd className="rounded border px-1 py-0.5 text-[9px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Shift + Enter</kbd> for new line
+            </p>
+          )
         )}
       </div>
     </div>
