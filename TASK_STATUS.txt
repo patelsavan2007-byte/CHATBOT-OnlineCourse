@@ -1,0 +1,170 @@
+================================================================================
+CHARUSAT CENTER FOR ONLINE EDUCATION (CCOE) CHATBOT ASSISTANT
+INTEGRATION & COMPLETION REPORT (2026-10-31)
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+All work from the redesign/chat-first branch has been safely integrated into the
+main branch and published to GitHub origin/main (commit 14b6a4c).
+The deploy branch was NEVER checked out, merged, pushed, or modified in any way.
+Its hash remains exactly f6b6caf274880524b1244010ee652620412aa47f.
+
+Target branch updated: main (origin/main)
+Merge commit: f68bdaa
+Config guard fix commit: 14b6a4c
+Deploy branch: untouched (f6b6caf)
+
+Total commits integrated into main: 30 commits
+Backend unit/offline tests: 56 passed (100%)
+Frontend unit tests: 12 passed (100%)
+Playwright E2E tests: 11 passed (100%)
+Frontend rules check (check-rules.mjs): Clean (zero violations)
+Frontend production build: Success (Vite 6)
+
+
+================================================================================
+2. COMPLETED TASKS & COMMIT BREAKDOWN
+================================================================================
+
+[COMMIT 1] d30f0ad - feat(rag): fix recruiter query retrieval and general topic routing (ITEM 5)
+- Diagnosed recruiter queries returning fallback.
+- Added recruiter keywords to topic_lexicon.json under placement.
+- Added placement targeted search in retriever.py.
+
+[COMMIT 2] 8976e9f - feat(chat): carry original question forward on programme clarification (ITEM 4)
+- Clarification carry-forward: question preserved when user selects a programme.
+- 4 rectangular programme buttons (BBA, BCA, MBA, MCA).
+- Clarification turn state tracked across turns for guest and logged-in users.
+
+[COMMIT 3] d91e6c0 - feat(suggest): add as-you-type suggestions via /api/suggest (ITEM 2)
+- Added POST /api/suggest with Groq primary and Gemini fallback.
+- Semantic pre-grounding, 110-char limits, answerability filter, knowledge gap filter.
+- Client composer debounce and ARIA combobox dropdown.
+
+[COMMIT 4] 12237fd - feat(brand): update official CCOE and CHARUSAT logos, official naming, and remove reply avatar (ITEM 7)
+- Official high-res logos for CCOE and CHARUSAT (light/dark, 1x/2x).
+- Standard favicons (.ico, 32x32, .svg, apple-touch, 192, 512).
+- Assistant reply avatar removed; assistant messages render clean full-width text.
+- Official naming standardized across all UI.
+
+[COMMIT 5] 9ee0aac - feat(ui): implement official welcome screen greetings and validated starters (ITEM 8)
+- CCOE logo centered above welcome header.
+- Non-repeating randomized greeting without exclamation marks or emoji.
+- 4 starter questions in 2x2 grid, max 1 per category, validated by retriever.
+
+[COMMIT 6] 6b02dd0 - feat(profile): add user profile customization in settings and api (ITEM 9)
+- Mounted GET /api/me and PATCH /api/me.
+- Name length (1-40 chars), trimmed, no HTML, no URLs.
+- Avatar choice: Google photo vs Initials with live preview.
+
+[COMMIT 7] 9326c96 - feat(about): rewrite about page to concise official facts (ITEM 10)
+- Calm, factual About page under 250 words (124 words).
+- 640px max-width centered layout with LogoLockup and verified contacts.
+
+[COMMIT 8] c79a756 - feat(tips): add quiet tips rotation near composer with settings toggle (ITEM 6)
+- Discrete tip banner under composer rotating keyboard shortcuts and features.
+- Strict display rules: 3rd answer, then every 4th answer; suppressed when typing.
+- Settings toggle to enable/disable tips.
+
+[COMMIT 9] 37127a2 - test: add comprehensive offline text cleanup and discrete navigation e2e tests (ITEM 11)
+- Unicode text cleanup: zero-width spaces stripped, multi-spaces normalized.
+- 11 Playwright E2E navigation tests passing.
+
+[COMMIT 10] 05238bd - feat(rag): relocate placement recruiters to unmanaged document (Addendum C)
+- Source audit: traced all 9 recruiter company names directly to official charusat.online homepage logo gallery.
+- Created backend/knowledge_base/placement_recruiters.md (unmanaged hand-maintained document).
+- Restored home.md recruiter section to what the scraper produces (## Our Recruiters).
+- Updated retriever.py placement search to retrieve placement_recruiters.md.
+- Confirmed sync_website.py never deletes unmanaged knowledge base files.
+
+[COMMIT 11] 5ea9611 - perf(suggest): add instant client-side suggestion matching with LLM augmentation
+- Synchronous instant matching (0ms) from question bank on every keystroke.
+- Background debounced (200ms) LLM generation via /api/suggest for novel/unseen questions.
+- Automatically captures user-asked questions and caches them in localStorage for instant future suggestion matching.
+
+[COMMIT 12] f68bdaa - merge: redesign/chat-first into main (CCOE CHARUSAT chat-first redesign and RAG fixes)
+- Performed non-fast-forward merge in isolated git worktree C:\AProjects\CHATBOT-merge-worktree.
+- Resolved sync_website.py keeping main's version.
+- Maintained sync-knowledge-base.yml with main target, last_sync.json heartbeat, and no deploy branch references.
+- Verified .gitignore keeps .vercel/ while leaving backend/vector_db/ unignored for CI commits.
+
+[COMMIT 13] 14b6a4c - chore(config): remove test vector db path fallback from validate_starters.py (Addendum D)
+- Config guard scan identified hardcoded test path fallback in validate_starters.py.
+- Removed fallback; verified zero occurrences of dev database name and test vector path across entire repo.
+
+
+================================================================================
+3. ADDENDUM AUDIT & VERIFICATION DETAILS
+================================================================================
+
+A. Target Branch Verification
+- Target branch: main (commit 14b6a4c).
+- Deploy branch was untouched. Commit hash: f6b6caf274880524b1244010ee652620412aa47f.
+
+B. Vector Index and Rebuild Script Analysis
+- Script comparison:
+  1. rebuild_vectordb.py:
+     - Collection name: charusat_knowledge_base
+     - Embedding model: FastEmbed BAAI/bge-small-en-v1.5
+     - Chunking: RecursiveCharacterTextSplitter (chunk_size=1000, overlap=100)
+     - PDF Ingestion: INCLUDED via ingest_pdfs_to_vectordb()
+     - Output path: VECTOR_DB_DIR
+  2. rebuild_vector_db.py:
+     - Collection name: charusat_knowledge_base
+     - Embedding model: FastEmbed BAAI/bge-small-en-v1.5
+     - Chunking: RecursiveCharacterTextSplitter (chunk_size=1000, overlap=100)
+     - PDF Ingestion: OMITTED (only loads markdown)
+     - Output path: VECTOR_DB_DIR
+- Conclusion: rebuild_vectordb.py is the canonical script that matches the complete production index (Markdown + PDFs). The sync-knowledge-base.yml workflow correctly executes rebuild_vectordb.py.
+- Vector Index Note: The newly added recruiter text in placement_recruiters.md is NOT in the committed index until a rebuild runs via GitHub Actions or locally.
+
+C. Recruiter List Source Audit
+- Traced companies:
+  1. Adani Group: Official Homepage (charusat.online#recruiters) logo asset
+  2. Asian Paints: Official Homepage logo asset
+  3. Berger Paints: Official Homepage logo asset
+  4. Crest Data Systems: Official Homepage logo asset
+  5. ICICI Bank: Official Homepage logo asset
+  6. Infosys: Official Homepage logo asset
+  7. Jeavio: Official Homepage logo asset
+  8. Meditab Software: Official Homepage logo asset
+  9. Tata Group (TCS / Tata Companies): Official Homepage logo asset
+- Home.md restored to scraped header. Hand-maintained placement_recruiters.md created with source header.
+
+D. Config Guard Results
+- Tracked files scan for charusat_test_dev: 0 found.
+- Tracked files scan for C:\AProjects\CHATB-vector-db-copy-20261031: 0 found.
+- Final result: Clean ("none found").
+
+
+================================================================================
+4. INSTRUCTIONS FOR OWNER
+================================================================================
+
+1. Render Backend Branch Configuration:
+   - Go to Render Dashboard (dashboard.render.com).
+   - Select the CCOE backend web service.
+   - Go to Settings -> Build & Deploy -> Branch.
+   - Change branch from 'deploy' to 'main'.
+   - Verify Environment Variables before deploying:
+     - GROQ_API_KEY (valid key required for fast suggestions)
+     - GEMINI_API_KEY (valid key required for failover suggestions and chat)
+     - MONGODB_DB (ensure it is NOT pointing to any test database)
+     - Auto-Deploy: set as desired.
+
+2. Deployment Order Warning:
+   - Pushing main triggers an automatic frontend build on Vercel.
+   - If Vercel finishes while Render still runs the old backend code (from 'deploy'),
+     routes such as /api/suggest and /api/me will return 404 until Render is switched to 'main'.
+   - Switch Render to 'main' promptly to keep frontend and backend in sync.
+
+3. Run Vector Rebuild via GitHub Actions:
+   - On GitHub, go to Actions -> "Daily KB Sync – charusat.online".
+   - Click "Run workflow".
+   - Set "Force rebuild vector DB" to true.
+   - Run the workflow.
+   - After completion, verify:
+     a) A commit on main by github-actions[bot].
+     b) Updated backend/last_sync.json.
+     c) Refreshed backend/vector_db directory.

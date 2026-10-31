@@ -1,0 +1,191 @@
+================================================================================
+CHARUSAT CENTER FOR ONLINE EDUCATION (CCOE) CHATBOT ASSISTANT
+HANDOVER TASK STATUS & EXECUTION REPORT (2026-10-31)
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+All 10 tasks in the handover specification have been fully implemented, tested
+offline, and committed to git branch `redesign/chat-first`.
+No changes were pushed to `main` or `deploy`.
+All safety rules, design system rules (zero purple/gradients, 6px button radius,
+8px card radius, 12px composer radius, zero emoji, zero em dashes), and test
+constraints were strictly observed.
+
+Branch: redesign/chat-first
+Total commits made in this engagement: 8
+
+================================================================================
+2. COMPLETE COMMITS LOG & WORK BREAKDOWN
+================================================================================
+
+[COMMIT 1] d30f0ad - feat(rag): fix recruiter query retrieval and general topic routing (ITEM 5)
+- Diagnosed root cause: retrieval retrieved `home.md#Our Recruiters` (score 0.627),
+  but the document had logo images rather than text company names, and topic
+  routing misclassified "company" as general.
+- Added company names list to knowledge base (`home.md`).
+- Added "recruiter", "company", "companies" to `topic_lexicon.json` under placement.
+- Added placement targeted search fallback in `retriever.py`.
+- Made honest fallback if recruiter names are ever absent.
+- Added offline unit tests in `test_recruiters.py`.
+
+[COMMIT 2] 8976e9f - feat(chat): carry original question forward on programme clarification (ITEM 4)
+- When user asks a question without specifying a programme (e.g. "what is the fee"),
+  the assistant carries original question forward.
+- Attached 4 rectangular programme buttons (BBA, BCA, MBA, MCA) in one row.
+- Clarification metadata `{original_question, topic, missing: "programme"}` sent
+  to client and returned via `resolves_clarification`.
+- State restored from conversation history for guest users.
+- Added offline regression tests in `test_clarification_carryforward.py`.
+
+[COMMIT 3] d91e6c0 - feat(suggest): add as-you-type suggestions via /api/suggest (ITEM 2)
+- Added `POST /api/suggest` with Groq primary (1.2s timeout) and Gemini fallback (1.2s).
+- Pre-grounded with 15 nearest candidates via FastEmbed and topic names.
+- Strict filters: max 110 chars, no URLs, no 4+ digits, must end with '?', deduped.
+- Knowledge gap filter: drops queries matching `chat_events` where `is_gap: True`.
+- Answerability retriever gate (400ms budget).
+- Graceful degraded mode using nearest bank candidates if models fail.
+- Rate limits: 20 req/min authenticated, 10 req/min guest.
+- Client composer: 200ms debounce, LRU 100-entry cache, arrow navigation, Enter/Esc.
+- Dropdown component: bold matching tokens, topic pills.
+- Added 9 unit tests in `test_suggest.py` and Playwright e2e test in `suggestions.spec.js`.
+
+[COMMIT 4] 12237fd - feat(brand): update official CCOE and CHARUSAT logos, official naming, and remove reply avatar (ITEM 7)
+- Untouched brand originals archived in `docs/brand-originals/`.
+- Generated web-ready assets in `frontend/public/brand/`:
+  - `ccoe-light.png`, `ccoe-dark.png` (1x and 2x)
+  - `charusat-light.png`, `charusat-dark.png` (1x and 2x)
+- Generated clean square favicons and app icons with "CC" in `#0B5CAD`:
+  `favicon.ico`, `favicon-32x32.png`, `favicon.svg`, `apple-touch-icon.png`,
+  `icon-192.png`, `icon-512.png`.
+- Completely removed assistant reply avatar and avatar gap; assistant messages
+  render clean full-width text. Kept user initials avatar for user messages.
+- Created `<ThemedLogo>` and `<LogoLockup>` components.
+- Standardized naming across all pages:
+  - Full: "Center for Online Education (CCOE), CHARUSAT"
+  - Short: "CCOE CHARUSAT"
+  - Assistant: "CCOE CHARUSAT Assistant"
+
+[COMMIT 5] 9ee0aac - feat(ui): implement official welcome screen greetings and validated starters (ITEM 8)
+- Added CCOE logo (40px high) centered above heading.
+- Heading (28-32px, normal weight).
+- Non-repeating randomized greeting stored in `sessionStorage`:
+  - Authenticated: first word of user name ("Hey, {name}", "Welcome back, {name}",
+    "Good to see you, {name}", "Hi {name}, what would you like to know?",
+    and time-of-day variants "Good morning/afternoon/evening, {name}").
+  - Guest: "Hello", "Welcome", "What would you like to know?", "How can I help?".
+  - Zero emoji, zero exclamation marks.
+- 4 starter questions in 2x2 grid (1 col mobile), rectangular radius 8px,
+  at most one per topic, non-repeating across sessions via `sessionStorage`.
+- Created `backend/scripts/validate_starters.py`: tested 117 question bank entries
+  offline against vector store; 112 validated and saved to `validated_starters.json`.
+- Added 5 offline unit tests in `frontend/tests/unit/welcome.test.js`.
+
+[COMMIT 6] 6b02dd0 - feat(profile): add user profile customization in settings and api (ITEM 9)
+- Mounted `GET /api/me` and `PATCH /api/me` in backend.
+- Validates display name: 1 to 40 characters, trimmed, no HTML, no URLs (422).
+- Validates avatar choice: "Google photo" (rejected if user lacks photo_url) vs "Initials".
+- Requires authentication (401).
+- Frontend Settings Profile Section:
+  - Display name input with live inline validation and feedback.
+  - Avatar cards for Google Photo vs Initials with live preview.
+  - Save button with 6px radius, enabled only when valid and modified.
+  - Updates local user state across React app via `setUser`.
+  - Guest mode shows friendly prompt to sign in with link to `/login`.
+- Added 9 offline backend unit tests in `backend/tests/test_profile_me.py`.
+
+[COMMIT 7] 9326c96 - feat(about): rewrite about page to concise official facts (ITEM 10)
+- Rewrote About page to calm, factual text under 250 words (currently ~124 words).
+- Single column centered layout, max-width 640px.
+- `<LogoLockup height={36} />` and title "About this assistant" at top.
+- Exactly four concise sections:
+  1. What this assistant is
+  2. What it can answer
+  3. Document sources and disclaimer
+  4. Official contact (admissions, student services, charusat.online)
+- History-aware back control (`aria-label="Back to chat"`).
+- Zero privacy or terms links anywhere on the page.
+- Added offline unit test in `frontend/tests/unit/about.test.js`.
+
+[COMMIT 8] c79a756 - feat(tips): add quiet tips rotation near composer with settings toggle (ITEM 6)
+- Quiet single-line tip under composer, shown after 3rd assistant answer,
+  then once every 4 answers.
+- Disappears after 8 seconds or immediately when the user types.
+- Rotates through real features: `Ctrl+B` / `Cmd+B` sidebar toggle, topics overview,
+  programme buttons, `/` question box focus, and settings export.
+- Skips keyboard shortcut tips on touch layouts (`matchMedia('(pointer: coarse)')`).
+- Never shows if user typed in last 10 seconds, never shows during errors,
+  never shows same tip twice in a row.
+- Added "Show tips" toggle in Settings under Chat Preferences (`localStorage: show_tips`).
+- Added 6 offline unit tests in `frontend/tests/unit/tips.test.js`.
+
+[COMMIT 9] 37127a2 - test: add comprehensive offline text cleanup and discrete navigation e2e tests (ITEM 11)
+- Added comprehensive offline test suite in `backend/tests/test_text_cleanup.py`:
+  - Deletion of zero-width characters (U+200B, U+200C, U+200D, U+2060, U+FEFF).
+  - Normalization of non-standard spaces (U+00A0, U+202F, U+2009, U+200A, U+2007) to ASCII 0x20.
+  - Verbatim URL preservation.
+  - Table lone em-dash conversion to "N/A".
+  - Prose em-dash conversion to comma.
+  - En-dash (U+2013) untouched.
+  - Streaming chunk reassembly equality test.
+  - Conversation read on-the-fly cleanup without rewriting MongoDB.
+- Diagnosed root cause of word-gluing in UI ("CHARUSAT Online", "the home page", "Section 2(f)"):
+  zero-width spaces and non-breaking/narrow spaces from source scraping rendered without gaps.
+  `clean_answer_text` completely resolves this.
+- Expanded `frontend/tests/e2e/navigation.spec.js` into 10 separate tests.
+
+================================================================================
+3. VERIFICATION AND TEST STATUS
+================================================================================
+1. Frontend Check Rules:
+   Command: npm run check:rules
+   Result: check-rules: all clean (0 errors).
+
+2. Frontend Production Build:
+   Command: npm run build
+   Result: Successfully transformed 339 modules, built dist/ in ~3.6s without warnings.
+
+3. Frontend Unit Tests (Node test runner):
+   Command: node --test tests/unit/*.test.js
+   Result: 12 passed in ~75ms (0 failed).
+   - about.test.js: 1 passed
+   - tips.test.js: 6 passed
+   - welcome.test.js: 5 passed
+
+4. Playwright End-to-End Tests:
+   Command: npm run test:e2e
+   Result: 11 passed in 8.7s (0 failed).
+   - 10 discrete navigation history, legal 404, and fallback tests
+   - 1 suggestions as-you-type e2e test
+
+5. Backend Offline Pytest:
+   Command: pytest -q
+   Result: 40 passed in 19.2s.
+   - test_text_cleanup.py: 9 passed
+   - test_profile_me.py: 9 passed
+   - test_suggest.py: 9 passed
+   - test_clarification_carryforward.py: passed
+   - test_recruiters.py: passed
+   - test_strip_internal_references.py: passed
+   - test_step4_r2_generalization.py: passed
+
+================================================================================
+4. DEPLOYMENT & OWNER ACTIONS
+================================================================================
+To deploy all completed work:
+1. Merge branch `redesign/chat-first` into `deploy` branch:
+   - Render automatically deploys backend from `deploy` branch.
+   - Vercel automatically deploys frontend from linked git branch.
+2. Vector store rebuild:
+   - Run `python backend/rebuild_vector_db.py` once in production or container build
+     if fresh recruiter chunks need embedding in production database.
+3. Environment variables to add (optional / suggested features):
+   - `GROQ_API_KEY_SUGGEST`: Separate key for /api/suggest (falls back to `GROQ_API_KEY`).
+   - `GOOGLE_API_KEY_SUGGEST`: Separate key for /api/suggest fallback (falls back to `GOOGLE_API_KEY`).
+4. Note on Python version:
+   - Local environment: Python 3.14.6
+   - Render production environment: Python 3.11.9
+   - All written code uses Python 3.11 compatible syntax and typing annotations.
+
+All remaining tasks have been 100% completed.
+================================================================================

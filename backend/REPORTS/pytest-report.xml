@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="70.565" timestamp="2026-10-31T10:33:25.939212+05:30" hostname="LAPTOP-8AJDV1UQ"><testcase classname="" name="test_emi2" time="0.000"><error message="collection failure">test_emi2.py:16: in &lt;module&gt;
+    for line in r.iter_lines(decode_unicode=True):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Response.iter_lines() got an unexpected keyword argument 'decode_unicode'</error></testcase><testcase classname="" name="test_syl2" time="0.000"><error message="collection failure">test_syl2.py:13: in &lt;module&gt;
+    for line in r.iter_lines(decode_unicode=True):
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: Response.iter_lines() got an unexpected keyword argument 'decode_unicode'</error></testcase><testcase classname="" name="tests.test_http_interleaved" time="0.000"><error message="collection failure">C:\Python314\Lib\urllib\request.py:1321: in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+C:\Python314\Lib\http\client.py:1367: in request
+    self._send_request(method, url, body, headers, encode_chunked)
+C:\Python314\Lib\http\client.py:1413: in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+C:\Python314\Lib\http\client.py:1362: in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+C:\Python314\Lib\http\client.py:1122: in _send_output
+    self.send(msg)
+C:\Python314\Lib\http\client.py:1066: in send
+    self.connect()
+C:\Python314\Lib\http\client.py:1032: in connect
+    self.sock = self._create_connection(
+C:\Python314\Lib\socket.py:874: in create_connection
+    raise exceptions[0]
+C:\Python314\Lib\socket.py:859: in create_connection
+    sock.connect(sa)
+E   ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+tests\test_http_interleaved.py:14: in &lt;module&gt;
+    res1_turn1 = send("What is the MBA first year fee?")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests\test_http_interleaved.py:10: in send
+    with urllib.request.urlopen(req) as resp:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\urllib\request.py:187: in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\urllib\request.py:487: in open
+    response = self._open(req, data)
+               ^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\urllib\request.py:504: in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+C:\Python314\Lib\urllib\request.py:464: in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+C:\Python314\Lib\urllib\request.py:1350: in http_open
+    return self.do_open(http.client.HTTPConnection, req)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+C:\Python314\Lib\urllib\request.py:1324: in do_open
+    raise URLError(err)
+E   urllib.error.URLError: &lt;urlopen error [WinError 10061] No connection could be made because the target machine actively refused it&gt;</error></testcase><testcase classname="" name="tests.test_live_interleaved_rag" time="0.000"><error message="collection failure">tests\test_live_interleaved_rag.py:36: in &lt;module&gt;
+    ans2, chunks2 = rag.answer("for year 2?", history=chat2_history)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+app\rag_chain.py:326: in answer
+    m = re.search(r"\[\[MISSING:\s*(.*?)\]\]", response_text, re.IGNORECASE)
+        ^^
+E   UnboundLocalError: cannot access local variable 're' where it is not associated with a value</error></testcase></testsuite></testsuites>
