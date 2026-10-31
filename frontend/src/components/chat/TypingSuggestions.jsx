@@ -99,9 +99,9 @@ export default function TypingSuggestions({
               <span className="flex-1 truncate leading-snug">
                 {highlightMatches(item.text, item.matchedTokens)}
               </span>
-              {item.category && (
+              {(item.topic || item.category) && (
                 <span className="shrink-0 text-[10px]" style={{ color: "var(--muted)" }}>
-                  {item.category.replace(" Questions", "")}
+                  {(item.topic || item.category).replace(" Questions", "")}
                 </span>
               )}
             </div>

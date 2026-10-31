@@ -40,6 +40,22 @@ def get_groq_api_key() -> Optional[str]:
     return None
 
 
+def get_groq_suggest_api_key() -> Optional[str]:
+    """Return GROQ_API_KEY_SUGGEST if present, falling back to GROQ_API_KEY."""
+    key = os.getenv("GROQ_API_KEY_SUGGEST") or os.getenv("groq_API_KEY_SUGGEST")
+    if key and key.strip() and not key.startswith("#"):
+        return key.strip()
+    return get_groq_api_key()
+
+
+def get_google_suggest_api_key() -> Optional[str]:
+    """Return GOOGLE_API_KEY_SUGGEST if present, falling back to GOOGLE_API_KEY."""
+    key = os.getenv("GOOGLE_API_KEY_SUGGEST") or os.getenv("google_API_KEY_SUGGEST")
+    if key and key.strip() and not key.startswith("#"):
+        return key.strip()
+    return get_api_key()
+
+
 def ensure_directories() -> None:
     KNOWLEDGE_BASE_DIR.mkdir(parents=True, exist_ok=True)
     VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
@@ -341,6 +357,12 @@ PREFERRED_MODELS: List[str] = [
 # mixtral-8x7b-32768 are gone and cause silent fallback to deterministic mode.
 GROQ_MODEL = "openai/gpt-oss-120b"
 GROQ_TIMEOUT = 10.0  # seconds
+
+# As-you-type question suggestion settings
+GROQ_SUGGEST_MODEL = os.getenv("GROQ_SUGGEST_MODEL", "llama-3.1-8b-instant")
+GEMINI_SUGGEST_MODEL = os.getenv("GEMINI_SUGGEST_MODEL", "models/gemini-2.5-flash")
+SUGGEST_LLM_TIMEOUT = float(os.getenv("SUGGEST_LLM_TIMEOUT", "1.2"))
+SUGGEST_RETRIEVER_BUDGET = float(os.getenv("SUGGEST_RETRIEVER_BUDGET", "0.4"))
 
 # ---------------------------------------------------------------------------
 # Official links (verified from the knowledge base only)

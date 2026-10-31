@@ -4,13 +4,35 @@
  * 1000-character limit with counter near limit, keyboard navigation (Up/Down/Enter/Esc),
  * accessible ARIA combobox + listbox dropdown.
  */
-import { useCallback, useRef, useEffect, useState, useMemo } from "react";
+import { useCallback, useRef, useEffect, useState } from "react";
 import TypingSuggestions from "./TypingSuggestions.jsx";
-import { getTypingSuggestions } from "../../lib/questionBank.js";
+import { apiFetch } from "../../services/api.js";
 
 const MAX_ROWS = 6;
 const MAX_CHAR_LIMIT = 1000;
 const CHAR_WARN_THRESHOLD = 800;
+
+// Client LRU cache of 100 entries
+const clientSuggestionsCache = new Map();
+const CLIENT_CACHE_LIMIT = 100;
+
+function getFromCache(key) {
+  if (!clientSuggestionsCache.has(key)) return null;
+  const val = clientSuggestionsCache.get(key);
+  clientSuggestionsCache.delete(key);
+  clientSuggestionsCache.set(key, val);
+  return val;
+}
+
+function setInCache(key, val) {
+  if (clientSuggestionsCache.has(key)) {
+    clientSuggestionsCache.delete(key);
+  } else if (clientSuggestionsCache.size >= CLIENT_CACHE_LIMIT) {
+    const firstKey = clientSuggestionsCache.keys().next().value;
+    clientSuggestionsCache.delete(firstKey);
+  }
+  clientSuggestionsCache.set(key, val);
+}
 
 export default function ChatComposer({
   onSend,
@@ -18,12 +40,15 @@ export default function ChatComposer({
   disabled,
   typingSuggestionsEnabled = true,
   currentProgramme = null,
-  questionBank = [],
+  conversationId = null,
+  history = [],
 }) {
   const [text, setText] = useState("");
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const [suggestionsOpen, setSuggestionsOpen] = useState(true);
+  const [suggestions, setSuggestions] = useState([]);
   const textareaRef = useRef(null);
+  const abortControllerRef = useRef(null);
 
   /* Auto-resize textarea between 1 and MAX_ROWS lines */
   useEffect(() => {
@@ -44,12 +69,73 @@ export default function ChatComposer({
     }
   }, [disabled]);
 
-  /* Calculate suggestions client-side */
-  const suggestions = useMemo(() => {
-    if (!typingSuggestionsEnabled || !suggestionsOpen || disabled) return [];
-    if (text.trim().length < 2) return [];
-    return getTypingSuggestions(text, currentProgramme, questionBank);
-  }, [text, typingSuggestionsEnabled, suggestionsOpen, disabled, currentProgramme, questionBank]);
+  /* As-you-type suggestions via POST /api/suggest (debounced 200ms) */
+  useEffect(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+
+    const trimmed = text.trim();
+    if (
+      !typingSuggestionsEnabled ||
+      !suggestionsOpen ||
+      disabled ||
+      trimmed.length < 2 ||
+      trimmed.length > 100
+    ) {
+      setSuggestions([]);
+      return;
+    }
+
+    const cacheKey = `${currentProgramme || "all"}:${trimmed.toLowerCase()}`;
+    const cached = getFromCache(cacheKey);
+    if (cached) {
+      setSuggestions(cached);
+      return;
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    const timer = setTimeout(async () => {
+      try {
+        const payload = {
+          text: trimmed,
+          conversation_id: conversationId,
+          history: (history || []).slice(-4),
+          programme: currentProgramme,
+        };
+        const res = await apiFetch("/api/suggest", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        const items = res?.suggestions || [];
+        const tokens = trimmed.split(/\s+/).filter(Boolean);
+        const mapped = items.slice(0, 5).map((item, idx) => ({
+          id: `sug-${idx}`,
+          text: typeof item === "string" ? item : item.text,
+          topic: typeof item === "object" ? item.topic : "General",
+          matchedTokens: tokens,
+        }));
+
+        setInCache(cacheKey, mapped);
+        setSuggestions(mapped);
+      } catch (err) {
+        if (err?.name !== "AbortError") {
+          // Degraded mode: fail silently
+          setSuggestions([]);
+        }
+      }
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
+  }, [text, typingSuggestionsEnabled, suggestionsOpen, disabled, currentProgramme, conversationId, history]);
 
   /* Reset highlight index when suggestions change */
   useEffect(() => {
@@ -58,11 +144,16 @@ export default function ChatComposer({
 
   const submit = useCallback(
     (overrideText) => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
       const q = (typeof overrideText === "string" ? overrideText : text).trim();
       if (!q || disabled) return;
       onSend(q);
       setText("");
       setSuggestionsOpen(false);
+      setSuggestions([]);
       setHighlightedIndex(-1);
     },
     [text, disabled, onSend]
@@ -92,7 +183,12 @@ export default function ChatComposer({
       }
       if (e.key === "Escape") {
         e.preventDefault();
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort();
+          abortControllerRef.current = null;
+        }
         setSuggestionsOpen(false);
+        setSuggestions([]);
         setHighlightedIndex(-1);
         return;
       }

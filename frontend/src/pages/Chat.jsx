@@ -142,6 +142,8 @@ export default function Chat() {
             typingSuggestionsEnabled={typingSuggestionsEnabled}
             currentProgramme={currentProgramme}
             questionBank={questionBank}
+            conversationId={activeConversationId}
+            history={messages.slice(-4).map((m) => ({ role: m.role, content: m.content }))}
           />
         </div>
       </ChatLayout>
