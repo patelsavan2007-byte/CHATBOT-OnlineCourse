@@ -47,7 +47,8 @@ def admin_token(db):
     if not admin:
         from app.models import create_user
         admin = create_user(db, name="TestAdmin", email="admin_test@charusat.ac.in", password_hash=hash_password("admin_pass"), role="admin")
-    return create_token(str(admin["_id"]), role="admin")
+    admin_id = str(admin.get("_id") or admin.get("id"))
+    return create_token(admin_id, role="admin")
 
 
 @pytest.fixture(scope="module")
@@ -58,7 +59,8 @@ def user_token(db):
     if not user:
         from app.models import create_user
         user = create_user(db, name="NormalUser", email="normal_user@example.com", password_hash=hash_password("user_pass"), role="user")
-    return create_token(str(user["_id"]), role="user")
+    user_id = str(user.get("_id") or user.get("id"))
+    return create_token(user_id, role="user")
 
 
 # ---------------------------------------------------------------------------

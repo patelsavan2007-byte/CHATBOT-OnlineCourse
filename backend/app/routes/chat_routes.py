@@ -71,6 +71,7 @@ class ChatMessageResponse(BaseModel):
     sources: Optional[List[Dict[str, Any]]] = None
     suggested_questions: Optional[List[str]] = None
     quick_replies: Optional[List[str]] = None
+    clarification: Optional[Dict[str, Any]] = None
 
 
 class StreamChatRequest(BaseModel):
@@ -348,8 +349,22 @@ def _quick_replies(outcome: _TurnOutcome) -> List[str]:
     """Programme quick replies for the vague-question clarification state."""
     status = str(getattr(outcome.rag_result, "status", "") or "")
     if "vague_clarification" in status:
-        return ["Online BBA", "Online BCA", "Online MBA", "Online MCA"]
+        return ["BBA", "BCA", "MBA", "MCA"]
     return []
+
+
+def _clarification_metadata(outcome: _TurnOutcome) -> Optional[Dict[str, Any]]:
+    rag_res = getattr(outcome, "rag_result", None)
+    if rag_res and getattr(rag_res, "clarification", None):
+        return rag_res.clarification
+    status = str(getattr(rag_res, "status", "") or "")
+    if "vague_clarification" in status and outcome.plan:
+        return {
+            "original_question": getattr(outcome.plan, "raw_question", ""),
+            "topic": getattr(outcome.plan, "topic", "general"),
+            "missing": "programme",
+        }
+    return None
 
 
 def _thinking_status(plan: Any) -> str:
@@ -473,11 +488,13 @@ async def chat_message(
             conversation_id=None,
             user_id=None,
         )
+        clarification = _clarification_metadata(outcome)
         return ChatMessageResponse(
             answer=answer_text,
             sources=sources,
             suggested_questions=suggested,
             quick_replies=quick_replies,
+            clarification=clarification,
         )
 
     # For authenticated users, persist to MongoDB
@@ -530,6 +547,7 @@ async def chat_message(
         user_id=user["id"],
     )
 
+    clarification = _clarification_metadata(outcome)
     return ChatMessageResponse(
         answer=answer_text,
         conversation_id=conversation_id,
@@ -537,6 +555,7 @@ async def chat_message(
         sources=sources,
         suggested_questions=suggested,
         quick_replies=quick_replies,
+        clarification=clarification,
     )
 
 
@@ -631,6 +650,7 @@ async def chat_message_stream(
                 "message_id": assistant_msg["id"] if assistant_msg else None,
                 "suggested_questions": suggested,
                 "quick_replies": quick_replies,
+                "clarification": _clarification_metadata(outcome),
                 "llm_calls": _llm_calls,
             }
             yield f"data: {json.dumps(final_data)}\n\n"
@@ -697,6 +717,7 @@ async def chat_message_stream(
             "message_id": assistant_msg["id"] if assistant_msg else None,
             "suggested_questions": suggested,
             "quick_replies": quick_replies,
+            "clarification": _clarification_metadata(outcome),
             "llm_calls": _llm_calls,
         }
         yield f"data: {json.dumps(final_data)}\n\n"

@@ -17,6 +17,7 @@ PROGRAM_MAP = {
     "online_mba": "Online MBA",
     "online_mca": "Online MCA",
 }
+ALL_PROGRAM_NAMES = list(PROGRAM_MAP.keys())
 
 # Regex patterns for programme recognition (case-insensitive, 3-letter acronym safe)
 _PROGRAM_PATTERNS = [
@@ -89,6 +90,13 @@ _FOLLOWUP_SHORT_PROG_RE = re.compile(
     r"^\s*(?:and\s+|or\s+)?(?:for\s+|what\s+about\s+|how\s+about\s+)?(?:the\s+)?(?:online\s+)?(bca|bba|mba|mca)(?:\s+(?:programme|program|course|degree))?\s*[!?.]*\s*$",
     re.I,
 )
+
+_BARE_ALL_RE = re.compile(
+    r"^\s*(?:all|all\s+four|all\s+program(?:me)?s?|both)\s*[!?.]*$",
+    re.I,
+)
+
+_YEAR_CASE_RE = re.compile(r"\byear\s*([1-3])\b", re.I)
 
 _YEAR_RE = re.compile(
     r"\b(?:year\s*([1-3])|([1-3])(?:st|nd|rd)?\s*year|(first|second|third)\s*year)\b", re.I
@@ -276,12 +284,21 @@ def analyze_turn(
     """
     raw_q = question.strip()
     curr_progs = _detect_programmes_in_text(raw_q)
+    bare_all_m = _BARE_ALL_RE.match(raw_q)
+    if bare_all_m:
+        curr_progs = list(ALL_PROGRAM_NAMES)
+
     curr_topic = _detect_topic(raw_q)
     curr_year, curr_sem, curr_sems = _detect_year_semester(raw_q)
 
     # Determine if this message is a switch/follow-up
     short_switch_m = _FOLLOWUP_SHORT_PROG_RE.match(raw_q)
-    is_compare = len(curr_progs) >= 2 or bool(_COMPARE_RE.search(raw_q))
+    is_compare = len(curr_progs) >= 2 or bool(_COMPARE_RE.search(raw_q)) or bool(bare_all_m)
+    is_bare_prog = (
+        bool(short_switch_m)
+        or bool(bare_all_m)
+        or (bool(curr_progs) and curr_topic == "general" and len(raw_q.split()) <= 4)
+    )
 
     # Extract user history from history list
     user_queries: List[str] = []
@@ -308,8 +325,8 @@ def analyze_turn(
         # Analyze previous user turn
         prev_plan = analyze_turn(user_queries[-1], history=None)
 
-        if short_switch_m:
-            # "for mba" / "and for MCA?" / "mca" -> switches programme, retains topic & year
+        if is_bare_prog or short_switch_m:
+            # "for mba" / "mca" / "bca and mca" / "all" -> switches or specifies programme, retains topic & year
             is_followup = True
             inherited_topic = None
             for uq in reversed(user_queries):
@@ -359,6 +376,7 @@ def analyze_turn(
             pass
 
     # Build standalone question
+    prev_user_q = user_queries[-1] if user_queries else None
     standalone_q = _build_standalone_question(
         raw_question=raw_q,
         programmes=resolved_progs,
@@ -367,6 +385,9 @@ def analyze_turn(
         semester=resolved_sem,
         is_compare=is_compare,
         is_followup=is_followup,
+        prev_question=prev_user_q,
+        curr_progs=curr_progs,
+        curr_topic=curr_topic,
     )
 
     return TurnPlan(
@@ -390,38 +411,65 @@ def _build_standalone_question(
     semester: Optional[int],
     is_compare: bool,
     is_followup: bool,
+    prev_question: Optional[str] = None,
+    curr_progs: Optional[List[str]] = None,
+    curr_topic: Optional[str] = None,
 ) -> str:
-    """Construct an unambiguous, self-contained search query from the TurnPlan.
+    """Construct an unambiguous, self-contained search query from the TurnPlan."""
+    # If the user answered with just a programme or programme switch (e.g. "mca", "bca", "all", "bca and mca"),
+    # carry forward the previous question!
+    is_bare = (
+        bool(_FOLLOWUP_SHORT_PROG_RE.match(raw_question.strip()))
+        or bool(_BARE_ALL_RE.match(raw_question.strip()))
+        or (bool(curr_progs) and curr_topic == "general" and len(raw_question.strip().split()) <= 4)
+    )
 
-    RULE (Step 1 fix): Always keep the user's own words.  Only APPEND the
-    resolved context (programme name and/or year/semester) in parentheses when
-    it was inherited from history and is not already present in the raw question.
-    Never replace the user's wording with a generic topic template like
-    "fee structure and payment details" — that caused cache cross-talk.
-    """
-    # Not a follow-up and not a compare -> return the raw question unchanged.
+    if is_bare and prev_question:
+        base_prev = _YEAR_CASE_RE.sub(r"Year \1", prev_question.strip())
+        if is_compare or len(programmes) >= 2:
+            progs_str = ", ".join(PROGRAM_MAP.get(p, p) for p in programmes) or "all online programmes"
+            return f"Compare across {progs_str}: {base_prev}"
+        elif programmes:
+            prog_name = PROGRAM_MAP.get(programmes[0], programmes[0])
+            new_label = prog_name.replace("Online ", "")
+            new_q = base_prev
+            replaced = False
+            for p in ALL_PROGRAM_NAMES:
+                old_label = PROGRAM_MAP.get(p, "").replace("Online ", "")
+                pattern = re.compile(rf"\b(?:online\s+)?{re.escape(old_label)}\b", re.I)
+                if pattern.search(new_q):
+                    new_q = pattern.sub(new_label, new_q)
+                    replaced = True
+                    break
+            if not replaced:
+                new_q = f"{base_prev} ({prog_name})"
+            return new_q
+
+    raw_norm = _YEAR_CASE_RE.sub(r"Year \1", raw_question.strip())
+
+    # Not a follow-up and not a compare -> return normalized raw question.
     if not is_followup and not is_compare:
-        return raw_question
+        return raw_norm
 
     # Compare / multi-programme: keep user words, prefix with "Compare across <progs>:"
     if is_compare or len(programmes) >= 2:
         progs_str = ", ".join(PROGRAM_MAP.get(p, p) for p in programmes) or "all online programmes"
-        user_words = raw_question.strip()
+        user_words = raw_norm
         return f"Compare across {progs_str}: {user_words}"
 
     prog_name = PROGRAM_MAP.get(programmes[0]) if programmes else ""
 
-    # Not actually a follow-up (guard): return raw question
+    # Not actually a follow-up (guard): return normalized raw question
     if not is_followup:
-        return raw_question
+        return raw_norm
 
     # Build context suffix only from elements NOT already in the raw question
-    raw_lower = raw_question.lower()
+    raw_lower = raw_norm.lower()
     context_parts: List[str] = []
 
     # Add programme if not already present in the user's words
     if prog_name:
-        acronym = programmes[0].replace("online_", "").lower()  # "bca", "mba", …
+        acronym = programmes[0].replace("online_", "").lower()  # "bca", "mba", ...
         if prog_name.lower() not in raw_lower and acronym not in raw_lower:
             context_parts.append(prog_name)
 
@@ -434,14 +482,14 @@ def _build_standalone_question(
             or f"{yr_str} year" in raw_lower
         )
         if not already_year:
-            context_parts.append(f"{yr_str} year")
+            context_parts.append(f"Year {year}")
     elif semester:
         if f"semester {semester}" not in raw_lower and f"sem {semester}" not in raw_lower:
             context_parts.append(f"semester {semester}")
 
     if context_parts:
         suffix = ", ".join(context_parts)
-        return f"{raw_question.strip()} ({suffix})"
+        return f"{raw_norm} ({suffix})"
 
-    # No new context to add: return the raw question as-is
-    return raw_question
+    # No new context to add: return the normalized raw question
+    return raw_norm

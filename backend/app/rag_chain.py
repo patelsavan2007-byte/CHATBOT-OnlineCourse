@@ -77,7 +77,7 @@ class AnswerResult:
     RAGRetriever objects.  All per-request data travels inside this object so
     concurrent requests cannot mix their metadata.
     """
-    __slots__ = ("answer", "retrieved", "status", "timing", "conflicts", "plan")
+    __slots__ = ("answer", "retrieved", "status", "timing", "conflicts", "plan", "clarification")
 
     def __init__(
         self,
@@ -87,6 +87,7 @@ class AnswerResult:
         timing: Dict[str, float],
         conflicts: List[dict],
         plan: Any,
+        clarification: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.answer = answer
         self.retrieved = retrieved
@@ -94,6 +95,7 @@ class AnswerResult:
         self.timing = timing
         self.conflicts = conflicts
         self.plan = plan
+        self.clarification = clarification
 
     def __iter__(self):
         """Support tuple unpacking: answer, retrieved = result"""
@@ -195,7 +197,12 @@ class RAGChain:
             }
             self.last_status = _status
             self.last_timing = _timing
-            return AnswerResult(answer, [], _status, _timing, [], plan)
+            clarification = {
+                "original_question": question,
+                "topic": plan.topic if plan else "general",
+                "missing": "programme",
+            }
+            return AnswerResult(answer, [], _status, _timing, [], plan, clarification=clarification)
 
         t_ret = time.time()
         retrieved = self.retriever.retrieve(question, plan=plan)

@@ -303,12 +303,12 @@ function SourcesDisclosure({ sources }) {
 function QuickReplies({ replies, onSelect }) {
   if (!replies || replies.length === 0) return null;
   return (
-    <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Choose a programme">
+    <div className="mt-3 grid grid-cols-4 gap-2 max-w-sm" role="group" aria-label="Choose a programme">
       {replies.map((reply) => (
         <button
           key={reply}
           onClick={() => onSelect?.(reply)}
-          className="inline-flex items-center rounded-md border px-3 py-1.5 text-xs font-medium transition cursor-pointer"
+          className="inline-flex h-8 items-center justify-center rounded-md border px-3 text-xs font-semibold transition cursor-pointer hover:bg-[var(--surface-hover)] focus-visible:outline-2"
           style={{
             borderColor: "var(--border)",
             background: "var(--surface-2)",
