@@ -825,6 +825,15 @@ class RAGRetriever:
                     results.append((Document(page_content=doc_text, metadata=meta), 0.96))
         return results
 
+    def _placement_candidate_search(self) -> List[Tuple[Document, float]]:
+        """Retrieve recruiter and placement assistance chunks specifically."""
+        query = "Our Recruiters placement assistance campus placements companies recruit Adani Infosys TCS"
+        try:
+            return self.vector_store.similarity_search_with_relevance_scores(query, k=2)
+        except Exception as exc:
+            logger.warning("Placement candidate search failed: %s", exc)
+            return []
+
     def _compare_candidate_search(
         self, query: str, plan: TurnPlan,
     ) -> List[Tuple[Document, float]]:
@@ -978,13 +987,12 @@ class RAGRetriever:
         is_prog_independent = is_topic_programme_independent(plan.topic) if plan else False
         explicit_progs = _detect_programmes_in_text(search_query) if search_query else []
 
-        # Programme-independent topics (documents, refund, lms, placement, support, attendance),
-        # multi-programme comparisons, or broad queries without explicitly named programmes search across all programmes
-        if is_multi or is_prog_independent or (not explicit_progs and plan and plan.is_followup):
+        # Multi-programme comparisons search across programmes
+        if is_multi:
             program_name = ""
             intent = INTENT_GENERAL
             pool = self._compare_candidate_search(search_query, plan)
-        elif len(plan.programmes) == 1:
+        elif len(plan.programmes) == 1 and not is_prog_independent:
             program_name = plan.programmes[0]
             intent = INTENT_PROGRAMME
             pool = self._candidate_search(search_query, program_name, intent=intent, phrases=phrases)
@@ -1003,6 +1011,9 @@ class RAGRetriever:
             elif plan.topic == "contact":
                 contact_pool = self._contact_candidate_search()
                 pool = self._merge_targeted_pool(pool, contact_pool)
+            elif plan.topic == "placement":
+                plc_pool = self._placement_candidate_search()
+                pool = self._merge_targeted_pool(pool, plc_pool)
         elif _is_programme_overview_query(search_query):
             program_name = ""
             intent = INTENT_OVERVIEW
@@ -1017,6 +1028,9 @@ class RAGRetriever:
             elif plan and plan.topic == "contact":
                 contact_pool = self._contact_candidate_search()
                 pool = self._merge_targeted_pool(pool, contact_pool)
+            elif plan and plan.topic == "placement":
+                plc_pool = self._placement_candidate_search()
+                pool = self._merge_targeted_pool(pool, plc_pool)
 
         self.last_program = program_name
         self.last_intent = intent

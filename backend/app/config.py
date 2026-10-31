@@ -118,6 +118,9 @@ ATTRIBUTE_KEYWORDS: set = {
     "specialization", "specialisation", "elective", "streams",
     "refund", "cancellation", "withdrawal",
     "policy", "rules", "regulation",
+    "placement", "recruiter", "recruiters", "recruit", "recruiting",
+    "companies", "company", "placement assistance", "campus placement",
+    "hire", "hires", "hiring",
 }
 
 # ---------------------------------------------------------------------------
@@ -160,6 +163,7 @@ GENERAL_POLICY_SOURCE_PATTERNS: List[str] = [
     "privacy-policy",
     "mandatory-disclosures",
     "ciqa",
+    "home",
 ]
 
 # ---------------------------------------------------------------------------
