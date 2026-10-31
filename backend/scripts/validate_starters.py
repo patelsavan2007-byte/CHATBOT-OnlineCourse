@@ -17,12 +17,6 @@ BACKEND_DIR = SCRIPT_DIR.parent
 ROOT_DIR = BACKEND_DIR.parent
 sys.path.insert(0, str(BACKEND_DIR))
 
-# Ensure offline vector DB fallback
-if "VECTOR_DB_DIR" not in os.environ:
-    copy_dir = Path("C:/AProjects/CHATB-vector-db-copy-20261031")
-    if copy_dir.exists():
-        os.environ["VECTOR_DB_DIR"] = str(copy_dir)
-
 from app.conversation import analyze_turn
 from app.embeddings import EmbeddingStore
 from app.retriever import RAGRetriever
