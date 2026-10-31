@@ -31,7 +31,7 @@ load_dotenv(_env_path)
 _client: Optional[MongoClient] = None
 _db: Optional[Database] = None
 
-DB_NAME = "charusat_assistant"
+DB_NAME = os.getenv("MONGODB_DB", "charusat_assistant")
 
 
 def init_mongodb() -> Optional[Database]:
