@@ -116,7 +116,6 @@ export default function MessageList({
                 onRetry={msg.isError ? (() => onRetry?.(msg)) : undefined}
                 onRegenerate={idx === messages.length - 1 && !msg.isError && !msg.isStreaming ? onRegenerate : undefined}
                 isStreaming={msg.isStreaming}
-                suggestedQuestions={isLastAssistant ? (msg.suggestedQuestions || []) : []}
                 quickReplies={isLastAssistant ? (msg.quickReplies || []) : []}
                 onSuggestedQuestion={onSuggestedQuestion}
               />

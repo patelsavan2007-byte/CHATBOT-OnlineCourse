@@ -323,33 +323,6 @@ function QuickReplies({ replies, onSelect }) {
   );
 }
 
-function SuggestedQuestions({ questions, onSelect }) {
-  if (!questions || questions.length === 0) return null;
-  return (
-    <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Suggested follow-up questions">
-      {questions.map((q, i) => (
-        <button
-          key={i}
-          onClick={() => onSelect?.(q)}
-          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition cursor-pointer hover:border-[var(--accent)]"
-          style={{
-            borderColor: "var(--border)",
-            background: "var(--surface-2)",
-            color: "var(--text-2)",
-          }}
-          type="button"
-        >
-          <svg className="h-3 w-3 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.35-4.35" />
-          </svg>
-          {q}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 export default function AssistantMessage({
   messageId,
   content,
@@ -359,7 +332,6 @@ export default function AssistantMessage({
   onRetry,
   onRegenerate,
   isStreaming,
-  suggestedQuestions,
   quickReplies,
   onSuggestedQuestion,
 }) {
@@ -421,7 +393,6 @@ export default function AssistantMessage({
                 </div>
 
                 <QuickReplies replies={quickReplies} onSelect={onSuggestedQuestion} />
-                <SuggestedQuestions questions={suggestedQuestions} onSelect={onSuggestedQuestion} />
               </>
             )}
           </>
