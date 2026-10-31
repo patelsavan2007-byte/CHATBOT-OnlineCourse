@@ -117,6 +117,12 @@ async def get_conversation_detail(
         )
 
     messages = get_conversation_messages(db, conversation_id)
+    from app.text_cleanup import clean_answer_text
+    messages = [
+        {**message, "content": clean_answer_text(message.get("content", ""))}
+        if message.get("role") == "assistant" else message
+        for message in messages
+    ]
     return ConversationWithMessagesResponse(
         conversation=conversation,
         messages=messages,

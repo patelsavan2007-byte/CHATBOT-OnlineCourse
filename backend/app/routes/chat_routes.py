@@ -44,17 +44,13 @@ from app.models import (
     update_conversation,
 )
 from app.utils import logger
+from app.text_cleanup import clean_answer_text
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 
 
 from app.smalltalk import is_smalltalk, converse
 
-
-def _clean_answer_text(text: str) -> str:
-    """Normalize output before it is chunked, returned, or persisted."""
-    cleaned = re.sub(r"[\u202F\u2009\u200A\u00A0\u200B]", " ", text or "")
-    return cleaned.replace("\u2014", ", ")
 
 
 # ---------------------------------------------------------------------------
@@ -241,7 +237,7 @@ def _process_chat_turn(
     if is_smalltalk(question):
         llm_client = getattr(rag_chain, "llm_client", None)
         answer_text = converse(question, history=history, llm_client=llm_client)
-        return _TurnOutcome(_clean_answer_text(answer_text), [], None, plan, "smalltalk")
+        return _TurnOutcome(clean_answer_text(answer_text), [], None, plan, "smalltalk")
 
     # 2. Execute RAG
     res = rag_chain.answer(question, history=history, use_cache=use_cache)
@@ -341,11 +337,11 @@ def _process_chat_turn(
                     session_state.clear_state(conv_id)
             except Exception:
                 pass
-        return _TurnOutcome(_clean_answer_text(answer_text), [], res, effective_plan, "unrelated")
+        return _TurnOutcome(clean_answer_text(answer_text), [], res, effective_plan, "unrelated")
 
     from app.citations import extract_citations
     sources = extract_citations(retrieved, answer_text=answer_text)
-    return _TurnOutcome(_clean_answer_text(answer_text), sources, res, effective_plan, "answer")
+    return _TurnOutcome(clean_answer_text(answer_text), sources, res, effective_plan, "answer")
 
 
 def _quick_replies(outcome: _TurnOutcome) -> List[str]:

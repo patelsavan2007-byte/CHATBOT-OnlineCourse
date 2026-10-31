@@ -100,7 +100,8 @@ class QuestionCache:
 
         self.hits += 1
         logger.info("Cache hit for question: %s", question[:50])
-        return entry.answer, entry.sources
+        from app.text_cleanup import clean_answer_text
+        return clean_answer_text(entry.answer), entry.sources
 
     def set(
         self,
