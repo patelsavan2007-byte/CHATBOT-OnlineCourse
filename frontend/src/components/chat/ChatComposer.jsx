@@ -8,6 +8,7 @@ import { useCallback, useRef, useEffect, useState } from "react";
 import TypingSuggestions from "./TypingSuggestions.jsx";
 import { apiFetch } from "../../services/api.js";
 import { shouldShowTip, selectNextTip } from "../../lib/tipSelector.js";
+import { getTypingSuggestions, addUserQuestion } from "../../lib/questionBank.js";
 
 const MAX_ROWS = 6;
 const MAX_CHAR_LIMIT = 1000;
@@ -41,6 +42,7 @@ export default function ChatComposer({
   disabled,
   typingSuggestionsEnabled = true,
   currentProgramme = null,
+  questionBank = null,
   conversationId = null,
   history = [],
   messages = [],
@@ -151,6 +153,22 @@ export default function ChatComposer({
       return;
     }
 
+    // Step 1: Instant client-side match (0ms latency) from question bank + user questions
+    const tokens = trimmed.split(/\s+/).filter(Boolean);
+    const instantMatches = getTypingSuggestions(trimmed, currentProgramme, questionBank);
+    let initialFormatted = [];
+    if (instantMatches && instantMatches.length > 0) {
+      initialFormatted = instantMatches.slice(0, 5).map((m, idx) => ({
+        id: m.id || `local-${idx}`,
+        text: m.text,
+        topic: m.category || "General",
+        matchedTokens: m.matchedTokens || tokens,
+        source: "instant",
+      }));
+      setSuggestions(initialFormatted);
+    }
+
+    // Step 2: Background LLM query generation via /api/suggest
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
@@ -169,20 +187,43 @@ export default function ChatComposer({
         });
 
         const items = res?.suggestions || [];
-        const tokens = trimmed.split(/\s+/).filter(Boolean);
-        const mapped = items.slice(0, 5).map((item, idx) => ({
+        const apiMapped = items.map((item, idx) => ({
           id: `sug-${idx}`,
           text: typeof item === "string" ? item : item.text,
           topic: typeof item === "object" ? item.topic : "General",
           matchedTokens: tokens,
+          source: "llm",
         }));
 
-        setInCache(cacheKey, mapped);
-        setSuggestions(mapped);
+        // Seamlessly merge instant matches and LLM items (deduping by text)
+        const seen = new Set();
+        const merged = [];
+        for (const item of initialFormatted) {
+          const norm = item.text.trim().toLowerCase();
+          if (!seen.has(norm)) {
+            seen.add(norm);
+            merged.push(item);
+          }
+        }
+        for (const item of apiMapped) {
+          const norm = item.text.trim().toLowerCase();
+          if (!seen.has(norm)) {
+            seen.add(norm);
+            merged.push(item);
+          }
+        }
+
+        const finalSuggestions = merged.slice(0, 5);
+        if (finalSuggestions.length > 0) {
+          setInCache(cacheKey, finalSuggestions);
+          setSuggestions(finalSuggestions);
+        }
       } catch (err) {
         if (err?.name !== "AbortError") {
-          // Degraded mode: fail silently
-          setSuggestions([]);
+          // If network fails, keep any instant suggestions; otherwise clear
+          if (initialFormatted.length === 0) {
+            setSuggestions([]);
+          }
         }
       }
     }, 200);
@@ -191,7 +232,7 @@ export default function ChatComposer({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [text, typingSuggestionsEnabled, suggestionsOpen, disabled, currentProgramme, conversationId, history]);
+  }, [text, typingSuggestionsEnabled, suggestionsOpen, disabled, currentProgramme, questionBank, conversationId, history]);
 
   /* Reset highlight index when suggestions change */
   useEffect(() => {
@@ -206,6 +247,7 @@ export default function ChatComposer({
       }
       const q = (typeof overrideText === "string" ? overrideText : text).trim();
       if (!q || disabled) return;
+      addUserQuestion(q, currentProgramme);
       onSend(q);
       setText("");
       setSuggestionsOpen(false);
