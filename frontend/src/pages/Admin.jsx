@@ -549,6 +549,11 @@ export default function Admin() {
     navigate("/", { replace: true });
   };
 
+  const handleBack = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/");
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col font-sans"
@@ -567,8 +572,8 @@ export default function Admin() {
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={handleBack}
               className="flex h-8 w-8 items-center justify-center rounded-md border text-xs font-medium transition hover:border-[var(--border-focus)]"
               style={{
                 borderColor: "var(--border)",
@@ -580,7 +585,7 @@ export default function Admin() {
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M19 12H5M12 5l-7 7 7 7" />
               </svg>
-            </Link>
+            </button>
             <div>
               <h1 className="text-sm font-semibold tracking-tight" style={{ color: "var(--text)" }}>
                 CHARUSAT Admin Console

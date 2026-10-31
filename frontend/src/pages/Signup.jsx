@@ -1,6 +1,6 @@
 /**
  * Signup page - clean user registration form.
- * No marketing panels, includes Terms and Privacy consent link.
+ * No marketing panels.
  */
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -263,18 +263,6 @@ export default function Signup() {
               </button>
             </div>
           </div>
-
-          {/* Consent line */}
-          <p className="text-[11px] leading-relaxed" style={{ color: "var(--muted)" }}>
-            By creating an account, you agree to our{" "}
-            <Link to="/terms" className="underline" style={{ color: "var(--accent)" }}>
-              Terms of Service
-            </Link>{" "}
-            and{" "}
-            <Link to="/privacy" className="underline" style={{ color: "var(--accent)" }}>
-              Privacy Policy
-            </Link>.
-          </p>
 
           <button
             type="submit"

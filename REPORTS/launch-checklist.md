@@ -3,6 +3,8 @@
 Generated: 2026-10-28
 Branch: `redesign/chat-first`
 
+Privacy and Terms pages: removed at owner request on 2026-10-30, still required before public launch.
+
 ---
 
 ## 1. Confirmed vs Unconfirmed Operational Facts
@@ -33,7 +35,7 @@ Branch: `redesign/chat-first`
 
 ## 2. Third-Party Service Inventory & Privacy Policy Disclosure
 
-| Third-Party Service | Purpose | Disclosed in `/privacy` | Data Shared | Notes |
+| Third-Party Service | Purpose | Disclosure status | Data Shared | Notes |
 |---|---|---|---|---|
 | **Self-Hosted IBM Plex Fonts** | Typography | N/A | None | Self-hosted locally via `@fontsource`. Google Fonts links removed to eliminate third-party visitor IP leakage. |
 | **Google Identity Services (GIS)** | Student OAuth Login | Yes (Section 7) | Google OAuth token, Name, Email | Only activated when student selects "Sign in with Google". |

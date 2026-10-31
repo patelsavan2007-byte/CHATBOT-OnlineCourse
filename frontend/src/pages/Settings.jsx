@@ -102,6 +102,11 @@ export default function Settings() {
     navigate("/", { replace: true });
   };
 
+  const handleBack = () => {
+    if (window.history.state?.idx > 0) navigate(-1);
+    else navigate("/");
+  };
+
   return (
     <div className="min-h-dvh flex flex-col font-sans" style={{ background: "var(--page)", color: "var(--text)" }}>
       <Toast
@@ -117,8 +122,8 @@ export default function Settings() {
       >
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link
-              to="/chat"
+            <button
+              onClick={handleBack}
               className="flex h-8 w-8 items-center justify-center rounded-md border text-xs font-medium transition hover:border-[var(--border-focus)]"
               style={{
                 borderColor: "var(--border)",
@@ -130,7 +135,7 @@ export default function Settings() {
               <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M19 12H5M12 5l-7 7 7 7" />
               </svg>
-            </Link>
+            </button>
             <h1 className="text-sm font-semibold tracking-tight" style={{ color: "var(--text)" }}>
               Settings
             </h1>
@@ -335,15 +340,15 @@ export default function Settings() {
               </div>
             </section>
 
-            {/* Legal and Support */}
+            {/* About */}
             <section
               className="rounded-lg border p-5 space-y-3"
               style={{ background: "var(--surface)", borderColor: "var(--border)" }}
             >
               <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                About and Legal
+                About
               </h2>
-              <div className="grid grid-cols-3 gap-2">
+              <div>
                 <Link
                   to="/about"
                   className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
@@ -354,28 +359,6 @@ export default function Settings() {
                   }}
                 >
                   About Assistant
-                </Link>
-                <Link
-                  to="/privacy"
-                  className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
-                  style={{
-                    background: "var(--surface-2)",
-                    borderColor: "var(--border)",
-                    color: "var(--text-2)",
-                  }}
-                >
-                  Privacy Policy
-                </Link>
-                <Link
-                  to="/terms"
-                  className="rounded-md border p-2.5 text-center text-xs font-medium transition hover:border-[var(--border-focus)]"
-                  style={{
-                    background: "var(--surface-2)",
-                    borderColor: "var(--border)",
-                    color: "var(--text-2)",
-                  }}
-                >
-                  Terms of Service
                 </Link>
               </div>
             </section>

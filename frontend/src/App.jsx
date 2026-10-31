@@ -4,7 +4,7 @@
  * Entry:        /  -> redirect to /chat
  * Auth:         /login  /signup
  * Application:  /chat  /chat/:conversationId  /settings
- * Info:         /about  /privacy  /terms
+ * Info:         /about
  * Admin:        /admin  (admin-only protected)  /admin/login
  */
 import React, { Suspense } from "react";
@@ -21,8 +21,6 @@ import Settings from "./pages/Settings.jsx";
 const Admin      = React.lazy(() => import("./pages/Admin.jsx"));
 const AdminLogin = React.lazy(() => import("./pages/AdminLogin.jsx"));
 const About      = React.lazy(() => import("./pages/About.jsx"));
-const Privacy    = React.lazy(() => import("./pages/Privacy.jsx"));
-const Terms      = React.lazy(() => import("./pages/Terms.jsx"));
 
 // UI guards
 import ErrorBoundary  from "./components/ui/ErrorBoundary.jsx";
@@ -135,8 +133,6 @@ export default function App() {
 
           {/* Info pages */}
           <Route path="/about"   element={<About />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms"   element={<Terms />} />
 
           {/* Legacy redirects */}
           <Route path="/history"        element={<Navigate to="/chat"     replace />} />

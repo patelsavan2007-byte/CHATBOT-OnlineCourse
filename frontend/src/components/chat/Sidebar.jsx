@@ -2,7 +2,7 @@
  * Sidebar - left sidebar for the /chat application.
  * 280px width, client-side search, grouping (Today, Yesterday, This week, Older),
  * inline rename, delete with confirmation Dialog, keyboard shortcuts help,
- * pagination for 50+ conversations, footer links to Settings, Privacy, Terms, About.
+ * pagination for 50+ conversations and footer links to Settings and About.
  */
 import { useMemo, useState, useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -367,8 +367,6 @@ export default function ChatSidebar({
         {/* Links row */}
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2 text-[11px]" style={{ color: "var(--muted)" }}>
           <Link to="/about" className="hover:underline">About</Link>
-          <Link to="/privacy" className="hover:underline">Privacy</Link>
-          <Link to="/terms" className="hover:underline">Terms</Link>
           <Link to="/settings" className="hover:underline">Settings</Link>
         </div>
 
