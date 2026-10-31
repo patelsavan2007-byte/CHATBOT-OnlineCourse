@@ -160,23 +160,27 @@ def test_knowledge_gap_filtering():
     assert _is_gap_match("What is the tuition fee?", known_gaps) is False
 
 
-@pytest.mark.asyncio
-async def test_answerability_gate():
+def test_answerability_gate():
     """Answerability gate drops candidates that score below MIN_RELEVANCE_SCORE."""
-    mock_retriever = MagicMock()
-    # First candidate scores high (0.75), second scores below threshold (0.40)
-    mock_retriever.retrieve.side_effect = [
-        [(MagicMock(), 0.75)],
-        [(MagicMock(), 0.40)],
-    ]
+    import asyncio
 
-    passing = await _gate_answerability(
-        mock_retriever,
-        ["High relevance question?", "Low relevance question?"],
-        budget=0.4,
-    )
-    assert len(passing) == 1
-    assert passing[0] == "High relevance question?"
+    async def _run():
+        mock_retriever = MagicMock()
+        # First candidate scores high (0.75), second scores below threshold (0.40)
+        mock_retriever.retrieve.side_effect = [
+            [(MagicMock(), 0.75)],
+            [(MagicMock(), 0.40)],
+        ]
+
+        passing = await _gate_answerability(
+            mock_retriever,
+            ["High relevance question?", "Low relevance question?"],
+            budget=0.4,
+        )
+        assert len(passing) == 1
+        assert passing[0] == "High relevance question?"
+
+    asyncio.run(_run())
 
 
 def test_privacy_logging(caplog):

@@ -164,20 +164,6 @@ CHARUSAT offers UGC-entitled online degree certificates. The degree certificate 
 
 ## Our Recruiters
 
-CHARUSAT graduates are recruited by leading companies across various industries. The following companies are among CHARUSAT's prominent recruiters:
-
-- Adani Group
-- Asian Paints
-- Berger Paints
-- Crest Data Systems
-- ICICI Bank
-- Infosys
-- Jeavio
-- Meditab Software
-- Tata Group (TCS/Tata Companies)
-
-These companies regularly visit CHARUSAT for campus placements and recruit students from both online and regular programmes.
-
 ## Testimonials
 
 ### BBA Programme Testimonials

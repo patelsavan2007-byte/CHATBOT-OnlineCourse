@@ -827,12 +827,57 @@ class RAGRetriever:
 
     def _placement_candidate_search(self) -> List[Tuple[Document, float]]:
         """Retrieve recruiter and placement assistance chunks specifically."""
-        query = "Our Recruiters placement assistance campus placements companies recruit Adani Infosys TCS"
+        results: List[Tuple[Document, float]] = []
+        seen = set()
+
+        # 1. If placement_recruiters.md is present in the collection, fetch it directly
+        collection = getattr(self.vector_store, "_collection", None)
+        if collection is not None:
+            try:
+                data = collection.get(
+                    where={"source": "placement_recruiters.md"},
+                    include=["documents", "metadatas"],
+                )
+                for doc_text, meta in zip(data.get("documents", []) or [], data.get("metadatas", []) or []):
+                    if doc_text and doc_text.strip():
+                        key = ("placement_recruiters.md", str(meta.get("chunk_id", "")))
+                        if key not in seen:
+                            seen.add(key)
+                            results.append((Document(page_content=doc_text, metadata=meta), 0.95))
+            except Exception:
+                pass
+
+        # 2. Semantic search for recruiter chunks (matches index chunks from home.md or placement_recruiters)
+        query = "Our Recruiters placement assistance campus placements companies recruit Adani Infosys TCS placement_recruiters"
         try:
-            return self.vector_store.similarity_search_with_relevance_scores(query, k=2)
+            sim_results = self.vector_store.similarity_search_with_relevance_scores(query, k=3)
+            for doc, score in sim_results:
+                src = str(doc.metadata.get("source", "")).lower()
+                cid = str(doc.metadata.get("chunk_id", ""))
+                key = (src, cid or doc.page_content[:40])
+                if key not in seen:
+                    seen.add(key)
+                    results.append((doc, score))
         except Exception as exc:
             logger.warning("Placement candidate search failed: %s", exc)
-            return []
+
+        # 3. Direct knowledge base disk fallback if index was not yet rebuilt and lacks recruiter details
+        if not any("adani" in doc.page_content.lower() for doc, _ in results):
+            kb_file = config.KNOWLEDGE_BASE_DIR / "placement_recruiters.md"
+            if kb_file.exists():
+                try:
+                    content = kb_file.read_text(encoding="utf-8")
+                    results.append((
+                        Document(
+                            page_content=content,
+                            metadata={"source": "placement_recruiters.md", "program_name": "", "page_title": "Placement Recruiters"}
+                        ),
+                        0.92
+                    ))
+                except Exception:
+                    pass
+
+        return results
 
     def _compare_candidate_search(
         self, query: str, plan: TurnPlan,

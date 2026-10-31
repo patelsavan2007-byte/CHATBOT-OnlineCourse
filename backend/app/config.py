@@ -159,6 +159,7 @@ SOURCE_AUTHORITY_TIERS: List[Tuple[str, float]] = [
     (r"ppr_online_", 1.00),                   # programme project reports (converted to md)
     (r"online_(bba|bca|mba|mca)_comprehensive", 0.95),  # merged per-programme guides
     (r"admissions_guide|online_examination|aicte_eoa|eoa_report|ugc_public|admission_cancellation", 0.90),
+    (r"placement_recruiters", 0.90),          # official recruiter directory & placement
     (r"contact_directory", 0.60),             # verified contact directory
     (r"pdfs/Fees Refund Policy", 0.95),       # official policy PDF
     (r"programs/online_", 0.90),              # official website programme pages
@@ -180,6 +181,7 @@ GENERAL_POLICY_SOURCE_PATTERNS: List[str] = [
     "mandatory-disclosures",
     "ciqa",
     "home",
+    "placement_recruiters",
 ]
 
 # ---------------------------------------------------------------------------

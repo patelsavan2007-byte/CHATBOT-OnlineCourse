@@ -44,11 +44,11 @@ def test_retriever_placement_targeted_search_invoked():
     )
     
     mock_vector_store = MagicMock()
-    # similarity_search_with_relevance_scores returns recruiter_doc
     mock_vector_store.similarity_search_with_relevance_scores.return_value = [(recruiter_doc, 0.75)]
     mock_vector_store._collection = MagicMock()
     mock_vector_store._collection.count.return_value = 1
     mock_vector_store.get.return_value = {"ids": ["1"], "metadatas": [{"source": "home.md", "program_name": ""}], "documents": [recruiter_doc.page_content]}
+    mock_vector_store.get_by_ids.return_value = [recruiter_doc]
 
     retriever = RAGRetriever(mock_vector_store)
     plan = analyze_turn("which company recruites", history=[])
@@ -56,3 +56,28 @@ def test_retriever_placement_targeted_search_invoked():
     results = retriever.retrieve("which company recruites", plan=plan)
     assert len(results) > 0, "Expected retrieved results"
     assert any("Adani Group" in doc.page_content for doc, _ in results), "Expected recruiter document in results"
+
+
+def test_retriever_placement_recruiters_unmanaged_file():
+    recruiter_doc = Document(
+        page_content="# CHARUSAT Campus Placement & Prominent Recruiters\n\n- Adani Group\n- Infosys\n- Tata Group (TCS)",
+        metadata={"source": "placement_recruiters.md", "program_name": ""}
+    )
+    
+    mock_vector_store = MagicMock()
+    mock_vector_store.similarity_search_with_relevance_scores.return_value = [(recruiter_doc, 0.75)]
+    mock_vector_store._collection = MagicMock()
+    mock_vector_store._collection.count.return_value = 1
+    mock_vector_store.get.return_value = {
+        "ids": ["1"],
+        "metadatas": [{"source": "placement_recruiters.md", "chunk_id": "0"}],
+        "documents": [recruiter_doc.page_content]
+    }
+    mock_vector_store.get_by_ids.return_value = [recruiter_doc]
+
+    retriever = RAGRetriever(mock_vector_store)
+    plan = analyze_turn("list of recruiters", history=[])
+    
+    results = retriever.retrieve("list of recruiters", plan=plan)
+    assert len(results) > 0, "Expected retrieved results from placement_recruiters.md"
+    assert any("Adani Group" in doc.page_content for doc, _ in results)
