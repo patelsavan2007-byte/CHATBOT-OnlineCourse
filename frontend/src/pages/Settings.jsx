@@ -544,7 +544,7 @@ export default function Settings() {
               style={{ background: "var(--surface)", borderColor: "var(--border)" }}
             >
               <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                Data and Privacy
+                Data Management
               </h2>
               <div className="space-y-3">
                 <div className="flex items-center justify-between py-1 border-b pb-3" style={{ borderColor: "var(--border)" }}>
