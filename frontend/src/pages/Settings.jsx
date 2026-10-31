@@ -1,5 +1,5 @@
 /**
- * Settings page - account, appearance, chat preferences, data management, and legal links.
+ * Settings page - account, appearance, chat preferences, and data management.
  * Dense, plain, accessible, and strictly follows design system tokens.
  */
 import { useEffect, useState } from "react";

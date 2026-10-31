@@ -5,17 +5,17 @@
  * The build script (check-rules.mjs) will fail if any value is still "CONFIRM".
  *
  * Because operatedByCharusat is true, the site may use CHARUSAT copyright
- * and claim official status on /about and in the legal pages.
+ * and claim official status on /about.
  */
 
 const site = {
   /** Short name shown in the header wordmark and page titles. */
   shortName: "CHARUSAT Assistant",
 
-  /** Full product name used in legal pages and meta descriptions. */
+  /** Full product name used in meta descriptions. */
   fullName: "CHARUSAT Online Programmes Assistant",
 
-  /** The legal entity operating this site. */
+  /** The organization operating this site. */
   operatorName: "Charotar University of Science and Technology",
 
   /**
@@ -27,7 +27,7 @@ const site = {
   /** Public domain where this site is deployed. Fill in after DNS is connected. */
   domain: "CONFIRM",
 
-  /** Primary contact email shown in Privacy Policy and Terms. */
+  /** Primary contact email. */
   contactEmail: "CONFIRM",
 
   /**
@@ -36,17 +36,17 @@ const site = {
    */
   grievanceEmail: "CONFIRM",
 
-  /** Jurisdiction for Terms of Service governing law clause. */
+  /** Governing jurisdiction for internal configuration. */
   jurisdiction: "Gujarat, India",
 
   /**
    * How long conversation data is retained before automatic deletion.
-   * Used in Privacy Policy. Example: "12 months".
+   * Retention policy setting. Example: "12 months".
    */
   dataRetentionPeriod: "CONFIRM",
 
   /**
-   * Effective date for Privacy Policy and Terms of Service.
+   * Effective date for internal policy records.
    * Format: YYYY-MM-DD. Update whenever either document changes.
    */
   legalEffectiveDate: "2026-10-28",
