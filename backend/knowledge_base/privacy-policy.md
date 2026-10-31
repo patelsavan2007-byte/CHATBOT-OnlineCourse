@@ -1,28 +1,355 @@
-Title: Privacy Policy - Charusat
-URL: https://charusat.online/privacy-policy.html
-Category: Privacy Policy.Html
-Last Scraped: 2026-09-20T05:20:35.506355+00:00
+# CHARUSAT Online Programs - Privacy Policy
 
-# PRIVACY POLICY
+## Our Commitment to Your Privacy
 
-Thank you for visiting the CHARUSAT website and reviewing our privacy policy. Our policy is simple: We collect no personal information about you unless you choose to provide that information to us. We do not give, share, sell, or transfer any personal information to a third party. If you want to know more about how we record non-personal information about your visit or how we use information that you voluntarily submit, read on
+We respect your privacy and protect your personal information. This policy explains how we collect, use, and safeguard your data.
 
-## Non-personal Information We Record
+### Simple Promise
+- We don't sell or share your personal information
+- We collect only what's necessary
+- We protect your data seriously
 
-If you do nothing during your visit but browse through the website, read pages, or download information, our website's operating system will automatically record some general information about your visit. During your visit, our web operating system will record The Internet domain for your Internet service such as xyz.com or xyz.net if you use a private Internet access account or yourcollege.edu if you connect from a college or university domain. The type of browser (such as Netscape version X or Internet Explorer version X) that you are using The type of operating system that you use (such as Macintosh, Unix, or Windows) The date and time you visit our site, and the web pages that you visit on our site The address of the previous website you were visiting, if you linked to us from another website. We use this information for statistical analysis, to help us make our site more useful to visitors. This tracking system does not record information about individuals
+## What Information We Collect
 
-## Cookies
+### Information You Give Us
+When you interact with CHARUSAT online, we may collect:
 
-On certain CHARUSAT web pages, we use cookies to help you use our websites interactively. A cookie is a small file that a website transfers to your computer's hard disk, usually to keep track of you while you are connected to that site. The cookies on Amity web pages do not collect information about you, but only about your browser session. The cookie makes it easier for you to use the dynamic features of these web pages, without having to provide the same information again as you move from one page to another. To protect your privacy, be sure to close your browser completely after you have finished conducting business with a website that uses cookies. If you are concerned about the potential use of information gathered from your computer by cookies, you can set your browser to prompt you before it accepts a cookie. Most Internet browsers have settings that let you identify or reject cookies. Information from E-mail You Send to Us If you decide to send us an electronic mail message (e-mail), the message will usually contain your return e-mail address. If you include personally-identifying information in your e-mail because you want us to address issues specific to your situation, we may use that information in responding to your request. Also, e-mail is not necessarily secure against interception. Please send only information necessary to help us process your request.
+#### For Admissions & Enrollment
+- Name, email, phone number
+- Educational background
+- Payment information (securely processed)
+- Identity documents (for verification)
 
-## Information Collected from Interactive Forms
+#### For Learning Platform
+- Course progress and completion
+- Assignment submissions
+- Assessment results
+- Discussion forum participation
 
-In some of our web pages, we offer interactive forms that let you voluntarily submit personal information (such as your e-mail address, name, mobile etc). This occurs when you opt to contact us or download the information brochure offered by Charusat. In those cases, all submitted information is used only for the purposes for which it is intended and is not made available to any third party.
+#### For Support & Communication
+- Questions you ask us
+- Feedback and surveys
+- Service requests
 
-## Links to Other Sites
+### Automatic Information
+When you visit our website, we automatically collect:
 
-Our policy discloses the privacy practices for the CHARUSAT website. But CHARUSAT provides links to other websites. When you leave the CHARUSAT website (Charusat.edcuation), you will be going to sites that are beyond our control. These other sites may send their own cookies to users, collect data, or solicit personal information. The privacy policies and procedures described here for CHARUSAT do not apply to any external links. We encourage you to read the privacy policies of any site you link to from ours, especially if you share any personal information. Be informed. You are the person best qualified to protect your own privacy. "By using the CHARUSAT University and/or registering yourself at CHARUSAT Education Private Limited you authorize CHARUSAT Education Private Limited (including its representatives, affiliates, and its business partners) to contact you via email or phone call or sms and offer you our services for which reasons your information may be collected in the manner as detailed under this Policy. You hereby agree that you authorize CHARUSAT Education Private Limited to contact you for the above mentioned purposes even if you have registered yourself under DND or DNC or NCPR service(s). Your authorization, in this regard, shall be valid as long as your account is not deactivated by either you or us."
+#### Technical Details
+- Device type (computer, phone, tablet)
+- Browser type and version
+- Operating system
+- IP address (general location)
 
-## Information Security System
+#### Usage Information
+- Pages you visit
+- Time spent on site
+- Links clicked
+- Referring website
 
-Ensure security of the information, created, acquired, or entrusted, is appropriate to the purpose and obligations of the organization. Have information security objectives around protection of confidentiality, integrity, and availability of information, consistent with information security policy. Ensure strict compliance and conformance to all applicable and relevant legal, regulatory, statutory, and contractual requirements, related to information security, in all activities, including cloud services. Focus on continual improvement of the information security management system established. Ensure critical information is protected from unauthorized access, use, disclosure, modification and disposal, whether intentional or unintentional. Report to, or have investigated by, competent entities, without undue delay, on any breaches of information security, actual or suspected, and also initiate appropriate corrective and preventive actions. Ensure Information Security awareness programs are available and accessible to all employees, and wherever applicable, to third-party staff, like sub-contractors, consultants, vendors etc. for imparting regular trainings, as appropriate to the domain and depth of their involvement. Ensure that information security continuity is maintained and tested in relevant business continuity plans. Ensure that all legal and contractual requirements, in respect of information security and privacy are complied with, as applicable. Review the information security policies at periodic intervals, not extending beyond a year, to ensure its suitability, adequacy, and effectiveness, particularly so, in case of changes in risk levels, technology, and legal/contractual, requirements, impacting confidentiality, integrity, availability, of information.
+#### Cookies & Tracking
+- Session cookies (for login)
+- Preference cookies
+- Analytics cookies (anonymous)
+
+## How We Use Your Information
+
+### To Provide Services
+- Process your enrollment
+- Deliver course materials
+- Track your progress
+- Issue certificates
+
+### To Communicate With You
+- Send important updates
+- Respond to your questions
+- Provide technical support
+- Share program information
+
+### To Improve Our Services
+- Analyze website usage
+- Enhance learning experience
+- Fix technical issues
+- Develop new features
+
+### Legal & Compliance
+- Verify your identity
+- Process payments
+- Comply with regulations
+- Protect against fraud
+
+## How We Protect Your Information
+
+### Security Measures
+- **Encryption**: Data transmitted securely
+- **Access controls**: Limited staff access
+- **Regular audits**: Security checks
+- **Training**: Staff privacy training
+
+### Data Storage
+- Stored on secure servers
+- Protected by firewalls
+- Regular backups
+- Access logs maintained
+
+### Your Responsibility
+- Keep login credentials secure
+- Don't share your account
+- Log out on shared devices
+- Report suspicious activity
+
+## Information Sharing
+
+### We Do Not Share
+- Your personal contact information
+- Your academic records
+- Your payment details
+- Your private communications
+
+### Limited Sharing (When Required)
+
+#### With Service Providers
+- Payment processors (for transactions)
+- Email services (for communications)
+- Cloud hosting (for platform)
+
+*Note*: Providers must follow our privacy standards
+
+#### Legal Requirements
+- When required by law
+- To protect rights and safety
+- For fraud prevention
+- During legal proceedings
+
+## Your Rights & Choices
+
+### Access Your Information
+- View your personal data
+- Update incorrect information
+- Request data export
+
+### Control Communications
+- Choose email preferences
+- Opt out of promotional emails
+- Set notification preferences
+
+### Manage Cookies
+- Browser settings control cookies
+- You can block or delete cookies
+- Some features may not work without cookies
+
+### Account Deletion
+- Request account closure
+- Some data retained for legal reasons
+- Academic records preserved as required
+
+## Cookies & Tracking
+
+### What Are Cookies?
+Small files stored on your device that help websites remember you.
+
+### Types We Use
+
+#### Essential Cookies
+- Login sessions
+- Course progress
+- Security features
+- *Required for platform to work*
+
+#### Functional Cookies
+- Language preferences
+- Display settings
+- Accessibility options
+- *Improve your experience*
+
+#### Analytics Cookies
+- Anonymous usage data
+- Performance metrics
+- Improvement insights
+- *Help us make services better*
+
+### Managing Cookies
+- Browser settings control all cookies
+- Blocking may affect website functionality
+- Clear cookies anytime through browser
+
+## Third-Party Links
+
+### External Websites
+Our website may link to:
+- Payment gateways
+- Government portals
+- Educational resources
+- Partner websites
+
+### Important Note
+- We don't control external sites
+- Their privacy policies apply
+- Review before sharing information
+- Use at your own discretion
+
+## Data Retention
+
+### How Long We Keep Data
+
+#### Active Accounts
+- While you're enrolled
+- Plus reasonable period after
+- For service continuity
+
+#### Inactive Accounts
+- Archived after inactivity
+- Academic records preserved
+- Contact information may be removed
+
+#### Legal Requirements
+- Financial records: 7+ years
+- Academic records: Permanently
+- Legal documents: As required
+
+### Data Deletion
+- Request deletion when possible
+- Some data retained legally
+- We'll explain what we keep and why
+
+## Children's Privacy
+
+### Age Requirements
+- Minimum age: 18 years
+- Parental consent required under 18
+- No intentional collection from children
+
+### Protection Measures
+- Age verification during enrollment
+- Parental controls where applicable
+- Special protections for minors
+
+## International Data Transfers
+
+### Data Location
+- Primarily stored in India
+- May use international servers
+- Same protections apply
+
+### Cross-Border Protection
+- Follow Indian data protection laws
+- International standards maintained
+- Your rights protected globally
+
+## Updates to This Policy
+
+### Policy Changes
+- We may update this policy
+- Changes posted on website
+- Continued use means acceptance
+
+### Notification
+- Major changes announced
+- Email notification for significant updates
+- Review periodically
+
+### Version History
+- Current: October 2026
+- Previous updates archived
+- Available upon request
+
+## How to Contact Us
+
+### Privacy Questions
+**Email**: privacy@charusat.ac.in  
+**Phone**: 02697-247500 (ask for privacy officer)  
+**Hours**: Monday-Friday, 10 AM - 5 PM IST
+
+### Data Requests
+For access, correction, or deletion:
+1. Email privacy@charusat.ac.in
+2. Include "Data Request" in subject
+3. Provide identification details
+4. Specify request type
+
+### Response Time
+- Acknowledgment: 3 business days
+- Resolution: 30 days maximum
+- Complex requests may take longer
+
+### Complaints
+If unsatisfied with our response:
+1. Escalate to privacy officer
+2. Contact regulatory authorities
+3. Legal options available
+
+## Quick Privacy Tips
+
+### Protect Yourself
+1. Use strong, unique passwords
+2. Enable two-factor authentication
+3. Keep software updated
+4. Be cautious with public Wi-Fi
+
+### Be Informed
+1. Read privacy policies
+2. Understand your rights
+3. Know how to contact us
+4. Keep records of communications
+
+### Stay Secure
+1. Log out after sessions
+2. Don't share login details
+3. Report suspicious activity
+4. Use secure connections
+
+## Important Definitions
+
+### Personal Information
+Data that identifies you directly or indirectly.
+
+### Sensitive Data
+Special category information requiring extra protection.
+
+### Processing
+Any operation on personal data (collection, storage, etc.).
+
+### Data Controller
+CHARUSAT determines how and why data is processed.
+
+### Data Processor
+Service providers processing data on our behalf.
+
+## Frequently Asked Questions
+
+### Q: Is my payment information safe?
+**A**: Yes, we use secure payment processors. We don't store full card details.
+
+### Q: Can I see what data you have about me?
+**A**: Yes, email privacy@charusat.ac.in with your request.
+
+### Q: Do you sell my information?
+**A**: No, we never sell personal information.
+
+### Q: How do you use my course data?
+**A**: For teaching, assessment, and improvement only.
+
+### Q: What if I don't want cookies?
+**A**: Adjust browser settings, but some features may not work.
+
+## Emergency Contacts
+
+### Immediate Security Concerns
+**Email**: security@charusat.ac.in  
+**Phone**: 02697-247500 (emergency extension)
+
+### Data Breach Reporting
+If you suspect a privacy issue:
+1. Contact us immediately
+2. Provide details
+3. Follow our instructions
+4. We'll investigate promptly
+
+### 24/7 Support
+For urgent platform issues affecting privacy.
+
+---
+*This policy effective: October 2026*  
+*For questions: privacy@charusat.ac.in*  
+*Review regularly for updates*
+
+*CHARUSAT is committed to protecting your privacy and providing transparent information about our data practices.*

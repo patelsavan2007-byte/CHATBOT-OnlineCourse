@@ -217,20 +217,23 @@ def generate_suggestions(
 
     asked_set = _extract_asked_questions(history, plan.standalone_question)
 
-    # 1. Small talk: return starter questions
+    # 1. Small talk: the UI intentionally shows no follow-up chips after
+    # greetings, thanks, name introductions or farewells.
     if is_smalltalk:
-        starters = []
-        for sq in STARTER_QUESTIONS:
-            if not _is_similar(sq, asked_set):
-                starters.append(sq)
-        return starters[:4] or STARTER_QUESTIONS[:4]
+        return []
 
-    # Check for not-found or missing marker
+    # Check for not-found or missing marker. RAG sanitises the markers before
+    # returning the answer, so also match the natural not-found wording.
     ans_lower = answer.lower() if answer else ""
     is_not_found = (
         "[[not_found]]" in ans_lower
-        or ans_lower.startswith("i couldn't find")
         or "[[missing:" in ans_lower
+        or "i don't have that" in ans_lower
+        or "i don't have the exact" in ans_lower
+        or "i don't have that specific" in ans_lower
+        or "i couldn't find" in ans_lower
+        or "i wasn't able to confirm" in ans_lower
+        or "not available right now" in ans_lower
     )
 
     prog_display = None

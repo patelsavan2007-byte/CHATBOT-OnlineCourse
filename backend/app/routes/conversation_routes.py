@@ -3,15 +3,17 @@
 All endpoints require authentication and are scoped to the current user.
 
 Endpoints:
-  GET    /api/conversations            — list user's conversations
-  POST   /api/conversations            — create a new conversation
-  GET    /api/conversations/{id}       — get conversation with messages
-  PATCH  /api/conversations/{id}       — rename conversation
-  DELETE /api/conversations/{id}       — delete conversation and its messages
+  GET    /api/conversations            - list user's conversations
+  POST   /api/conversations            - create a new conversation
+  GET    /api/conversations/{id}       - get conversation with messages
+  PATCH  /api/conversations/{id}       - rename conversation
+  DELETE /api/conversations/{id}       - delete conversation and its messages
+  DELETE /api/conversations            - delete all conversations for current user
 """
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
+from bson import ObjectId
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -115,6 +117,12 @@ async def get_conversation_detail(
         )
 
     messages = get_conversation_messages(db, conversation_id)
+    from app.text_cleanup import clean_answer_text
+    messages = [
+        {**message, "content": clean_answer_text(message.get("content", ""))}
+        if message.get("role") == "assistant" else message
+        for message in messages
+    ]
     return ConversationWithMessagesResponse(
         conversation=conversation,
         messages=messages,
@@ -169,3 +177,28 @@ async def delete_conversation_endpoint(
         )
 
     return {"message": "Conversation deleted"}
+
+
+@router.delete("")
+async def delete_all_conversations_endpoint(
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Delete all conversations and messages belonging to the current user."""
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+    user_id = user["id"]
+    try:
+        user_oid = ObjectId(user_id) if ObjectId.is_valid(user_id) else user_id
+    except Exception:
+        user_oid = user_id
+
+    conv_ids = [c["_id"] for c in db.conversations.find({"user_id": user_oid}, {"_id": 1})]
+    if conv_ids:
+        db.messages.delete_many({"conversation_id": {"$in": conv_ids}})
+        db.conversations.delete_many({"user_id": user_oid})
+    return {"message": "All conversations deleted", "deleted_count": len(conv_ids)}
+

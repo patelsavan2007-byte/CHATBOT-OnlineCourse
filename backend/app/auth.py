@@ -35,9 +35,9 @@ def _get_jwt_secret() -> str:
     """Return JWT secret. Falls back to a development-only default."""
     secret = os.getenv("JWT_SECRET", "").strip()
     if not secret:
-        # Development fallback — never use in production
+        # Development fallback - never use in production
         secret = "charusat-dev-jwt-secret-change-in-production"
-        logger.warning("JWT_SECRET not set — using insecure development default")
+        logger.warning("JWT_SECRET not set - using insecure development default")
     return secret
 
 
@@ -96,7 +96,7 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
 # FastAPI dependencies
 # ---------------------------------------------------------------------------
 
-# Optional bearer — does not throw if no token is present
+# Optional bearer - does not throw if no token is present
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
@@ -130,6 +130,11 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found",
         )
+    if user.get("is_disabled") or user.get("disabled"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account has been disabled",
+        )
 
     return user
 
@@ -149,7 +154,10 @@ async def get_optional_user(
     if db is None:
         return None
 
-    return find_user_by_id(db, payload["sub"])
+    user = find_user_by_id(db, payload["sub"])
+    if user and (user.get("is_disabled") or user.get("disabled")):
+        return None
+    return user
 
 
 async def require_admin(

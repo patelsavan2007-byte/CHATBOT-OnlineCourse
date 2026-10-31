@@ -27,3 +27,4 @@ deployment/.env
 
 # Vercel CLI
 .vercel/
+**/__pycache__/

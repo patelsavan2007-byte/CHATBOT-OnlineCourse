@@ -1,5 +1,5 @@
 /**
- * Authentication service — handles signup, login, logout, and session management.
+ * Authentication service - handles signup, login, logout, and session management.
  */
 import { apiFetch, setAuthToken, clearAuth } from "./api.js";
 
@@ -31,8 +31,21 @@ export async function signup(name, email, password) {
 }
 
 export async function getMe() {
-  const data = await apiFetch("/api/auth/me");
-  return data.user;
+  try {
+    const data = await apiFetch("/api/me");
+    return data;
+  } catch {
+    const data = await apiFetch("/api/auth/me");
+    return data.user || data;
+  }
+}
+
+export async function updateProfile({ display_name, avatar_type }) {
+  const data = await apiFetch("/api/me", {
+    method: "PATCH",
+    body: JSON.stringify({ display_name, avatar_type }),
+  });
+  return data;
 }
 
 export async function devLogin() {

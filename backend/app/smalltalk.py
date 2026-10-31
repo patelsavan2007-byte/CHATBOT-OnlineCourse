@@ -42,6 +42,14 @@ _WHO_ARE_YOU_RE = re.compile(
     r"\b(?:who\s+are\s+you|what\s+is\s+your\s+name|what\s+can\s+you\s+do|introduce\s+yourself|tell\s+me\s+about\s+yourself)\b",
     re.IGNORECASE,
 )
+_NAME_INTRO_RE = re.compile(
+    r"\b(?:my\s+name\s+is|call\s+me|i\s+am|i'm)\s+([A-Za-z][A-Za-z'’.-]*(?:\s+[A-Za-z][A-Za-z'’.-]*)?)",
+    re.IGNORECASE,
+)
+_NAME_QUERY_RE = re.compile(
+    r"\b(?:what(?:'s|\s+is)\s+my\s+name|do\s+you\s+(?:know|remember)\s+my\s+name|who\s+am\s+i)\b",
+    re.IGNORECASE,
+)
 _RUDE_RE = re.compile(
     r"\b(?:idiot|stupid|useless|dumb|fool|shut\s+up|hate\s+you|rubbish|garbage|worst\s+bot)\b",
     re.IGNORECASE,
@@ -72,7 +80,7 @@ def _has_course_context(q: str) -> bool:
 
 # Pool of at least 6 varied conversational templates
 _DEFAULT_TEMPLATES = [
-    "Hello! I am the CHARUSAT Online degree assistant. How can I assist you today with our online BCA, BBA, MBA, or MCA programmes?",
+    "Hello! I am the CCOE CHARUSAT Assistant. How can I assist you today with our online BCA, BBA, MBA, or MCA programmes?",
     "Hi there! I am here to help you with admissions, curriculum, fees, and guidelines for CHARUSAT's online degree programmes. What would you like to know?",
     "Greetings! Feel free to ask any questions about CHARUSAT's online programmes (BBA, BCA, MBA, MCA) or admission details.",
     "Welcome! I can assist you with details regarding our online degrees, syllabus, examination policies, and admissions. How may I assist you?",
@@ -100,7 +108,7 @@ _BYE_TEMPLATES = [
 ]
 
 _WHO_ARE_YOU_TEMPLATES = [
-    "I am the CHARUSAT Online Degree Assistant. I help prospective and current learners with information on Online BCA, BBA, MBA, and MCA programmes, including admissions, curriculum, and policies.",
+    "I am the CCOE CHARUSAT Assistant. I help prospective and current learners with information on Online BCA, BBA, MBA, and MCA programmes, including admissions, curriculum, and policies.",
     "I am an AI assistant dedicated to CHARUSAT's online degree programmes. I can help answer questions regarding our online courses, admission criteria, fee structures, and academic guidelines.",
 ]
 
@@ -164,8 +172,16 @@ def is_smalltalk(question: str) -> bool:
         or _THANKS_RE.match(q)
         or _BYE_RE.match(q)
         or _WHO_ARE_YOU_RE.search(q)
+        or _NAME_QUERY_RE.search(q)
     ):
         return True
+
+    # A name introduction with no course/programme context is conversational.
+    match = _NAME_INTRO_RE.search(q)
+    if match:
+        from app.conversation import _clean_name
+        if _clean_name(match.group(1)):
+            return True
 
     return False
 
@@ -190,6 +206,20 @@ def converse(
             return random.choice(_OFFTOPIC_TEMPLATES)
         if _RUDE_RE.search(q):
             return random.choice(_RUDE_TEMPLATES)
+
+    if _NAME_QUERY_RE.search(q):
+        from app.conversation import extract_user_name
+        name = extract_user_name(question="", history=history)
+        if name:
+            return f"Your name is {name}. How can I help you with your programme today?"
+        return "I don't have your name yet. Tell me your name and I'll remember it for this chat."
+
+    name_match = _NAME_INTRO_RE.search(q)
+    if name_match and not has_course_context:
+        from app.conversation import _clean_name
+        name = _clean_name(name_match.group(1))
+        if name:
+            return f"Nice to meet you, {name}! What would you like to know about CHARUSAT's online programmes?"
 
     if _BYE_RE.search(q):
         return random.choice(_BYE_TEMPLATES)

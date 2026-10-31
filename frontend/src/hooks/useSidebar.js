@@ -1,5 +1,5 @@
 /**
- * useSidebar — hook managing conversations list, active state,
+ * useSidebar - hook managing conversations list, active state,
  * sidebar desktop toggle (with localStorage persistence), and mobile drawer.
  */
 import { useCallback, useEffect, useState } from "react";

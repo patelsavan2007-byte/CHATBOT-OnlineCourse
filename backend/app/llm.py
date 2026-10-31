@@ -68,7 +68,7 @@ def build_not_found_answer(topic: str = "", programme: str = "") -> str:
 
     contact_line = get_contact_line(topic=topic, programme=programme)
     return (
-        "I couldn't find this information in the official programme documents.\n\n"
+        "I don't have that specific information available right now.\n\n"
         f"{contact_line}"
     )
 
@@ -83,7 +83,7 @@ _FILE_PATH_RE = re.compile(
     re.IGNORECASE,
 )
 _FILE_EXT_RE = re.compile(
-    r"\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|[A-Za-z0-9_-]+)\.(?:md|pdf|txt|docx)\b",
+    r"(?<![:/])\b(?:PPR_Online\s+(?:BBA|BCA|MBA|MCA)|Fees\s+Refund\s+Policy|[A-Za-z0-9_-]+)\.(?:md|pdf|txt|docx)\b(?![/?#])",
     re.IGNORECASE,
 )
 _PAGE_REF_RE = re.compile(r"\(?\bpage\s+\d+\b\)?", re.IGNORECASE)
@@ -135,11 +135,19 @@ def strip_internal_references(text: str) -> str:
 
     Preserves plain words (contact, home, feedback, ciqa, Fees Refund Policy),
     markdown structure, indentation, and list hierarchies. Never force-capitalizes.
+    Never strip file extensions inside URLs (http://, https://).
     """
     if not text:
         return text
 
-    cleaned = _INTERNAL_REF_RE.sub("", text)
+    # Protect URLs from stripping
+    url_placeholders = []
+    def _protect(m):
+        url_placeholders.append(m.group(0))
+        return f"__URL_PLACEHOLDER_{len(url_placeholders)-1}__"
+    cleaned = re.sub(r'https?://[^\s<>"\']+', _protect, text, flags=re.IGNORECASE)
+
+    cleaned = _INTERNAL_REF_RE.sub("", cleaned)
     cleaned = _SOURCE_AT_END_RE.sub("", cleaned)
     cleaned = _FILE_PATH_RE.sub("", cleaned)
     cleaned = _FILE_EXT_RE.sub("", cleaned)
@@ -148,14 +156,18 @@ def strip_internal_references(text: str) -> str:
     cleaned = _RESOLVED_RE.sub("", cleaned)
     cleaned = re.sub(r"<br\s*/?>", "\n", cleaned, flags=re.IGNORECASE)
     cleaned = re.sub(r"\*{3,}", "", cleaned)
-    cleaned = re.sub(r"\b(?:retrieved context|available information|provided documents)\b", "the official programme documents", cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'["“][ \t]*["”]', "", cleaned)
+    cleaned = re.sub(r"\b(?:retrieved context|available information|provided documents)\b", "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'["\u201c\u201d\u2018\u2019][ \t]*["\u201c\u201d\u2018\u2019]', "", cleaned)
     cleaned = re.sub(r"\(\s*\)", "", cleaned)
     cleaned = re.sub(r"\[\s*\]", "", cleaned)
     cleaned = re.sub(r"[ \t]+([.,;:!?])", r"\1", cleaned)
     cleaned = re.sub(r"(?<=\S)[ \t]{2,}", " ", cleaned)
     cleaned = _MULTI_BLANK_RE.sub("\n\n", cleaned)
     cleaned = normalize_currency(cleaned)
+
+    # Restore URLs
+    for i, url in enumerate(url_placeholders):
+        cleaned = cleaned.replace(f"__URL_PLACEHOLDER_{i}__", url)
 
     lines = [line.rstrip() for line in cleaned.splitlines()]
     while lines and not lines[0].strip():
@@ -332,6 +344,15 @@ class LLMClient:
 
         Returns ``(text, status)`` where status is one of ``LLMStatus``.
         """
+        try:
+            from app import llm_call_counter
+
+            qid = getattr(self, "_last_qid", None) or getattr(self, "last_qid", None)
+            if qid:
+                c = llm_call_counter.record_call(qid)
+                logger.info(f"LLM_CALL_COUNT qid={qid} count={c}")
+        except Exception:
+            pass
         # Try Gemini first
         gemini_text = self._try_gemini(prompt)
         if gemini_text:
@@ -400,13 +421,7 @@ class LLMClient:
         return None
 
     def _try_groq(self, prompt: str) -> Optional[str]:
-        """Attempt answer generation using Groq API.
-
-        Tries the primary configured model (llama-3.3-70b-versatile) first.
-        If a 429 rate limit or error occurs, automatically fails over to
-        secondary Groq models (llama-3.1-8b-instant, mixtral-8x7b-32768, gemma2-9b-it)
-        before ever resorting to deterministic fallback.
-        """
+        """Attempt answer generation using Groq API."""
         if not self._groq_client:
             if not self.groq_api_key or not HAS_GROQ:
                 return None
@@ -420,9 +435,6 @@ class LLMClient:
             logger.info("Groq in cooldown until %.0f (skipping to avoid failover latency)", self._groq_cooldown_until)
             return None
 
-        # Tiered list of Groq models to try in order. Must reflect the account's
-        # current model availability (see config.GROQ_MODEL); outdated names
-        # return 404/decommissioned and force deterministic fallback.
         groq_models = [
             getattr(config, "GROQ_MODEL", "openai/gpt-oss-120b"),
             "openai/gpt-oss-20b",
@@ -458,14 +470,8 @@ class LLMClient:
                     logger.warning("Groq API model %s rate limited, trying failover model: %s", model_name, exc)
                 else:
                     logger.warning("Groq API model %s failed (%s), trying failover model...", model_name, exc)
-                continue
-
-        if rate_limited_models >= len(groq_models):
-            logger.warning("All Groq models rate-limited; setting 60s cooldown")
-            self._groq_cooldown_until = time.time() + 60.0
-
-        logger.error("All Groq API models exhausted or failed")
         return None
+
 
     def _generate_once(self, model: str, prompt: str) -> str:
         attempt = 0
@@ -730,6 +736,35 @@ class LLMClient:
         question: str,
     ) -> str:
         """Fallback keyword-based line extraction for non-attribute questions."""
+        ql = question.lower()
+        if "recruit" in ql or "company" in ql or "placement" in ql or "hire" in ql:
+            for content, metadata in chunks:
+                if "our recruiters" in content.lower() or "recruit" in content.lower():
+                    lines = []
+                    for line in content.splitlines():
+                        s = line.strip()
+                        if not s:
+                            continue
+                        if s.startswith("#") and "recruit" not in s.lower():
+                            continue
+                        lines.append(s)
+                    if lines:
+                        # build answer
+                        ans = []
+                        ans.append("**Companies that recruit (as shown by CHARUSAT):**")
+                        for l in lines:
+                            if l.startswith("-") or l.startswith("*"):
+                                ans.append(l)
+                            elif "Adani" in l or "Infosys" in l or "Tata" in l or "ICICI" in l:
+                                ans.append(l)
+                        if len([x for x in ans if x.startswith('-') or x.startswith('*')]) == 0:
+                            # extract list items
+                            for l in content.splitlines():
+                                if l.strip().startswith('-'):
+                                    ans.append(l.strip())
+                        ans.append("\nThese are recruiters listed on the programme pages; CHARUSAT Online provides placement assistance but this does not guarantee placement.")
+                        return "\n".join(ans)
+
         stop_words = {
             "what", "is", "the", "for", "and", "of", "in", "to", "a", "an",
             "about", "tell", "me", "how", "much", "does", "it", "are", "can",
@@ -749,7 +784,7 @@ class LLMClient:
                 if not stripped:
                     continue
                 lowered = stripped.lower()
-                if stripped.startswith("# ") and len(tokens) > 1:
+                if stripped.startswith("# ") and len(tokens) > 1 and "recruit" not in lowered:
                     continue
                 min_matches = min(2, len(tokens))
                 matched_count = sum(1 for token in tokens if token in lowered)
@@ -757,9 +792,9 @@ class LLMClient:
                     relevant.append(stripped)
 
         if relevant:
-            answer = "\n".join(relevant[:6])
-            if len(answer) > 1400:
-                answer = answer[:1400]
+            answer = "\n".join(relevant[:12])
+            if len(answer) > 2000:
+                answer = answer[:2000]
             return answer
 
         return NOT_FOUND_ANSWER

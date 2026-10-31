@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================
-# Render Build Script — CHARUSAT Online Course Chatbot Backend
+# Render Build Script - CHARUSAT Online Course Chatbot Backend
 # ==============================================================
 # This script runs during every Render deploy:
 #   1. Installs Python dependencies

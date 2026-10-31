@@ -1,12 +1,12 @@
 """Authentication API routes.
 
 Endpoints:
-  POST /api/auth/signup      — create account (email/password)
-  POST /api/auth/login       — email/password login
-  POST /api/auth/logout      — logout (client-side token removal)
-  GET  /api/auth/me          — current user info
-  POST /api/auth/google      — Google OAuth login/signup
-  POST /api/auth/dev-login   — development-only auto-login
+  POST /api/auth/signup      - create account (email/password)
+  POST /api/auth/login       - email/password login
+  POST /api/auth/logout      - logout (client-side token removal)
+  GET  /api/auth/me          - current user info
+  POST /api/auth/google      - Google OAuth login/signup
+  POST /api/auth/dev-login   - development-only auto-login
 """
 from __future__ import annotations
 
@@ -240,7 +240,8 @@ async def dev_login():
     """
     # Safety check: refuse in production
     env = os.getenv("NODE_ENV", os.getenv("ENVIRONMENT", "development")).lower()
-    if env in ("production", "prod"):
+    is_prod = env in ("production", "prod") or bool(os.getenv("RENDER")) or bool(os.getenv("VERCEL"))
+    if is_prod:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Dev login is not available in production",
@@ -281,3 +282,198 @@ async def dev_login():
     token = create_token(user["id"], user.get("role", "admin"))
     logger.info("[DEV] Auto-login for: %s", admin_email)
     return AuthResponse(token=token, user=user)
+
+
+# ---------------------------------------------------------------------------
+# Account Management & Data Portability (GDPR / DPDP Act 2023)
+# ---------------------------------------------------------------------------
+
+@router.get("/me/export")
+async def export_my_data(user: Dict[str, Any] = Depends(get_current_user)):
+    """Export the current user's profile and conversations as JSON."""
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    from datetime import datetime, timezone
+    from app.models import get_user_conversations, get_conversation_messages
+
+    conversations = get_user_conversations(db, user["id"])
+    export_convs = []
+    for c in conversations:
+        c_id = c["id"]
+        messages = get_conversation_messages(db, c_id)
+        export_convs.append({
+            "id": c_id,
+            "title": c.get("title", "Untitled"),
+            "created_at": c.get("created_at"),
+            "updated_at": c.get("updated_at"),
+            "messages": [
+                {
+                    "id": m["id"],
+                    "role": m.get("role"),
+                    "content": m.get("content"),
+                    "timestamp": m.get("created_at"),
+                    "sources": m.get("sources", []),
+                    "feedback": m.get("feedback"),
+                }
+                for m in messages
+            ],
+        })
+
+    safe_user = {
+        "id": user["id"],
+        "name": user.get("name"),
+        "email": user.get("email"),
+        "role": user.get("role", "user"),
+        "created_at": user.get("created_at"),
+    }
+    return {
+        "user": safe_user,
+        "exported_at": datetime.now(timezone.utc).isoformat(),
+        "conversations": export_convs,
+    }
+
+
+@router.delete("/me")
+async def delete_my_account(user: Dict[str, Any] = Depends(get_current_user)):
+    """Permanently delete user account and all conversations."""
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    from app.models import _oid
+    user_oid = _oid(user["id"])
+    conv_ids = [c["_id"] for c in db.conversations.find({"user_id": user_oid}, {"_id": 1})]
+    if conv_ids:
+        db.messages.delete_many({"conversation_id": {"$in": conv_ids}})
+        db.conversations.delete_many({"user_id": user_oid})
+
+    db.users.delete_one({"_id": user_oid})
+    logger.info("User account self-deleted: %s", user.get("email"))
+    return {"status": "success", "message": "Account and all associated conversations deleted successfully"}
+
+
+# ---------------------------------------------------------------------------
+# /api/me Endpoints (Profile Management)
+# ---------------------------------------------------------------------------
+
+me_router = APIRouter(prefix="/api/me", tags=["me"])
+
+
+class ProfileResponse(BaseModel):
+    id: str
+    email: str
+    display_name: str
+    avatar_type: str
+    photo_url: Optional[str] = None
+    role: str = "user"
+
+
+class UpdateProfileRequest(BaseModel):
+    display_name: str
+    avatar_type: str
+
+
+def _format_user_profile(user: Dict[str, Any]) -> Dict[str, Any]:
+    photo_url = user.get("photo_url") or user.get("avatar") or None
+    display_name = user.get("display_name") or user.get("name") or ""
+    avatar_type = user.get("avatar_type") or ("photo" if photo_url else "initials")
+    return {
+        "id": str(user.get("id") or user.get("_id") or ""),
+        "email": user.get("email") or "",
+        "display_name": display_name,
+        "avatar_type": avatar_type,
+        "photo_url": photo_url,
+        "role": user.get("role", "user"),
+    }
+
+
+def _validate_and_update_profile(body: UpdateProfileRequest, user: Dict[str, Any]) -> Dict[str, Any]:
+    raw_name = (body.display_name or "").strip()
+    if not raw_name or len(raw_name) > 40:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name must be between 1 and 40 characters",
+        )
+
+    if "<" in raw_name or ">" in raw_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name cannot contain HTML tags",
+        )
+
+    if re.search(r"https?://|www\.", raw_name, re.IGNORECASE):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name cannot contain URLs",
+        )
+
+    avatar_type = (body.avatar_type or "").strip().lower()
+    if avatar_type not in ("photo", "initials"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Avatar type must be 'photo' or 'initials'",
+        )
+
+    photo_url = user.get("photo_url") or user.get("avatar")
+    if avatar_type == "photo" and not photo_url:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Cannot select photo avatar when no photo URL exists",
+        )
+
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    user_id = str(user.get("id") or user.get("_id"))
+    updated = update_user(
+        db,
+        user_id,
+        {
+            "display_name": raw_name,
+            "name": raw_name,
+            "avatar_type": avatar_type,
+        },
+    )
+    if not updated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    return _format_user_profile(updated)
+
+
+@me_router.get("", response_model=ProfileResponse)
+async def get_my_profile(user: Dict[str, Any] = Depends(get_current_user)):
+    """Return profile of the authenticated user."""
+    return _format_user_profile(user)
+
+
+@me_router.patch("", response_model=ProfileResponse)
+async def update_my_profile(
+    body: UpdateProfileRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Update profile of the authenticated user."""
+    return _validate_and_update_profile(body, user)
+
+
+@router.patch("/me", response_model=ProfileResponse)
+async def update_auth_me(
+    body: UpdateProfileRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Compatibility endpoint for PATCH /api/auth/me."""
+    return _validate_and_update_profile(body, user)

@@ -1,70 +1,170 @@
-name: Sync Knowledge Base (Daily)
+name: "🔄 Daily KB Sync – charusat.online"
 
-# Runs every day at 02:00 UTC (07:30 IST) and can be triggered manually
+# ──────────────────────────────────────────────────────────────────────────────
+# Runs every day at 01:30 UTC (07:00 IST) on the MAIN branch.
+# Can also be triggered manually with an optional force-rebuild flag.
+# ──────────────────────────────────────────────────────────────────────────────
 on:
   schedule:
-    - cron: "0 2 * * *"
+    - cron: "30 1 * * *"   # 01:30 UTC = 07:00 IST daily
   workflow_dispatch:
     inputs:
       force_rebuild:
-        description: "Force rebuild vector DB even if no KB files changed"
+        description: "Force vector DB rebuild even if no KB files changed"
         required: false
         default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      min_diff_ratio:
+        description: "Min diff ratio to overwrite a KB file (0.0–1.0, default 0.05)"
+        required: false
+        default: "0.05"
 
 permissions:
   contents: write
 
+env:
+  PYTHON_VERSION: "3.11"
+  MIN_DIFF_RATIO: ${{ github.event.inputs.min_diff_ratio || '0.05' }}
+
 jobs:
   sync-and-rebuild:
+    name: "Scrape → Update KB → Rebuild Vector DB"
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
-      - name: Checkout repository
+      # ── 1. Checkout MAIN branch ────────────────────────────────────────────
+      - name: "📥 Checkout main branch"
         uses: actions/checkout@v4
         with:
-          ref: deploy
+          ref: main
           fetch-depth: 1
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Python 3.11
+      # ── 2. Python setup with pip cache ─────────────────────────────────────
+      - name: "🐍 Set up Python ${{ env.PYTHON_VERSION }}"
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
           cache-dependency-path: backend/requirements.txt
 
-      - name: Install dependencies
+      # ── 3. Install Python dependencies ─────────────────────────────────────
+      - name: "📦 Install dependencies"
         working-directory: backend
         run: |
           pip install --upgrade pip
-          pip install -r requirements.txt
+          # Install lightweight subset needed for scraping + vector DB rebuild
+          pip install \
+            beautifulsoup4>=4.0.0 \
+            requests>=2.31.0 \
+            langchain>=0.3.0 \
+            langchain-core>=0.3.0 \
+            langchain-community>=0.3.0 \
+            langchain-chroma>=0.1.4 \
+            langchain-text-splitters>=0.3.0 \
+            chromadb>=0.5.0 \
+            fastembed>=0.3.0 \
+            pypdf>=4.0.0 \
+            pymupdf>=1.0.0 \
+            python-dotenv>=1.0.1 \
+            numpy>=1.26.0 \
+            tqdm>=4.0.0 \
+            rich>=13.0.0
 
-      - name: Sync website and rebuild vector DB
+      # ── 4. Scrape website and update KB markdown files ──────────────────────
+      - name: "🌐 Scrape charusat.online → update knowledge base"
         working-directory: backend
         env:
-          MIN_DIFF_RATIO: "0.05"
+          MIN_DIFF_RATIO: ${{ env.MIN_DIFF_RATIO }}
+          # Disable playwright in CI (not installed); requests-only mode
+          USE_PLAYWRIGHT_SCRAPER: "false"
         run: |
           python -X utf8 -I scripts/sync_website.py
 
-      - name: Force rebuild vector DB (manual trigger only)
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.force_rebuild == 'true'
+      # ── 5. Force rebuild (manual trigger only) ─────────────────────────────
+      - name: "⚡ Force rebuild vector DB (manual trigger)"
+        if: >
+          github.event_name == 'workflow_dispatch' &&
+          github.event.inputs.force_rebuild == 'true'
         working-directory: backend
         run: |
+          echo "[ci] Force rebuild requested – running rebuild_vectordb.py"
           python -X utf8 -I rebuild_vectordb.py
 
-      - name: Commit updated KB and vector DB
+      # ── 6. Write heartbeat file (always) ──────────────────────────────────
+      - name: "💓 Write last_sync.json heartbeat"
         run: |
-          git config user.name "github-actions[bot]"
+          # Capture scrape stats from the sync log (best-effort)
+          TIMESTAMP=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          mkdir -p backend
+          cat > backend/last_sync.json <<EOF
+          {
+            "last_run_utc": "${TIMESTAMP}",
+            "trigger": "${{ github.event_name }}",
+            "run_id": "${{ github.run_id }}",
+            "run_url": "${RUN_URL}",
+            "branch": "main",
+            "workflow": "${{ github.workflow }}",
+            "force_rebuild": "${{ github.event.inputs.force_rebuild || 'false' }}",
+            "min_diff_ratio": "${{ env.MIN_DIFF_RATIO }}"
+          }
+          EOF
+          echo "Heartbeat written: ${TIMESTAMP}"
+
+      # ── 7. Commit updated KB + vector DB + heartbeat back to MAIN ──────────
+      - name: "💾 Commit changes to main"
+        run: |
+          git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add backend/knowledge_base/ backend/vector_db/
+
+          # Stage knowledge base markdowns, vector DB, and heartbeat
+          git add backend/knowledge_base/
+          git add backend/vector_db/ 2>/dev/null || true
+          git add backend/last_sync.json
+
+          KB_CHANGED=$(git diff --cached --name-only | grep -v last_sync.json | wc -l | tr -d ' ')
+          TOTAL_CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+
           if git diff --cached --quiet; then
-            echo "No changes to commit."
+            echo "✅ No changes at all (heartbeat already up to date)."
+          elif [ "$KB_CHANGED" -eq "0" ]; then
+            # Only heartbeat changed – commit with a clear "no KB update" message
+            git commit -m "chore(sync): heartbeat – no KB changes [skip ci]
+
+            charusat.online was checked but had no meaningful updates.
+            Run: ${{ github.run_id }} | Trigger: ${{ github.event_name }}
+            Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push origin main
+            echo "💓 Heartbeat committed – website had no updates."
           else
-            git commit -m "chore: auto-sync KB from charusat.online [skip ci]
+            git commit -m "chore(kb): auto-sync from charusat.online [skip ci]
 
-Automated daily scrape and vector DB rebuild.
-
-Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
-            git push origin deploy
-            echo "Changes pushed to deploy branch."
+            KB update: ${KB_CHANGED} file(s) changed.
+            Run: ${{ github.run_id }} | Trigger: ${{ github.event_name }}
+            Timestamp: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            git push origin main
+            echo "✅ Pushed ${KB_CHANGED} updated KB file(s) + heartbeat to main."
           fi
+
+      # ── 8. Summary ─────────────────────────────────────────────────────────
+      - name: "📊 Print sync summary"
+        if: always()
+        run: |
+          echo "## 🔄 KB Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | \`main\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run ID | [\`${{ github.run_id }}\`](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Min diff ratio | \`${{ env.MIN_DIFF_RATIO }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Force rebuild | \`${{ github.event.inputs.force_rebuild || 'false' }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| Timestamp (UTC) | \`$(date -u)\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "> **Heartbeat**: Even when the website has no updates, \`backend/last_sync.json\` is always committed — so you can always verify the automation ran." >> $GITHUB_STEP_SUMMARY

@@ -1,6 +1,7 @@
+import LogoLockup from "../components/ui/LogoLockup.jsx";
 /**
- * Login page — clean, professional auth form.
- * Part of the same product, not a generic Firebase template.
+ * Login page - clean, straightforward authentication form.
+ * No marketing panels, no gradients, strict token styling.
  */
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -10,12 +11,12 @@ import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 
 function EyeIcon({ open }) {
   return open ? (
-    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
       <line x1="1" y1="1" x2="23" y2="23" />
     </svg>
   ) : (
-    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
       <circle cx="12" cy="12" r="3" />
     </svg>
@@ -28,11 +29,11 @@ export default function Login() {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/chat";
 
-  const [email, setEmail]           = useState("");
-  const [password, setPassword]     = useState("");
-  const [showPass, setShowPass]     = useState(false);
-  const [loading, setLoading]       = useState(false);
-  const [error, setError]           = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (user) navigate(from, { replace: true });
@@ -47,7 +48,7 @@ export default function Login() {
       await login(email.trim(), password);
       navigate(from, { replace: true });
     } catch (err) {
-      setError(err.message || "Sign in failed. Please try again.");
+      setError(err.message || "Sign in failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -67,161 +68,128 @@ export default function Login() {
   };
 
   return (
-    <div className="relative flex min-h-dvh bg-[var(--surface-primary)] text-[var(--text-primary)]">
-      {/* Corner theme toggle */}
+    <div
+      className="relative flex min-h-dvh flex-col items-center justify-center p-4 font-sans"
+      style={{ background: "var(--page)", color: "var(--text)" }}
+    >
       <div className="absolute right-4 top-4 z-20">
         <ThemeToggle />
       </div>
 
-      {/* Left panel — branding */}
-      <div className="hidden w-[420px] shrink-0 flex-col justify-between bg-[var(--surface-secondary)] border-r border-[var(--border-primary)] px-10 py-12 lg:flex">
-        <Link to="/" className="inline-flex items-center gap-2.5">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30">
-            <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-current" aria-hidden>
-              <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-            </svg>
-          </span>
-          <span className="text-sm font-semibold text-[var(--text-primary)]">CHARUSAT Online</span>
-        </Link>
-
-        <div>
-          <blockquote className="font-display text-2xl font-normal leading-snug text-[var(--text-primary)]">
-            "Access official programme information anytime — fees, eligibility, curriculum, and more."
-          </blockquote>
-          <p className="mt-6 text-sm text-[var(--text-tertiary)]">
-            Sign in to save your conversations and pick up where you left off.
+      <div
+        className="w-full max-w-sm rounded-lg border p-6 sm:p-8"
+        style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+      >
+        <div className="mb-6 text-center">
+          <div className="flex justify-center mb-4">
+            <Link to="/chat" aria-label="CCOE CHARUSAT home">
+              <LogoLockup height={36} />
+            </Link>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
+            Sign in
+          </h1>
+          <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
+            Center for Online Education (CCOE), CHARUSAT
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          {["NAAC A+", "UGC Recognised", "NIRF Top 200"].map((a) => (
-            <span key={a} className="rounded-md border border-[var(--border-primary)] bg-[var(--surface-hover)] px-2.5 py-1 text-[11px] font-medium text-[var(--text-tertiary)]">
-              {a}
-            </span>
-          ))}
-        </div>
-      </div>
+        {error && (
+          <div
+            role="alert"
+            className="mb-4 rounded-md border p-3 text-xs"
+            style={{
+              borderColor: "var(--danger)",
+              background: "var(--surface-2)",
+              color: "var(--danger)",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
-      {/* Right panel — form */}
-      <div className="flex flex-1 flex-col items-center justify-center px-4 py-12 sm:px-6">
-        {/* Mobile logo */}
-        <div className="mb-8 lg:hidden">
-          <Link to="/" className="inline-flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent-primary)]/15 text-[var(--accent-primary)] ring-1 ring-[var(--accent-primary)]/30">
-              <svg viewBox="0 0 24 24" className="h-4.5 w-4.5 fill-current" aria-hidden>
-                <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-              </svg>
-            </span>
-            <span className="text-sm font-semibold text-[var(--text-primary)]">CHARUSAT Online</span>
-          </Link>
-        </div>
-
-        <div className="w-full max-w-[380px]">
-          <div className="mb-8">
-            <h1 className="text-2xl font-semibold text-[var(--text-primary)]">Sign in</h1>
-            <p className="mt-1.5 text-sm text-[var(--text-tertiary)]">
-              Don't have an account?{" "}
-              <Link to="/signup" className="font-medium text-[var(--accent-primary)] transition hover:text-[var(--accent-primary-hover)]">
-                Create one
-              </Link>
-            </p>
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <div>
+            <label htmlFor="login-email" className="mb-1 block text-xs font-medium" style={{ color: "var(--text-2)" }}>
+              Email address
+            </label>
+            <input
+              id="login-email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              required
+              autoComplete="email"
+              className="w-full rounded-lg border px-3 py-2 text-xs focus:outline-none"
+              style={{
+                background: "var(--surface)",
+                borderColor: "var(--border)",
+                color: "var(--text)",
+              }}
+            />
           </div>
 
-          {/* Error */}
-          {error && (
-            <div role="alert" className="mb-5 flex items-start gap-2.5 rounded-lg border border-[var(--error-border)] bg-[var(--error-surface)] px-4 py-3 text-sm text-[var(--error)]">
-              <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              {error}
-            </div>
-          )}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-            <div>
-              <label htmlFor="login-email" className="mb-1.5 block text-xs font-medium text-[var(--text-secondary)]">
-                Email address
-              </label>
+          <div>
+            <label htmlFor="login-password" className="mb-1 block text-xs font-medium" style={{ color: "var(--text-2)" }}>
+              Password
+            </label>
+            <div className="relative">
               <input
-                id="login-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                id="login-password"
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
                 required
-                autoComplete="email"
-                className="w-full rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] px-3.5 py-2.5 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20"
+                autoComplete="current-password"
+                className="w-full rounded-lg border px-3 py-2 pr-9 text-xs focus:outline-none"
+                style={{
+                  background: "var(--surface)",
+                  borderColor: "var(--border)",
+                  color: "var(--text)",
+                }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPass((v) => !v)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 transition"
+                style={{ color: "var(--muted)" }}
+                aria-label={showPass ? "Hide password" : "Show password"}
+              >
+                <EyeIcon open={showPass} />
+              </button>
             </div>
-
-            <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="login-password" className="text-xs font-medium text-[var(--text-secondary)]">
-                  Password
-                </label>
-                <button
-                  type="button"
-                  className="text-xs text-[var(--text-muted)] transition hover:text-[var(--text-secondary)]"
-                  onClick={() => {/* forgot password */}}
-                >
-                  Forgot password?
-                </button>
-              </div>
-              <div className="relative">
-                <input
-                  id="login-password"
-                  type={showPass ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  autoComplete="current-password"
-                  className="w-full rounded-lg border border-[var(--border-primary)] bg-[var(--surface-primary)] px-3.5 py-2.5 pr-10 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] outline-none transition focus:border-[var(--accent-primary)] focus:ring-2 focus:ring-[var(--accent-primary)]/20"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--text-muted)] transition hover:text-[var(--text-primary)]"
-                  aria-label={showPass ? "Hide password" : "Show password"}
-                >
-                  <EyeIcon open={showPass} />
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading || !email.trim() || !password}
-              className="flex w-full items-center justify-center gap-2 rounded-lg bg-[var(--accent-primary)] px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[var(--accent-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
-                  Signing in…
-                </>
-              ) : (
-                "Sign in"
-              )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-[var(--border-primary)]" />
-            <span className="text-xs text-[var(--text-muted)]">or</span>
-            <div className="h-px flex-1 bg-[var(--border-primary)]" />
           </div>
 
-          {/* Google */}
-          <GoogleButton onCredential={handleGoogle} disabled={loading} label="Continue with Google" />
+          <button
+            type="submit"
+            disabled={loading || !email.trim() || !password}
+            className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-xs font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+            style={{ background: "var(--accent)" }}
+          >
+            {loading ? "Signing in..." : "Sign in"}
+          </button>
+        </form>
 
-          {/* Back */}
-          <p className="mt-8 text-center">
-            <Link to="/" className="text-xs text-[var(--text-muted)] transition hover:text-[var(--text-primary)]">
-              ← Back to home
+        <div className="my-4 flex items-center gap-3">
+          <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+          <span className="text-[11px]" style={{ color: "var(--muted)" }}>or</span>
+          <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+        </div>
+
+        <GoogleButton onCredential={handleGoogle} disabled={loading} label="Sign in with Google" />
+
+        <div className="mt-6 text-center text-xs space-y-2" style={{ color: "var(--muted)" }}>
+          <p>
+            Don't have an account?{" "}
+            <Link to="/signup" className="font-medium underline" style={{ color: "var(--accent)" }}>
+              Create one
+            </Link>
+          </p>
+          <p>
+            <Link to="/chat" className="hover:underline" style={{ color: "var(--text-2)" }}>
+              Continue as guest
             </Link>
           </p>
         </div>

@@ -184,7 +184,7 @@ def _render_markdown(node: object) -> str:
         code = _clean_text(node.get_text("\n", strip=True))
         return f"```\n{code}\n```" if code else ""
 
-    # Generic container — recurse into children
+    # Generic container - recurse into children
     pieces: List[str] = []
     for child in node.children:
         child_rendered = _render_markdown(child)

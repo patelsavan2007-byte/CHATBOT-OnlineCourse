@@ -1,5 +1,5 @@
 /**
- * RichText — markdown renderer for assistant answers using react-markdown and remark-gfm.
+ * RichText - markdown renderer for assistant answers using react-markdown and remark-gfm.
  * Supports: tables (with responsive overflow wrapper), links (opening safely in new tabs),
  * headings, bold text, bullet/numbered/nested lists, inline code, and "Conflict Notice" callouts.
  * Theme-aware via index.css CSS custom properties.
@@ -11,8 +11,11 @@ import remarkBreaks from "remark-breaks";
 
 const markdownComponents = {
   table: ({ node, ...props }) => (
-    <div className="my-3 overflow-x-auto rounded-lg border border-[var(--border-primary)]">
-      <table className="min-w-full divide-y divide-[var(--border-primary)] text-left text-sm" {...props} />
+    <div className="my-3 w-full max-w-full overflow-x-auto rounded-lg border border-[var(--border-primary)]">
+      <table
+        className="w-full min-w-[520px] divide-y divide-[var(--border-primary)] text-left text-sm"
+        {...props}
+      />
     </div>
   ),
   thead: ({ node, ...props }) => (
@@ -25,10 +28,10 @@ const markdownComponents = {
     <tr className="transition hover:bg-[var(--surface-hover)]" {...props} />
   ),
   th: ({ node, ...props }) => (
-    <th className="px-3.5 py-2.5 font-semibold text-[var(--text-primary)]" {...props} />
+    <th className="whitespace-nowrap px-3.5 py-2.5 align-top font-semibold text-[var(--text-primary)]" {...props} />
   ),
   td: ({ node, ...props }) => (
-    <td className="px-3.5 py-2 text-[var(--text-secondary)] whitespace-normal" {...props} />
+    <td className="break-words px-3.5 py-2 align-top text-[var(--text-secondary)] whitespace-normal" {...props} />
   ),
   a: ({ node, href, children, ...props }) => (
     <a
@@ -68,6 +71,34 @@ const markdownComponents = {
   strong: ({ node, ...props }) => (
     <strong className="font-semibold text-[var(--text-primary)]" {...props} />
   ),
+  img: ({ node, src, alt, ...props }) => {
+    if (!src) return null;
+    try {
+      const url = new URL(src, window.location.origin);
+      if (url.hostname !== "charusat.online") return null;
+    } catch {
+      if (!(typeof src === "string" && src.includes("charusat.online"))) return null;
+    }
+    const handleError = (e) => {
+      e.currentTarget.style.display = "none";
+    };
+    const handleClick = (e) => {
+      try {
+        window.open(src, "_blank", "noopener,noreferrer");
+      } catch {}
+    };
+    return (
+      <img
+        src={src}
+        alt={alt || ""}
+        loading="lazy"
+        onError={handleError}
+        onClick={handleClick}
+        className="my-3 max-w-full h-auto rounded-lg border border-[var(--border-primary)] cursor-zoom-in"
+        {...props}
+      />
+    );
+  },
 };
 
 export default function RichText({ text }) {

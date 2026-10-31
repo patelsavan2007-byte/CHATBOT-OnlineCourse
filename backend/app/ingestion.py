@@ -4,10 +4,14 @@ import json
 import re
 import shutil
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from langchain_core.documents import Document
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import (
+    RecursiveCharacterTextSplitter,
+    MarkdownTextSplitter,
+    NLTKTextSplitter,
+)
 
 from app.config import CHUNK_OVERLAP, CHUNK_SIZE, KNOWLEDGE_BASE_DIR, VECTOR_DB_DIR
 from app.scraper import crawl_internal_pages
@@ -94,6 +98,8 @@ class KnowledgeBaseIngester:
             if path.is_file() and path.suffix.lower() == ".md"
             and "__pycache__" not in path.parts
             and "vector_db" not in path.parts
+            and "_backup" not in path.parts
+            and "superseded" not in path.parts
             and path.name.lower() not in self.EXCLUDED_FILES
         ]
         return sorted(files)
@@ -130,14 +136,18 @@ class KnowledgeBaseIngester:
         url = file_metadata.get("url", "").lower()
         url_path = urlparse(url).path.lower()
 
-        if stem == "online_bca" or url_path.endswith("/programs/bca.html") or url_path.endswith("/programs/bca"):
-            return "online_bca"
-        if stem == "online_bba" or url_path.endswith("/programs/bba.html") or url_path.endswith("/programs/bba"):
-            return "online_bba"
-        if stem == "online_mba" or url_path.endswith("/programs/mba.html") or url_path.endswith("/programs/mba"):
-            return "online_mba"
-        if stem == "online_mca" or url_path.endswith("/programs/mca.html") or url_path.endswith("/programs/mca"):
-            return "online_mca"
+        # Per-programme files: online_<prog>.md, online_<prog>_comprehensive.md,
+        # PPR_Online <PROG>.md etc. Cross-programme guides (admissions, exam,
+        # AICTE, contact) intentionally get no programme tag.
+        for prog in ("bca", "bba", "mba", "mca"):
+            if (
+                stem == f"online_{prog}"
+                or stem.startswith(f"online_{prog}_")
+                or stem.replace(" ", "_") == f"ppr_online_{prog}"
+                or url_path.endswith(f"/programs/{prog}.html")
+                or url_path.endswith(f"/programs/{prog}")
+            ):
+                return f"online_{prog}"
         return ""
 
     def load_documents(self) -> List[Document]:
@@ -160,9 +170,13 @@ class KnowledgeBaseIngester:
                 raise ValueError(f"Corrupted file: {path.name}") from exc
 
             body, file_metadata = self._parse_markdown_metadata(content, path)
-            if not file_metadata.get("url"):
-                logger.warning("Skipping non-scraped markdown file %s", path)
-                continue
+
+            # Allow files without URL metadata (manually created comprehensive files)
+            url = file_metadata.get("url", "")
+            if not url:
+                # Assign a synthetic URL based on filename for comprehensive files
+                url = self._get_synthetic_url(path)
+                file_metadata["url"] = url
 
             page_title = file_metadata.get("title", path.stem)
             program_name = self._parse_program_name(file_metadata, path)
@@ -171,7 +185,7 @@ class KnowledgeBaseIngester:
                 "source_filename": path.name,
                 "file_path": str(path),
                 "page_title": page_title,
-                "url": file_metadata.get("url", ""),
+                "url": url,
                 "category": file_metadata.get("category", ""),
                 "program_name": program_name,
                 "last_scraped": file_metadata.get("last scraped", ""),
@@ -181,26 +195,98 @@ class KnowledgeBaseIngester:
 
         return documents
 
+    def _get_synthetic_url(self, path: Path) -> str:
+        """Generate synthetic URL for comprehensive files."""
+        stem = path.stem.lower()
+        if "online_mca" in stem or "mca" in stem:
+            return "https://charusat.online/programs/mca.html"
+        elif "online_bca" in stem or "bca" in stem:
+            return "https://charusat.online/programs/bca.html"
+        elif "online_bba" in stem or "bba" in stem:
+            return "https://charusat.online/programs/bba.html"
+        elif "online_mba" in stem or "mba" in stem:
+            return "https://charusat.online/programs/mba.html"
+        elif "admissions" in stem or "refund" in stem:
+            return "https://charusat.online/"
+        elif "examination" in stem or "aicte" in stem or "eoa" in stem:
+            return "https://charusat.online/"
+        elif "contact" in stem:
+            return "https://charusat.online/programs/contact.html"
+        else:
+            return "https://charusat.online/"
+
     def split_documents(self, documents: List[Document]) -> List[Document]:
+        """Split documents using semantic-aware chunking for better retrieval."""
+        chunks: List[Document] = []
+
+        for doc in documents:
+            content = doc.page_content
+            metadata = dict(doc.metadata)
+
+            # Detect content type and apply appropriate chunking strategy
+            if self._is_markdown_document(content):
+                doc_chunks = self._semantic_markdown_split(content, metadata)
+            elif self._is_table_heavy(content):
+                doc_chunks = self._table_aware_split(content, metadata)
+            else:
+                doc_chunks = self._standard_recursive_split(content, metadata)
+
+            chunks.extend(doc_chunks)
+
+        chunks = deduplicate_chunks(chunks)
+        print_info(f"Chunks created: {len(chunks)}")
+        logger.info("Chunks created: %s", len(chunks))
+        return chunks
+
+    def _is_markdown_document(self, content: str) -> bool:
+        """Check if content has markdown structure (headers, lists)."""
+        return bool(re.search(r"^#{1,6}\s", content, re.MULTILINE) or
+                   re.search(r"^[\*\-\+]\s", content, re.MULTILINE))
+
+    def _is_table_heavy(self, content: str) -> bool:
+        """Check if content has significant table data."""
+        table_lines = [l for l in content.splitlines() if l.strip().startswith("|")]
+        total_lines = len([l for l in content.splitlines() if l.strip()])
+        return len(table_lines) > total_lines * 0.3
+
+    def _semantic_markdown_split(self, content: str, metadata: dict) -> List[Document]:
+        """Split markdown content preserving semantic boundaries."""
+        splitter = MarkdownTextSplitter(
+            chunk_size=CHUNK_SIZE,
+            chunk_overlap=CHUNK_OVERLAP,
+        )
+        raw_chunks = splitter.split_text(content)
+        return self._finalize_chunks(raw_chunks, metadata)
+
+    def _table_aware_split(self, content: str, metadata: dict) -> List[Document]:
+        """Split content with tables, keeping tables intact when possible."""
         splitter = RecursiveCharacterTextSplitter(
             chunk_size=CHUNK_SIZE,
             chunk_overlap=CHUNK_OVERLAP,
             separators=["\n\n", "\n", " ", ""],
         )
-        chunks: List[Document] = []
-        for doc in documents:
-            doc_chunks = splitter.split_documents([doc])
-            for index, chunk in enumerate(doc_chunks, start=1):
-                if not is_valid_chunk(chunk.page_content):
-                    continue
-                metadata = dict(doc.metadata)
-                metadata["chunk_id"] = index
-                chunk.metadata = metadata
-                chunks.append(chunk)
+        raw_chunks = splitter.split_text(content)
+        return self._finalize_chunks(raw_chunks, metadata)
 
-        chunks = deduplicate_chunks(chunks)
-        print_info(f"Chunks created: {len(chunks)}")
-        logger.info("Chunks created: %s", len(chunks))
+    def _standard_recursive_split(self, content: str, metadata: dict) -> List[Document]:
+        """Standard recursive text splitting for plain content."""
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=CHUNK_SIZE,
+            chunk_overlap=CHUNK_OVERLAP,
+            separators=["\n\n", "\n", " ", ""],
+        )
+        raw_chunks = splitter.split_text(content)
+        return self._finalize_chunks(raw_chunks, metadata)
+
+    def _finalize_chunks(self, raw_chunks: List[str], metadata: dict) -> List[Document]:
+        """Convert raw text chunks to Document objects with validation."""
+        chunks: List[Document] = []
+        for index, text in enumerate(raw_chunks, start=1):
+            if not is_valid_chunk(text):
+                continue
+            chunk_metadata = dict(metadata)
+            chunk_metadata["chunk_id"] = index
+            chunks.append(Document(page_content=text, metadata=chunk_metadata))
         return chunks
 
     def reset_vector_store(self) -> None:

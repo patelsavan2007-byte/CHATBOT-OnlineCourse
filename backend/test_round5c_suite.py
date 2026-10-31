@@ -13,7 +13,11 @@ import sys
 import time
 import urllib.request
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+# Pytest imports this module during collection. Replacing sys.stdout here wraps
+# and later closes pytest's terminal stream during teardown. Reconfigure the
+# existing stream instead, without taking ownership of its buffer.
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 API_URL = "http://127.0.0.1:8000/api/chat"
 

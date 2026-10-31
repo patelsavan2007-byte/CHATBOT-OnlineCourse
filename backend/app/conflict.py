@@ -468,9 +468,9 @@ def format_conflict_notice(conflicts: List[Conflict], include_locations: bool = 
     embedded in an end-user answer (deterministic fallback) so the UI never
     shows internal source details.
     """
-    lines = ["Conflict Notice:"]
+    lines = ["Conflicting information:"]
     for conflict in conflicts:
-        lines.append(f'The retrieved documents disagree about "{conflict["label"]}":')
+        lines.append(f'The available details differ for "{conflict["label"]}":')
         for value in conflict["values"]:
             location = value["source"]
             if value.get("page") is not None:

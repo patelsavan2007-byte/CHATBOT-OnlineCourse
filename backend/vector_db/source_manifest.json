@@ -1,9 +1,24 @@
 {
   "files": [
     {
+      "path": "admission_cancellation.md",
+      "size": 2491,
+      "modified": 1792859318
+    },
+    {
+      "path": "admissions_guide.md",
+      "size": 6985,
+      "modified": 1793101556
+    },
+    {
+      "path": "aicte_eoa_comprehensive.md",
+      "size": 7206,
+      "modified": 1793101591
+    },
+    {
       "path": "bca_syllabus_2025_26.md",
-      "size": 227304,
-      "modified": 1792514265
+      "size": 4709,
+      "modified": 1793103814
     },
     {
       "path": "ciqa.md",
@@ -11,14 +26,14 @@
       "modified": 1789881633
     },
     {
-      "path": "eoa_report_bba_mba.md",
-      "size": 7959,
-      "modified": 1792512642
+      "path": "contact_directory.md",
+      "size": 3756,
+      "modified": 1793152198
     },
     {
-      "path": "eoa_report_bca_mca.md",
-      "size": 8139,
-      "modified": 1792512821
+      "path": "faculty.md",
+      "size": 5509,
+      "modified": 1792856249
     },
     {
       "path": "feedback.md",
@@ -27,58 +42,78 @@
     },
     {
       "path": "home.md",
-      "size": 13433,
-      "modified": 1792507854
+      "size": 13728,
+      "modified": 1792997069
     },
     {
       "path": "mca_syllabus_2025_26.md",
-      "size": 124002,
-      "modified": 1792514099
+      "size": 5513,
+      "modified": 1793103874
     },
     {
-      "path": "online_examination.md",
-      "size": 18436,
-      "modified": 1792512356
+      "path": "online_bba_comprehensive.md",
+      "size": 12077,
+      "modified": 1793101591
+    },
+    {
+      "path": "online_bca_comprehensive.md",
+      "size": 15965,
+      "modified": 1793101556
+    },
+    {
+      "path": "online_examination_comprehensive.md",
+      "size": 17750,
+      "modified": 1793101556
+    },
+    {
+      "path": "online_mba_comprehensive.md",
+      "size": 15551,
+      "modified": 1793101591
+    },
+    {
+      "path": "online_mca_comprehensive.md",
+      "size": 11276,
+      "modified": 1793101556
+    },
+    {
+      "path": "ppr_online_bba.md",
+      "size": 14875,
+      "modified": 1793101657
+    },
+    {
+      "path": "ppr_online_bca.md",
+      "size": 17946,
+      "modified": 1793101657
+    },
+    {
+      "path": "ppr_online_mba.md",
+      "size": 19179,
+      "modified": 1793101657
+    },
+    {
+      "path": "ppr_online_mca.md",
+      "size": 17422,
+      "modified": 1793101657
     },
     {
       "path": "privacy-policy.md",
-      "size": 6695,
-      "modified": 1791616133
+      "size": 8259,
+      "modified": 1793104140
     },
     {
-      "path": "programs/contact.md",
-      "size": 2240,
-      "modified": 1792507894
-    },
-    {
-      "path": "programs/online_bba.md",
-      "size": 8348,
-      "modified": 1792507959
-    },
-    {
-      "path": "programs/online_bca.md",
-      "size": 9663,
-      "modified": 1792508946
-    },
-    {
-      "path": "programs/online_mba.md",
-      "size": 8081,
-      "modified": 1792509007
-    },
-    {
-      "path": "programs/online_mca.md",
-      "size": 9049,
-      "modified": 1792509069
+      "path": "refund_policy.md",
+      "size": 6259,
+      "modified": 1793104075
     },
     {
       "path": "terms-conditions.md",
-      "size": 28052,
-      "modified": 1791616133
+      "size": 4904,
+      "modified": 1793104016
     },
     {
       "path": "ugc_public_notice.md",
-      "size": 11564,
-      "modified": 1792512382
+      "size": 4043,
+      "modified": 1793103973
     }
   ]
 }

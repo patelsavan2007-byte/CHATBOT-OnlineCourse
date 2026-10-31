@@ -1,11 +1,12 @@
 /**
- * ThemeContext — light/dark/system theme provider.
+ * ThemeContext - light/dark/system theme provider.
  * Persists preference to localStorage and respects system preference.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 const ThemeContext = createContext(null);
-const STORAGE_KEY = "charusat_theme";
+// Must match the key used in the inline theme script in index.html
+const STORAGE_KEY = "theme";
 
 function getSystemTheme() {
   if (typeof window === "undefined") return "dark";
@@ -15,9 +16,9 @@ function getSystemTheme() {
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || "dark";
+      return localStorage.getItem(STORAGE_KEY) || "system";
     } catch {
-      return "dark";
+      return "system";
     }
   });
 

@@ -116,6 +116,39 @@ function tokenMatches(queryToken, targetToken) {
 
 const PROGRAMMES = ["bba", "bca", "mba", "mca"];
 
+const USER_QUESTIONS_KEY = "charusat_user_generated_questions";
+
+export function getUserQuestions() {
+  try {
+    const raw = typeof localStorage !== "undefined" ? localStorage.getItem(USER_QUESTIONS_KEY) : null;
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function addUserQuestion(text, programme = null) {
+  if (!text || typeof text !== "string") return;
+  const clean = text.trim();
+  if (clean.length < 4 || clean.length > 200) return;
+  try {
+    const existing = getUserQuestions();
+    const cleanLower = clean.toLowerCase();
+    if (existing.some((q) => q.text.toLowerCase() === cleanLower)) return;
+    const newItem = {
+      id: `usr-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      text: clean,
+      category: "Recent Questions",
+      programme: programme || null,
+      variants: {},
+    };
+    const updated = [newItem, ...existing].slice(0, 50);
+    localStorage.setItem(USER_QUESTIONS_KEY, JSON.stringify(updated));
+  } catch {
+    // Ignore storage quota or disabled localStorage errors
+  }
+}
+
 export function getTypingSuggestions(query, currentProgramme, questionBank) {
   if (!query || typeof query !== "string") return [];
   const clean = query.trim().toLowerCase();
@@ -134,7 +167,9 @@ export function getTypingSuggestions(query, currentProgramme, questionBank) {
   }
 
   const effectiveProgramme = typedProgramme || currentProgramme || null;
-  const bank = questionBank || cachedBank || [];
+  const userBank = typeof window !== "undefined" ? getUserQuestions() : [];
+  const baseBank = (questionBank && questionBank.length > 0) ? questionBank : (cachedBank || []);
+  const bank = [...baseBank, ...userBank];
   const matches = [];
 
   for (const q of bank) {

@@ -1,23 +1,20 @@
+import ThemedLogo from "../ui/ThemedLogo.jsx";
 /**
- * ChatSidebar — left sidebar for the /chat application.
- * Search-filters history, groups by date, supports rename/delete,
- * and hosts theme + suggestion preferences in the footer.
+ * Sidebar - left sidebar for the /chat application.
+ * 280px width, client-side search, grouping (Today, Yesterday, This week, Older),
+ * inline rename, delete with confirmation Dialog, keyboard shortcuts help,
+ * pagination for 50+ conversations and footer links to Settings and About.
  */
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext.jsx";
-import ThemeToggle from "../ui/ThemeToggle.jsx";
+import Dialog from "../ui/Dialog.jsx";
 
-/* ---- Icons ---- */
-const Icon = ({ d, className = "h-4 w-4" }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-    <path d={d} />
-  </svg>
-);
+const PAGE_SIZE = 50;
 
-function ConversationItem({ conv, isActive, onSelect, onDelete, onRename }) {
+function ConversationItem({ conv, isActive, onSelect, onDeleteRequest, onRename }) {
   const [editing, setEditing] = useState(false);
-  const [title, setTitle]     = useState(conv.title || "Untitled");
+  const [title, setTitle] = useState(conv.title || "Untitled");
 
   const commitRename = () => {
     setEditing(false);
@@ -28,12 +25,24 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, onRename }) {
 
   return (
     <div
-      className={`group relative flex items-center gap-2 rounded-lg px-2.5 py-2 text-sm transition cursor-pointer select-none ${
+      role="button"
+      tabIndex={0}
+      className={`group relative flex items-center gap-2 rounded-md px-2.5 py-2 text-xs transition cursor-pointer select-none ${
         isActive
-          ? "bg-[var(--sidebar-active)] text-[var(--text-primary)]"
-          : "text-[var(--text-tertiary)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
+          ? "font-medium"
+          : "hover:bg-[var(--surface-hover)]"
       }`}
+      style={{
+        background: isActive ? "var(--sidebar-active)" : "transparent",
+        color: isActive ? "var(--text)" : "var(--text-2)",
+      }}
       onClick={() => !editing && onSelect(conv.id)}
+      onKeyDown={(e) => {
+        if (!editing && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onSelect(conv.id);
+        }
+      }}
     >
       {editing ? (
         <input
@@ -45,31 +54,47 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, onRename }) {
             if (e.key === "Enter") commitRename();
             if (e.key === "Escape") setEditing(false);
           }}
-          className="flex-1 rounded bg-[var(--surface-active)] px-2 py-0.5 text-sm text-[var(--text-primary)] outline-none"
+          className="flex-1 rounded border px-1.5 py-0.5 text-xs outline-none"
+          style={{
+            background: "var(--surface)",
+            borderColor: "var(--border)",
+            color: "var(--text)",
+          }}
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
-        <span className="flex-1 truncate text-[13px]">{conv.title || "Untitled"}</span>
+        <span className="flex-1 truncate">{conv.title || "Untitled"}</span>
       )}
 
-      {/* Actions — only visible on hover/active */}
       {!editing && (
-        <div className={`flex items-center gap-0.5 ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition`}>
+        <div className={`flex items-center gap-1 ${isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition`}>
           <button
-            onClick={(e) => { e.stopPropagation(); setEditing(true); setTitle(conv.title || "Untitled"); }}
-            className="rounded p-1 text-[var(--text-muted)] hover:text-[var(--text-secondary)] transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditing(true);
+              setTitle(conv.title || "Untitled");
+            }}
+            className="rounded p-1 text-[var(--muted)] hover:text-[var(--text)] transition cursor-pointer"
             aria-label="Rename conversation"
             type="button"
           >
-            <Icon d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" className="h-3 w-3" />
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); onDelete(conv.id); }}
-            className="rounded p-1 text-[var(--text-muted)] hover:text-[var(--error)] transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteRequest(conv);
+            }}
+            className="rounded p-1 text-[var(--muted)] hover:text-[var(--danger)] transition cursor-pointer"
             aria-label="Delete conversation"
             type="button"
           >
-            <Icon d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" className="h-3 w-3" />
+            <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </button>
         </div>
       )}
@@ -79,9 +104,9 @@ function ConversationItem({ conv, isActive, onSelect, onDelete, onRename }) {
 
 function groupByDate(conversations) {
   const now = new Date();
-  const today     = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today.getTime() - 86400000);
-  const week      = new Date(today.getTime() - 7 * 86400000);
+  const week = new Date(today.getTime() - 7 * 86400000);
 
   const groups = { Today: [], Yesterday: [], "This week": [], Older: [] };
 
@@ -98,24 +123,59 @@ function groupByDate(conversations) {
 }
 
 export default function ChatSidebar({
-  conversations,
+  conversations = [],
   activeConversationId,
   onNewChat,
   onSelectConversation,
   onDeleteConversation,
   onRenameConversation,
-  typingSuggestionsEnabled,
-  onToggleTypingSuggestions,
+  onToggleSidebar,
   onClose,
 }) {
   const { user, isGuest, logout } = useAuth();
-  const navigate   = useNavigate();
+  const navigate = useNavigate();
   const [query, setQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
 
   const handleLogout = useCallback(async () => {
     await logout();
     navigate("/", { replace: true });
   }, [logout, navigate]);
+
+  // Global keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Don't trigger when typing in inputs/textareas
+      const tag = e.target.tagName;
+      const isInput = tag === "INPUT" || tag === "TEXTAREA" || e.target.isContentEditable;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        onNewChat();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
+        e.preventDefault();
+        onToggleSidebar?.();
+        return;
+      }
+      if (e.key === "/" && !isInput) {
+        e.preventDefault();
+        const input = document.getElementById("chat-input");
+        input?.focus();
+        return;
+      }
+      if (e.key === "?" && !isInput) {
+        e.preventDefault();
+        setShortcutsOpen((prev) => !prev);
+        return;
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onNewChat, onToggleSidebar]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -123,46 +183,60 @@ export default function ChatSidebar({
     return conversations.filter((c) => (c.title || "").toLowerCase().includes(q));
   }, [conversations, query]);
 
-  const groups = groupByDate(filtered);
+  const pagedList = useMemo(() => {
+    return filtered.slice(0, visibleCount);
+  }, [filtered, visibleCount]);
+
+  const groups = useMemo(() => groupByDate(pagedList), [pagedList]);
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      onDeleteConversation(deleteTarget.id);
+      setDeleteTarget(null);
+    }
+  };
 
   return (
-    <div className="flex h-full w-full flex-col bg-[var(--sidebar-bg)] border-r border-[var(--border-primary)] backdrop-blur-xl">
-      {/* Top — logo + actions */}
-      <div className="flex items-center justify-between px-3 pt-3 pb-2">
+    <div
+      className="flex h-full w-full flex-col border-r"
+      style={{
+        background: "var(--sidebar-bg)",
+        borderColor: "var(--border)",
+      }}
+    >
+      {/* Top Header: Brand Wordmark + Actions */}
+      <div className="flex items-center justify-between px-3 pt-3 pb-2 border-b" style={{ borderColor: "var(--border)" }}>
         <Link
           to="/"
-          className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-[var(--text-tertiary)] transition hover:text-[var(--text-primary)]"
-          aria-label="Go to home"
+          className="flex items-center gap-2 rounded-md px-1 py-0.5 transition hover:opacity-80"
+          aria-label="CCOE, CHARUSAT"
         >
-          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-[var(--accent-primary)] shrink-0" aria-hidden>
-            <path d="M12 3 1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z" />
-          </svg>
-          <span className="text-[12px] font-medium text-[var(--text-muted)]">CHARUSAT</span>
+          <ThemedLogo variant="ccoe" height={32} />
         </Link>
 
         <div className="flex items-center gap-1">
-          {/* New chat button */}
           <button
-            onClick={onNewChat}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)]"
-            aria-label="New chat"
-            title="New chat"
+            onClick={() => setShortcutsOpen(true)}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text)] cursor-pointer"
+            aria-label="Keyboard shortcuts"
+            title="Shortcuts (?)"
             type="button"
           >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M12 5v14M5 12h14" />
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
             </svg>
           </button>
 
-          {/* Close (mobile only) */}
           {onClose && (
             <button
               onClick={onClose}
-              className="flex h-7 w-7 items-center justify-center rounded-lg text-[var(--text-tertiary)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-primary)] md:hidden"
+              className="flex md:hidden h-7 w-7 items-center justify-center rounded-md text-[var(--muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text)] cursor-pointer"
               aria-label="Close sidebar"
               type="button"
             >
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                 <path d="M18 6 6 18M6 6l12 12" />
               </svg>
             </button>
@@ -170,25 +244,35 @@ export default function ChatSidebar({
         </div>
       </div>
 
-      {/* New chat — large button */}
-      <div className="px-3 pb-2">
+      {/* New chat button */}
+      <div className="px-3 pt-3 pb-2">
         <button
           onClick={onNewChat}
-          className="flex w-full items-center gap-2.5 rounded-lg border border-[var(--border-primary)] px-3 py-2 text-[13px] font-medium text-[var(--text-tertiary)] transition hover:border-[var(--border-hover)] hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
+          className="flex w-full items-center justify-between rounded-md px-3 py-2 text-xs font-medium text-white transition hover:opacity-90 cursor-pointer shadow-xs"
+          style={{ background: "var(--accent)" }}
           type="button"
         >
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-            <path d="M12 5v14M5 12h14" />
-          </svg>
-          New chat
+          <span className="flex items-center gap-2">
+            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            New chat
+          </span>
+          <kbd className="text-[10px] opacity-75 font-mono">Ctrl+K</kbd>
         </button>
       </div>
 
-      {/* Search */}
-      {!isGuest && filtered.length > 0 && (
+      {/* Instant Search */}
+      {!isGuest && conversations.length > 0 && (
         <div className="px-3 pb-2">
-          <div className="flex items-center gap-2 rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] px-2.5 py-1.5 transition focus-within:border-[var(--border-hover)]">
-            <svg className="h-3.5 w-3.5 shrink-0 text-[var(--text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+          <div
+            className="flex items-center gap-2 rounded-md border px-2.5 py-1.5 transition"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--surface)",
+            }}
+          >
+            <svg className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--muted)" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
               <path d="M21 21l-4.35-4.35" />
             </svg>
@@ -196,162 +280,177 @@ export default function ChatSidebar({
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search conversations…"
-              className="w-full bg-transparent text-[12px] text-[var(--text-secondary)] placeholder:text-[var(--text-muted)] outline-none"
-              aria-label="Search conversations"
+              placeholder="Search chats..."
+              className="w-full bg-transparent text-xs outline-none"
+              style={{ color: "var(--text)" }}
+              aria-label="Search chats"
             />
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="text-[var(--text-muted)] transition hover:text-[var(--text-tertiary)]"
+                className="text-xs transition hover:opacity-100 cursor-pointer"
+                style={{ color: "var(--muted)" }}
                 aria-label="Clear search"
                 type="button"
               >
-                <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-                  <path d="M18 6 6 18M6 6l12 12" />
-                </svg>
+                &times;
               </button>
             )}
           </div>
         </div>
       )}
 
-      {/* Conversation list */}
+      {/* Conversations List */}
       <div className="flex-1 overflow-y-auto chat-scroll px-2 pb-2 min-h-0">
         {isGuest ? (
-          <div className="px-3 py-10 text-center">
-            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl border border-[var(--border-primary)] bg-[var(--surface-hover)] text-[var(--text-muted)] mb-3">
-              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-              </svg>
-            </div>
-            <p className="text-xs text-[var(--text-tertiary)] leading-relaxed">
-              Sign in to save your conversations
+          <div className="px-3 py-8 text-center">
+            <p className="text-xs leading-relaxed" style={{ color: "var(--muted)" }}>
+              Guest chats are not saved. Sign in to keep your history across sessions.
             </p>
             <Link
               to="/login"
-              className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-1.5 text-xs font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-active)]"
+              className="mt-3 inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-xs font-medium transition hover:bg-[var(--surface-hover)]"
+              style={{ borderColor: "var(--border)", color: "var(--text)" }}
             >
               Sign in
             </Link>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="px-3 py-10 text-center">
-            <p className="text-xs text-[var(--text-tertiary)]">
-              {query ? "No conversations match" : "No conversations yet"}
-            </p>
-            <p className="mt-1 text-[11px] text-[var(--text-muted)]">
-              {query ? "Try a different search" : "Start a new chat above"}
-            </p>
+          <div className="px-3 py-8 text-center text-xs" style={{ color: "var(--muted)" }}>
+            {query ? "No chats match your search." : "No saved chats yet."}
           </div>
         ) : (
           <>
             {Object.entries(groups).map(([label, convs]) =>
               convs.length === 0 ? null : (
-                <div key={label} className="mb-4">
-                  <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-widest text-[var(--text-muted)]">
+                <div key={label} className="mb-3">
+                  <p className="mb-1 px-2.5 text-[10px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
                     {label}
                   </p>
-                  {convs.map((conv) => (
-                    <ConversationItem
-                      key={conv.id}
-                      conv={conv}
-                      isActive={conv.id === activeConversationId}
-                      onSelect={onSelectConversation}
-                      onDelete={onDeleteConversation}
-                      onRename={onRenameConversation}
-                    />
-                  ))}
+                  <div className="space-y-0.5">
+                    {convs.map((conv) => (
+                      <ConversationItem
+                        key={conv.id}
+                        conv={conv}
+                        isActive={conv.id === activeConversationId}
+                        onSelect={onSelectConversation}
+                        onDeleteRequest={(c) => setDeleteTarget(c)}
+                        onRename={onRenameConversation}
+                      />
+                    ))}
+                  </div>
                 </div>
               )
+            )}
+
+            {filtered.length > visibleCount && (
+              <div className="pt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((prev) => prev + PAGE_SIZE)}
+                  className="rounded-md border px-3 py-1 text-xs font-medium transition hover:bg-[var(--surface-hover)] cursor-pointer"
+                  style={{ borderColor: "var(--border)", color: "var(--text-2)" }}
+                >
+                  Load older ({filtered.length - visibleCount} remaining)
+                </button>
+              </div>
             )}
           </>
         )}
       </div>
 
-      {/* Footer — preferences + user profile */}
-      <div className="border-t border-[var(--border-primary)] px-3 py-3">
-        {/* Preferences row — Typing suggestions */}
-        <div className="mb-2 flex items-center justify-between rounded-lg bg-[var(--surface-hover)] px-2.5 py-1.5">
-          <span className="flex items-center gap-2 text-[11px] font-medium text-[var(--text-tertiary)]">
-            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-            </svg>
-            Typing suggestions
-          </span>
-          <button
-            role="switch"
-            aria-checked={typingSuggestionsEnabled}
-            aria-label="Toggle typing suggestions"
-            onClick={onToggleTypingSuggestions}
-            className={`relative h-4.5 w-8 rounded-full transition ${
-              typingSuggestionsEnabled ? "bg-[var(--accent-primary)]" : "bg-[var(--surface-active)]"
-            }`}
-            type="button"
-          >
-            <span
-              className={`absolute top-0.5 h-3.5 w-3.5 rounded-full bg-white shadow transition-all ${
-                typingSuggestionsEnabled ? "left-4" : "left-0.5"
-              }`}
-            />
-          </button>
+      {/* Footer Navigation & User State */}
+      <div className="border-t px-3 py-2.5 text-xs" style={{ borderColor: "var(--border)" }}>
+        {/* Links row */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 pb-2 text-[11px]" style={{ color: "var(--muted)" }}>
+          <Link to="/about" className="hover:underline">About</Link>
+          <Link to="/settings" className="hover:underline">Settings</Link>
         </div>
 
-        <div className="flex items-center justify-between pl-2.5 pr-1">
-          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">Theme</span>
-          <ThemeToggle />
-        </div>
-
-        {/* User profile */}
-        <div className="mt-2 border-t border-[var(--border-primary)] pt-2">
-          {user ? (
-            <div className="flex items-center gap-2.5">
-              {/* Avatar */}
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--accent-primary)] text-xs font-semibold text-white">
-                {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-[12px] font-medium text-[var(--text-secondary)]">{user.name || "User"}</p>
-                <p className="truncate text-[10px] text-[var(--text-muted)]">{user.email}</p>
-              </div>
-              <div className="flex items-center gap-0.5">
-                {/* Settings link */}
-                <Link
-                  to="/settings"
-                  className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--text-secondary)]"
-                  aria-label="Settings"
-                  title="Settings"
+        {/* User bar */}
+        {user ? (
+          <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: "var(--border)" }}>
+            <div className="flex items-center gap-2 min-w-0">
+              {/* allow-round: user avatar circle */}
+              {user.avatar_type === "photo" && (user.photo_url || user.avatar) ? (
+                <img
+                  src={user.photo_url || user.avatar}
+                  alt={user.display_name || user.name || "User"}
+                  className="h-6 w-6 shrink-0 rounded-full object-cover" /* allow-round: avatar circle */
+                />
+              ) : (
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white" /* allow-round: avatar circle */
+                  style={{ background: "var(--accent)" }}
                 >
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
-                    <circle cx="12" cy="12" r="3" />
-                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
-                  </svg>
-                </Link>
-                {/* Logout */}
-                <button
-                  onClick={handleLogout}
-                  className="flex h-6 w-6 items-center justify-center rounded text-[var(--text-muted)] transition hover:bg-[var(--surface-hover)] hover:text-[var(--error)]"
-                  aria-label="Sign out"
-                  title="Sign out"
-                  type="button"
-                >
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden>
-                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" />
-                  </svg>
-                </button>
-              </div>
+                  {(user.display_name?.[0] || user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                </div>
+              )}
+              <span className="truncate text-xs font-medium" style={{ color: "var(--text)" }}>
+                {user.display_name || user.name || user.email}
+              </span>
             </div>
-          ) : (
+            <button
+              onClick={handleLogout}
+              className="text-[11px] hover:underline cursor-pointer"
+              style={{ color: "var(--danger)" }}
+              type="button"
+            >
+              Sign out
+            </button>
+          </div>
+        ) : (
+          <div className="border-t pt-2" style={{ borderColor: "var(--border)" }}>
             <Link
               to="/login"
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-[var(--border-primary)] bg-[var(--surface-hover)] px-3 py-2 text-[13px] font-medium text-[var(--text-secondary)] transition hover:bg-[var(--surface-active)] hover:text-[var(--text-primary)]"
+              className="block w-full text-center rounded-md border py-1.5 text-xs font-medium transition hover:bg-[var(--surface-hover)]"
+              style={{ borderColor: "var(--border)", color: "var(--text)" }}
             >
-              Sign in
+              Sign in to save history
             </Link>
-          )}
-        </div>
+          </div>
+        )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={Boolean(deleteTarget)}
+        onClose={() => setDeleteTarget(null)}
+        title="Delete conversation?"
+        description={`"${deleteTarget?.title || "This chat"}" will be permanently removed. This cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        danger={true}
+        onConfirm={confirmDelete}
+      />
+
+      {/* Keyboard Shortcuts Help Dialog */}
+      <Dialog
+        open={shortcutsOpen}
+        onClose={() => setShortcutsOpen(false)}
+        title="Keyboard shortcuts"
+        confirmLabel="Done"
+        onConfirm={() => setShortcutsOpen(false)}
+      >
+        <div className="space-y-2 text-xs" style={{ color: "var(--text-2)" }}>
+          <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--border)" }}>
+            <span>New chat</span>
+            <kbd className="rounded border px-1.5 py-0.5 font-mono text-[11px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Ctrl + K</kbd>
+          </div>
+          <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--border)" }}>
+            <span>Focus message input</span>
+            <kbd className="rounded border px-1.5 py-0.5 font-mono text-[11px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>/</kbd>
+          </div>
+          <div className="flex justify-between py-1 border-b" style={{ borderColor: "var(--border)" }}>
+            <span>Toggle sidebar</span>
+            <kbd className="rounded border px-1.5 py-0.5 font-mono text-[11px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>Ctrl + B</kbd>
+          </div>
+          <div className="flex justify-between py-1">
+            <span>Show keyboard shortcuts</span>
+            <kbd className="rounded border px-1.5 py-0.5 font-mono text-[11px]" style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}>?</kbd>
+          </div>
+        </div>
+      </Dialog>
     </div>
   );
 }

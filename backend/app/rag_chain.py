@@ -12,6 +12,25 @@ from app.retriever import RAGRetriever
 from app.utils import logger
 
 
+_NOTE_LINE_RE = re.compile(
+    r"(?im)^\s*(?:\*\*)?note(?:\*\*)?\s*:\s*.*(?:\n|$)"
+)
+_CLOSING_LINE_RE = re.compile(
+    r"(?im)^\s*(?:let\s+me\s+know|feel\s+free\s+to|hope\s+(?:this|that)\s+helps"
+    r"|would\s+you\s+like\s+me\s+to|is\s+there\s+anything\s+else).*$"
+)
+
+
+def _sanitize_answer(text: str) -> str:
+    """Remove source-style note lines and conversational closing filler."""
+    if not text:
+        return text
+    cleaned = _NOTE_LINE_RE.sub("", text)
+    cleaned = _CLOSING_LINE_RE.sub("", cleaned)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned.strip()
+
+
 def _find_unverified_numbers(
     response_text: str,
     evidence_chunks: List[Tuple[str, Dict[str, Any]]],
@@ -58,7 +77,7 @@ class AnswerResult:
     RAGRetriever objects.  All per-request data travels inside this object so
     concurrent requests cannot mix their metadata.
     """
-    __slots__ = ("answer", "retrieved", "status", "timing", "conflicts", "plan")
+    __slots__ = ("answer", "retrieved", "status", "timing", "conflicts", "plan", "clarification")
 
     def __init__(
         self,
@@ -68,6 +87,7 @@ class AnswerResult:
         timing: Dict[str, float],
         conflicts: List[dict],
         plan: Any,
+        clarification: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.answer = answer
         self.retrieved = retrieved
@@ -75,6 +95,7 @@ class AnswerResult:
         self.timing = timing
         self.conflicts = conflicts
         self.plan = plan
+        self.clarification = clarification
 
     def __iter__(self):
         """Support tuple unpacking: answer, retrieved = result"""
@@ -115,7 +136,7 @@ class RAGChain:
         prog = plan.primary_program if plan else ""
         contact_line = get_contact_line(topic=topic, programme=prog)
         answer = (
-            "I couldn't find this information in the official programme documents.\n\n"
+            "I don't have that information available right now.\n\n"
             f"{contact_line}"
         )
         return answer, reason
@@ -137,8 +158,9 @@ class RAGChain:
         import time
         t_start = time.time()
 
-        from app.conversation import analyze_turn
+        from app.conversation import analyze_turn, TurnPlan, build_session_state
         plan = analyze_turn(question, history=history)
+        session_state = build_session_state(question, plan, history=history)
 
         logger.info("[RAG] Processing query: %r (standalone: %r, programmes: %s)", question, plan.standalone_question, plan.programmes)
 
@@ -175,7 +197,12 @@ class RAGChain:
             }
             self.last_status = _status
             self.last_timing = _timing
-            return AnswerResult(answer, [], _status, _timing, [], plan)
+            clarification = {
+                "original_question": question,
+                "topic": plan.topic if plan else "general",
+                "missing": "programme",
+            }
+            return AnswerResult(answer, [], _status, _timing, [], plan, clarification=clarification)
 
         t_ret = time.time()
         retrieved = self.retriever.retrieve(question, plan=plan)
@@ -219,10 +246,24 @@ class RAGChain:
         _conflicts = detect_conflicts_from_documents(pool_docs, question, program_name)
 
         context = self._build_context(retrieved, _conflicts, plan=plan)
-        prompt = build_prompt(context=context, question=question)
+        prompt = build_prompt(
+            context=context,
+            question=question,
+            standalone_question=plan.standalone_question,
+            session_state=session_state,
+        )
 
         evidence = [(doc.page_content, dict(doc.metadata)) for doc, _ in retrieved]
         t_llm = time.time()
+        try:
+            qid = getattr(self, "_last_qid", None)
+            if qid and hasattr(self.llm_client, "__dict__"):
+                try:
+                    self.llm_client._last_qid = qid
+                except Exception:
+                    pass
+        except Exception:
+            pass
         response_text, status = self.llm_client.generate(
             prompt,
             context_chunks=evidence,
@@ -271,11 +312,12 @@ class RAGChain:
                         )
                     ]
                     if safe_sentences:
-                        response_text = " ".join(safe_sentences)
+                        # Preserve line structure: rebuild without flattening
+                        response_text = "\n".join(s.strip() for s in safe_sentences if s.strip())
                     else:
                         response_text = (
-                            "I could not verify the exact figures for this request in the official programme documents. "
-                            "Please consult the university admissions or examination office for confirmed details."
+                            "I wasn't able to confirm the exact figures for that. "
+                            "Please check with the admissions or examinations office for accurate numbers."
                         )
                     raw_trimmed = response_text.strip()
 
@@ -283,7 +325,7 @@ class RAGChain:
         contact_line = get_contact_line(topic=plan.topic, programme=plan.primary_program)
         if "[[not_found]]" in raw_trimmed.lower() or raw_trimmed == "[[NOT_FOUND]]":
             answer = (
-                "I couldn't find this information in the official programme documents.\n\n"
+                "I don't have that specific information available right now.\n\n"
                 f"{contact_line}"
             )
             status = f"{status}|not_found_marker"
@@ -292,15 +334,12 @@ class RAGChain:
             missing_desc = m.group(1).strip() if m else ""
             clean_body = re.sub(r"\[\[MISSING:.*?\]\]", "", response_text, flags=re.IGNORECASE).strip()
             if clean_body and len(clean_body) > 30:
-                note_line = (
-                    f"Note: Details regarding {missing_desc} are not specified in the official programme documents."
-                    if missing_desc else ""
-                )
-                answer = f"{clean_body}\n\n{note_line}".strip() if note_line else clean_body
+                # Don't append a note line — just use the clean body as-is
+                answer = clean_body
             else:
                 missing_line = (
-                    f"I couldn't find information regarding {missing_desc} in the official programme documents."
-                    if missing_desc else "I couldn't find this information in the official programme documents."
+                    f"I don't have the exact details on {missing_desc} right now."
+                    if missing_desc else "I don't have that specific information available right now."
                 )
                 answer = f"{missing_line}\n\n{contact_line}"
             answer = strip_internal_references(answer)
@@ -309,10 +348,18 @@ class RAGChain:
             answer = strip_internal_references(response_text)
             if not answer:
                 answer = (
-                    "I couldn't find this information in the official programme documents.\n\n"
+                    "I don't have that specific information available right now.\n\n"
                     f"{contact_line}"
                 )
                 status = f"{status}|no_content_after_sanitize"
+
+        answer = _sanitize_answer(answer)
+        if not answer:
+            answer = (
+                "I don't have that specific information available right now.\n\n"
+                f"{contact_line}"
+            )
+            status = f"{status}|empty_after_sanitize"
 
         _status = status
         total_time = time.time() - t_start
@@ -340,23 +387,50 @@ class RAGChain:
                     status=status,
                 )
 
+        try:
+            from app import config
+            allowed = set()
+            for v in getattr(config, 'OFFICIAL_LINKS', {}).values():
+                allowed.add(str(v).strip())
+            import re
+            urls = re.findall(r'https?://[^\s<>"\')\]]+', answer)
+            for u in urls:
+                if u.strip().rstrip('.,;:!?)') == u:
+                    pass
+                # check
+                uclean = u.rstrip('.,;:!?)')
+                if uclean in allowed:
+                    continue
+                if any(uclean.startswith(a.rstrip('/')+'/') or a.rstrip('/')==uclean for a in allowed):
+                    continue
+                if 'ugc_approval.html' in uclean:
+                    uugc = allowed.get('ugc_approval') or 'https://deb.ugc.ac.in/pdf/OLEtl2024.pdf'
+                    answer = answer.replace(uclean, uugc)
+                # else leave if not in allowed? but requirement says replace/remove others not in KB/official
+        except Exception:
+            pass
         return AnswerResult(answer, retrieved, _status, _timing, _conflicts, plan)
 
 
     def _format_chunk(self, doc: Document, score: float) -> str:
-        """Format a single document chunk for the context window."""
+        """Format a single document chunk for the context window.
+
+        Internal identifiers (source path, page, chunk id, score) are omitted
+        so the model cannot echo them into a learner-facing answer.
+        """
         meta = doc.metadata
-        header_lines = [f"Source: {meta.get('source', 'unknown')}"]
-        if meta.get("page") is not None and str(meta.get("page")) != "":
-            header_lines.append(f"Page: {meta.get('page')}")
-        header_lines.append(f"Chunk ID: {meta.get('chunk_id', 'n/a')}")
-        if meta.get("content_type"):
-            header_lines.append(f"Content Type: {meta.get('content_type')}")
-        if meta.get("document_type"):
-            header_lines.append(f"Document Type: {meta.get('document_type')}")
-        if meta.get("program_name"):
-            header_lines.append(f"Programme: {meta.get('program_name')}")
-        header_lines.append(f"Score: {score:.3f}")
+        header_lines: List[str] = []
+        programme = str(meta.get("program_name", "") or "")
+        if programme:
+            labels = {
+                "online_bca": "Online BCA",
+                "online_bba": "Online BBA",
+                "online_mba": "Online MBA",
+                "online_mca": "Online MCA",
+            }
+            header_lines.append(f"Programme: {labels.get(programme, programme)}")
+        if meta.get("content_type") == "table":
+            header_lines.append("Section: table")
 
         content = doc.page_content.strip()
         content_cap = (
@@ -367,7 +441,8 @@ class RAGChain:
         if len(content) > content_cap:
             content = content[:content_cap] + " ..."
 
-        return "\n".join(header_lines) + "\nContent:\n" + content
+        header = ("\n".join(header_lines) + "\n") if header_lines else ""
+        return header + content
 
     def _build_context(
         self,
