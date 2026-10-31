@@ -358,3 +358,122 @@ async def delete_my_account(user: Dict[str, Any] = Depends(get_current_user)):
     db.users.delete_one({"_id": user_oid})
     logger.info("User account self-deleted: %s", user.get("email"))
     return {"status": "success", "message": "Account and all associated conversations deleted successfully"}
+
+
+# ---------------------------------------------------------------------------
+# /api/me Endpoints (Profile Management)
+# ---------------------------------------------------------------------------
+
+me_router = APIRouter(prefix="/api/me", tags=["me"])
+
+
+class ProfileResponse(BaseModel):
+    id: str
+    email: str
+    display_name: str
+    avatar_type: str
+    photo_url: Optional[str] = None
+    role: str = "user"
+
+
+class UpdateProfileRequest(BaseModel):
+    display_name: str
+    avatar_type: str
+
+
+def _format_user_profile(user: Dict[str, Any]) -> Dict[str, Any]:
+    photo_url = user.get("photo_url") or user.get("avatar") or None
+    display_name = user.get("display_name") or user.get("name") or ""
+    avatar_type = user.get("avatar_type") or ("photo" if photo_url else "initials")
+    return {
+        "id": str(user.get("id") or user.get("_id") or ""),
+        "email": user.get("email") or "",
+        "display_name": display_name,
+        "avatar_type": avatar_type,
+        "photo_url": photo_url,
+        "role": user.get("role", "user"),
+    }
+
+
+def _validate_and_update_profile(body: UpdateProfileRequest, user: Dict[str, Any]) -> Dict[str, Any]:
+    raw_name = (body.display_name or "").strip()
+    if not raw_name or len(raw_name) > 40:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name must be between 1 and 40 characters",
+        )
+
+    if "<" in raw_name or ">" in raw_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name cannot contain HTML tags",
+        )
+
+    if re.search(r"https?://|www\.", raw_name, re.IGNORECASE):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Display name cannot contain URLs",
+        )
+
+    avatar_type = (body.avatar_type or "").strip().lower()
+    if avatar_type not in ("photo", "initials"):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Avatar type must be 'photo' or 'initials'",
+        )
+
+    photo_url = user.get("photo_url") or user.get("avatar")
+    if avatar_type == "photo" and not photo_url:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Cannot select photo avatar when no photo URL exists",
+        )
+
+    db = get_db()
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database unavailable",
+        )
+
+    user_id = str(user.get("id") or user.get("_id"))
+    updated = update_user(
+        db,
+        user_id,
+        {
+            "display_name": raw_name,
+            "name": raw_name,
+            "avatar_type": avatar_type,
+        },
+    )
+    if not updated:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    return _format_user_profile(updated)
+
+
+@me_router.get("", response_model=ProfileResponse)
+async def get_my_profile(user: Dict[str, Any] = Depends(get_current_user)):
+    """Return profile of the authenticated user."""
+    return _format_user_profile(user)
+
+
+@me_router.patch("", response_model=ProfileResponse)
+async def update_my_profile(
+    body: UpdateProfileRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Update profile of the authenticated user."""
+    return _validate_and_update_profile(body, user)
+
+
+@router.patch("/me", response_model=ProfileResponse)
+async def update_auth_me(
+    body: UpdateProfileRequest,
+    user: Dict[str, Any] = Depends(get_current_user),
+):
+    """Compatibility endpoint for PATCH /api/auth/me."""
+    return _validate_and_update_profile(body, user)

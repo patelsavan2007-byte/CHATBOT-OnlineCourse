@@ -178,13 +178,14 @@ async def startup_security_checks():
 # Mount new API routes
 # -----------------------------------------------------------------------
 
-from app.routes.auth_routes import router as auth_router
+from app.routes.auth_routes import me_router, router as auth_router
 from app.routes.conversation_routes import router as conversation_router
 from app.routes.chat_routes import router as chat_router
 from app.routes.admin_routes import router as admin_router
 from app.routes.suggest_routes import router as suggest_router
 
 app.include_router(auth_router)
+app.include_router(me_router)
 app.include_router(conversation_router)
 app.include_router(chat_router)
 app.include_router(admin_router)

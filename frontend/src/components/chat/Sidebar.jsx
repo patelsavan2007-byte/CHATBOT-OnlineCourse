@@ -372,14 +372,22 @@ export default function ChatSidebar({
           <div className="flex items-center justify-between border-t pt-2" style={{ borderColor: "var(--border)" }}>
             <div className="flex items-center gap-2 min-w-0">
               {/* allow-round: user avatar circle */}
-              <div
-                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white" /* allow-round: avatar circle */
-                style={{ background: "var(--accent)" }}
-              >
-                {(user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
-              </div>
+              {user.avatar_type === "photo" && (user.photo_url || user.avatar) ? (
+                <img
+                  src={user.photo_url || user.avatar}
+                  alt={user.display_name || user.name || "User"}
+                  className="h-6 w-6 shrink-0 rounded-full object-cover" /* allow-round: avatar circle */
+                />
+              ) : (
+                <div
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-semibold text-white" /* allow-round: avatar circle */
+                  style={{ background: "var(--accent)" }}
+                >
+                  {(user.display_name?.[0] || user.name?.[0] || user.email?.[0] || "U").toUpperCase()}
+                </div>
+              )}
               <span className="truncate text-xs font-medium" style={{ color: "var(--text)" }}>
-                {user.name || user.email}
+                {user.display_name || user.name || user.email}
               </span>
             </div>
             <button
