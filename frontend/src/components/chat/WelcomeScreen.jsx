@@ -1,25 +1,63 @@
 /**
  * WelcomeScreen - empty state for the chat page.
  * Plain scope statement, source disclosure, and 4 starter questions
- * taken from the real question bank as rectangular buttons.
+ * taken from validated question bank entries as rectangular buttons.
  */
 import { useEffect, useState } from "react";
 import ThemedLogo from "../ui/ThemedLogo.jsx";
-import { getRandomStarterQuestions, loadQuestionBank } from "../../lib/questionBank.js";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { loadQuestionBank } from "../../lib/questionBank.js";
+import { pickGreeting, pickDiverseStarters } from "../../lib/welcomeHelper.js";
+import validatedStarterIds from "../../data/validated_starters.json";
+
+const GREETING_STORAGE_KEY = "ccoe_last_greeting_idx";
+const RECENT_STARTERS_KEY = "ccoe_recent_starters";
 
 export default function WelcomeScreen({ onSendPrompt, questionBank }) {
+  const { user } = useAuth();
+  const [greeting, setGreeting] = useState("What would you like to know?");
   const [starters, setStarters] = useState([]);
 
   useEffect(() => {
+    // 1. Pick non-repeating greeting
+    try {
+      const storedIdx = sessionStorage.getItem(GREETING_STORAGE_KEY);
+      const { greeting: chosenGreeting, index } = pickGreeting(user, storedIdx);
+      setGreeting(chosenGreeting);
+      sessionStorage.setItem(GREETING_STORAGE_KEY, String(index));
+    } catch {
+      setGreeting(user ? "Welcome" : "What would you like to know?");
+    }
+  }, [user]);
+
+  useEffect(() => {
     let cancelled = false;
-    async function init() {
+
+    async function initStarters() {
       const bank = questionBank || (await loadQuestionBank());
-      if (!cancelled) {
-        const picked = getRandomStarterQuestions(bank);
-        setStarters(picked.slice(0, 4));
+      if (cancelled) return;
+
+      let recentIds = [];
+      try {
+        const rawRecent = sessionStorage.getItem(RECENT_STARTERS_KEY);
+        if (rawRecent) recentIds = JSON.parse(rawRecent);
+      } catch {
+        recentIds = [];
+      }
+
+      const picked = pickDiverseStarters(bank, validatedStarterIds, recentIds, 4);
+      if (!cancelled && picked.length > 0) {
+        setStarters(picked);
+        try {
+          const newRecent = picked.map((p) => p.id);
+          sessionStorage.setItem(RECENT_STARTERS_KEY, JSON.stringify(newRecent));
+        } catch {
+          // sessionStorage quota or disabled
+        }
       }
     }
-    init();
+
+    initStarters();
     return () => {
       cancelled = true;
     };
@@ -30,11 +68,15 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
       <div className="w-full max-w-2xl text-center">
         {/* CCOE Logo */}
         <div className="mb-4 flex justify-center">
-          <ThemedLogo variant="ccoe" height={40} alt="CCOE Logo" />
+          <ThemedLogo variant="ccoe" height={40} alt="Center for Online Education" />
         </div>
 
-        <h1 className="text-xl font-semibold tracking-tight sm:text-2xl" style={{ color: "var(--text)" }}>
-          What would you like to know?
+        {/* Heading: 28-32px, normal weight */}
+        <h1
+          className="text-2xl sm:text-3xl font-normal tracking-tight"
+          style={{ color: "var(--text)" }}
+        >
+          {greeting}
         </h1>
 
         <p className="mx-auto mt-2 max-w-lg text-sm leading-relaxed" style={{ color: "var(--text-2)" }}>
@@ -45,8 +87,12 @@ export default function WelcomeScreen({ onSendPrompt, questionBank }) {
           Answers are grounded in official CHARUSAT programme documentation.
         </p>
 
-        {/* 4 Starter Questions */}
-        <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2 text-left" role="group" aria-label="Sample questions">
+        {/* 4 Starter Questions: 2x2 grid (1 col on mobile) */}
+        <div
+          className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-2 text-left"
+          role="group"
+          aria-label="Sample questions"
+        >
           {starters.map((s) => (
             <button
               key={s.id}
