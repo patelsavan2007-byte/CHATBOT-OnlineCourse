@@ -26,5 +26,6 @@ deployment/dist/
 deployment/.env
 
 # Vercel CLI
-.vercel/backend/vector_db/
+.vercel/
+backend/vector_db/
 **/__pycache__/
