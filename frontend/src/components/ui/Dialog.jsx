@@ -1,5 +1,6 @@
 /**
  * Dialog - accessible, plain modal dialog for confirmations, alerts, and help.
+ * Focus trap, auto-focus on cancel by default, returns focus on close.
  * No backdrop-filter, no smooth animation hijacking. 150ms transition.
  */
 import { useEffect, useRef } from "react";
@@ -16,6 +17,29 @@ export default function Dialog({
   children,
 }) {
   const dialogRef = useRef(null);
+  const cancelBtnRef = useRef(null);
+  const previouslyFocusedRef = useRef(null);
+
+  useEffect(() => {
+    if (open) {
+      previouslyFocusedRef.current = document.activeElement;
+      const timer = setTimeout(() => {
+        if (cancelBtnRef.current) {
+          cancelBtnRef.current.focus();
+        } else if (dialogRef.current) {
+          const firstFocusable = dialogRef.current.querySelector(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          );
+          firstFocusable?.focus();
+        }
+      }, 50);
+      return () => clearTimeout(timer);
+    } else {
+      if (previouslyFocusedRef.current && typeof previouslyFocusedRef.current.focus === "function") {
+        previouslyFocusedRef.current.focus();
+      }
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -23,6 +47,29 @@ export default function Dialog({
       if (e.key === "Escape") {
         e.preventDefault();
         onClose?.();
+        return;
+      }
+      if (e.key === "Tab") {
+        if (!dialogRef.current) return;
+        const focusables = Array.from(
+          dialogRef.current.querySelectorAll(
+            'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        if (e.shiftKey) {
+          if (document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -43,6 +90,7 @@ export default function Dialog({
       <div
         className="fixed inset-0 bg-black/40 transition-opacity"
         aria-hidden="true"
+        onClick={onClose}
       />
 
       {/* Modal card */}
@@ -77,6 +125,7 @@ export default function Dialog({
           <div className="mt-5 flex justify-end gap-2.5">
             {onClose && cancelLabel && (
               <button
+                ref={cancelBtnRef}
                 type="button"
                 onClick={onClose}
                 className="rounded-md border px-3.5 py-1.5 text-xs font-medium transition hover:opacity-80 cursor-pointer"

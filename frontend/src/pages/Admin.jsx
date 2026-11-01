@@ -277,6 +277,7 @@ export default function Admin() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
+  const [showSignoutDialog, setShowSignoutDialog] = useState(false);
 
   // Global loading / error / toast state
   const [loading, setLoading] = useState(true);
@@ -614,8 +615,8 @@ export default function Admin() {
               <span className="font-mono">{user?.email}</span>
             </div>
             <button
-              onClick={handleLogout}
-              className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)]"
+              onClick={() => setShowSignoutDialog(true)}
+              className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)] cursor-pointer"
               style={{
                 borderColor: "var(--border)",
                 background: "var(--surface)",
@@ -1939,6 +1940,21 @@ export default function Admin() {
           Are you sure you want to clear the entire RAG question cache? Future queries will bypass cache and recompute full vector search and LLM calls until the cache repopulates.
         </p>
       </Dialog>
+
+      {/* Sign out confirmation dialog */}
+      <Dialog
+        open={showSignoutDialog}
+        onClose={() => setShowSignoutDialog(false)}
+        title="Sign out?"
+        description="You will need to sign in again to use the admin console."
+        confirmLabel="Sign out"
+        cancelLabel="Cancel"
+        danger
+        onConfirm={async () => {
+          setShowSignoutDialog(false);
+          await handleLogout();
+        }}
+      />
     </div>
   );
 }

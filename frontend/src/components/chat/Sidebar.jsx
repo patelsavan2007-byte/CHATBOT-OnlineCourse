@@ -138,6 +138,7 @@ export default function ChatSidebar({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [showSignoutDialog, setShowSignoutDialog] = useState(false);
 
   const handleLogout = useCallback(async () => {
     await logout();
@@ -391,7 +392,7 @@ export default function ChatSidebar({
               </span>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={() => setShowSignoutDialog(true)}
               className="text-[11px] hover:underline cursor-pointer"
               style={{ color: "var(--danger)" }}
               type="button"
@@ -411,6 +412,21 @@ export default function ChatSidebar({
           </div>
         )}
       </div>
+
+      {/* Sign out confirmation dialog */}
+      <Dialog
+        open={showSignoutDialog}
+        onClose={() => setShowSignoutDialog(false)}
+        title="Sign out?"
+        description="You will need to sign in again to see your saved chats."
+        confirmLabel="Sign out"
+        cancelLabel="Cancel"
+        danger
+        onConfirm={async () => {
+          setShowSignoutDialog(false);
+          await handleLogout();
+        }}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog

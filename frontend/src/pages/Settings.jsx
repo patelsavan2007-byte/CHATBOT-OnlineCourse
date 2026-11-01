@@ -714,14 +714,16 @@ export default function Settings() {
       <Dialog
         open={confirmSignout}
         onClose={() => setConfirmSignout(false)}
-        title="Sign Out"
-        confirmLabel="Sign Out"
-        onConfirm={handleLogout}
-      >
-        <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
-          Are you sure you want to sign out of your account? Your saved conversations remain safely stored on the server.
-        </p>
-      </Dialog>
+        title="Sign out?"
+        description="You will need to sign in again to see your saved chats."
+        confirmLabel="Sign out"
+        cancelLabel="Cancel"
+        danger
+        onConfirm={async () => {
+          setConfirmSignout(false);
+          await handleLogout();
+        }}
+      />
 
       {/* Confirm Delete Conversations Modal */}
       <Dialog
