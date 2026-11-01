@@ -52,6 +52,19 @@ def init_mongodb() -> Optional[Database]:
         logger.warning("MONGODB_URI not configured; skipping MongoDB initialisation")
         return None
 
+    db_name = os.getenv("MONGODB_DB", "charusat_assistant")
+
+    if os.getenv("USE_MONGOMOCK") == "1":
+        try:
+            import mongomock
+            _client = mongomock.MongoClient()
+            _db = _client[db_name]
+            _ensure_indexes(_db)
+            logger.info("Mongomock in-memory database initialized: '%s'", db_name)
+            return _db
+        except Exception as exc:
+            logger.warning("Failed to initialize mongomock: %s", exc)
+
     try:
         _client = MongoClient(
             uri,
@@ -60,10 +73,10 @@ def init_mongodb() -> Optional[Database]:
         )
         # Verify connectivity
         _client.admin.command("ping")
-        _db = _client[DB_NAME]
+        _db = _client[db_name]
         _ensure_indexes(_db)
-        print_info(f"MongoDB connected: {DB_NAME}")
-        logger.info("MongoDB connected to database '%s'", DB_NAME)
+        print_info(f"MongoDB connected: {db_name}")
+        logger.info("MongoDB connected to database '%s'", db_name)
         return _db
     except (ConnectionFailure, ServerSelectionTimeoutError) as exc:
         print_warning(f"MongoDB connection failed: {exc}")
