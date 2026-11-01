@@ -17,11 +17,6 @@ TEST_DB_NAME = f"charusat_test_throwaway_{uuid.uuid4().hex[:8]}"
 os.environ["MONGODB_DB"] = TEST_DB_NAME
 os.environ["USE_MONGOMOCK"] = "1"
 
-# Offline vector DB copy if present
-if "VECTOR_DB_DIR" not in os.environ:
-    copy_dir = Path("C:/AProjects/CHATB-vector-db-copy-20261031")
-    if copy_dir.exists():
-        os.environ["VECTOR_DB_DIR"] = str(copy_dir)
 
 # 2. Guard Check: Immediately abort if target equals the real default
 if os.environ.get("MONGODB_DB") in ("charusat_assistant", "charusat", "", None):
@@ -56,3 +51,4 @@ def pytest_sessionfinish(session, exitstatus):
                 client.drop_database(TEST_DB_NAME)
     except Exception:
         pass
+
