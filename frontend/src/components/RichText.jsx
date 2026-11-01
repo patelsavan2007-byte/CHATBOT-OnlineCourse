@@ -33,17 +33,33 @@ const markdownComponents = {
   td: ({ node, ...props }) => (
     <td className="break-words px-3.5 py-2 align-top text-[var(--text-secondary)] whitespace-normal" {...props} />
   ),
-  a: ({ node, href, children, ...props }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="font-medium text-[var(--accent-primary)] underline hover:text-[var(--accent-primary-hover)]"
-      {...props}
-    >
-      {children}
-    </a>
-  ),
+  a: ({ node, href, children, ...props }) => {
+    let isAllowed = false;
+    try {
+      if (href) {
+        const parsed = new URL(href, "https://charusat.online");
+        if (parsed.hostname === "charusat.online" || parsed.hostname.endsWith(".charusat.online")) {
+          isAllowed = true;
+        }
+      }
+    } catch {
+      isAllowed = false;
+    }
+    if (!isAllowed) {
+      return <span>{children}</span>;
+    }
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="font-medium text-[var(--accent-primary)] underline hover:text-[var(--accent-primary-hover)]"
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  },
   h1: ({ node, ...props }) => (
     <h1 className="mt-4 mb-2 text-lg font-bold text-[var(--text-primary)]" {...props} />
   ),

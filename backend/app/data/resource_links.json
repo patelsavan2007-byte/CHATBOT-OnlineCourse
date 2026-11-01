@@ -1,0 +1,39 @@
+[
+  {
+    "id": "admission_cancellation",
+    "triggers": [
+      "admission cancellation",
+      "cancel my admission",
+      "cancel admission",
+      "cancelling admission",
+      "canceling admission",
+      "withdraw admission",
+      "withdrawing admission",
+      "withdrawal of admission",
+      "admission cancellation form"
+    ],
+    "title": "Admission cancellation steps",
+    "url": "https://charusat.online/mandatory-disclosures.html",
+    "steps": [
+      "Open https://charusat.online/mandatory-disclosures.html",
+      "Scroll down to the section titled \"Admission and Fees Refund\".",
+      "Click \"Admission Cancellation Form\" to open the form. The \"Fees Refund Policy\" link is in the same section."
+    ]
+  },
+  {
+    "id": "fees_refund_policy",
+    "triggers": [
+      "fee refund",
+      "fees refund",
+      "refund policy",
+      "refund",
+      "money back",
+      "get my fees back",
+      "get my fee back",
+      "get my money back",
+      "fee return"
+    ],
+    "title": "Official fees refund policy (PDF)",
+    "url": "https://charusat.online/catalogs/Fees%20Refund%20Policy.pdf"
+  }
+]

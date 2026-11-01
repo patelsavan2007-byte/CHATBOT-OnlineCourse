@@ -341,6 +341,8 @@ def _process_chat_turn(
         return _TurnOutcome(clean_answer_text(answer_text), [], res, effective_plan, "unrelated")
 
     from app.citations import extract_citations
+    from app.resource_post_processor import apply_resource_links
+    answer_text = apply_resource_links(question, answer_text)
     sources = extract_citations(retrieved, answer_text=answer_text)
     return _TurnOutcome(clean_answer_text(answer_text), sources, res, effective_plan, "answer")
 

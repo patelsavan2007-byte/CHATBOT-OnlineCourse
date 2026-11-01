@@ -409,6 +409,13 @@ class RAGChain:
                 # else leave if not in allowed? but requirement says replace/remove others not in KB/official
         except Exception:
             pass
+
+        try:
+            from app.resource_post_processor import apply_resource_links
+            answer = apply_resource_links(question, answer)
+        except Exception as exc:
+            logger.warning("Resource link post-processing failed: %s", exc)
+
         return AnswerResult(answer, retrieved, _status, _timing, _conflicts, plan)
 
 
