@@ -584,6 +584,7 @@ async def chat_message_stream(
     history = _resolve_history(request.history, user, conversation_id)
 
     async def generate_response():
+        t_stream_start = time.time()
         from app.conversation import analyze_turn
         from app.smalltalk import is_smalltalk
         import uuid

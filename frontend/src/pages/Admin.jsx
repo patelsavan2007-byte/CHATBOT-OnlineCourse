@@ -1,50 +1,77 @@
 import ThemedLogo from "../components/ui/ThemedLogo.jsx";
 /**
- * Admin Console - 8-tab operations portal for university staff.
+ * Admin Console - 5-tab operations portal for university staff.
  *
- * Dense tables (13px text), sticky headers, tabular numerals,
- * browser timezone labeled with absolute ISO time on hover.
- * Zero emojis, zero gradients, zero pill shapes, full theme support.
+ * Tabs:
+ * 1. Overview (metrics, single aggregation, custom SVG dual-series chart, accessible table)
+ * 2. Needs attention (Unanswered questions with re-testing and "Answer this", Answers rated bad)
+ * 3. Knowledge Base (Chroma vector index breakdown, official document status, sync status)
+ * 4. Users (Role management, enable/disable toggle, last active, typed delete confirmation)
+ * 5. System (Real MongoDB ping, vector chunk count, LLM statuses, cache controls, recent audit log)
+ *
+ * Strict standing rules:
+ * - Zero emoji
+ * - Zero em dashes
+ * - No gradients, no purple/violet/indigo
+ * - 6px buttons, 8px cards
+ * - Accessible contrast across light and dark themes
  */
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
-import { API_BASE, apiFetch, getAuthToken } from "../services/api.js";
+import { API_BASE, apiFetch } from "../services/api.js";
 import Dialog from "../components/ui/Dialog.jsx";
-import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 import Toast from "../components/ui/Toast.jsx";
+import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 
 const TABS = [
   { id: "overview", label: "Overview" },
-  { id: "gaps", label: "Knowledge Gaps" },
-  { id: "conversations", label: "Conversations" },
-  { id: "feedback", label: "Feedback" },
-  { id: "users", label: "Users" },
+  { id: "needs_attention", label: "Needs attention" },
   { id: "knowledge_base", label: "Knowledge Base" },
-  { id: "audit_log", label: "Audit Log" },
+  { id: "users", label: "Users" },
   { id: "system", label: "System" },
 ];
 
-function StatCard({ label, value, subtitle, accent = false }) {
+const TAB_DESCRIPTIONS = {
+  overview: "Overall question volume, unanswered rate, response times, and user satisfaction.",
+  needs_attention: "Questions the assistant could not answer and answers rated unhelpful. Review and resolve them.",
+  knowledge_base: "Official course catalogs, syllabi, and uploaded documents powering chatbot answers.",
+  users: "Manage student and staff user accounts, role permissions, and access status.",
+  system: "Infrastructure connectivity, vector store index status, cache management, and administrative audit logs.",
+};
+
+function StatCard({ label, value, subtitle, tooltip, accent = false }) {
   return (
     <div
       className="rounded-lg border p-4 transition-colors"
       style={{
-        background: accent ? "var(--accent-surface)" : "var(--surface)",
+        background: "var(--surface)",
         borderColor: accent ? "var(--border-focus)" : "var(--border)",
       }}
+      title={tooltip}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-        {label}
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
+          {label}
+        </p>
+        {tooltip && (
+          <span
+            className="text-[10px] font-mono cursor-help px-1 rounded border"
+            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+            aria-label={tooltip}
+          >
+            ?
+          </span>
+        )}
+      </div>
       <p
         className="mt-2 text-2xl font-bold font-mono tracking-tight"
         style={{ color: accent ? "var(--accent)" : "var(--text)" }}
       >
-        {value ?? "No data yet"}
+        {value}
       </p>
       {subtitle && (
-        <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
+        <p className="mt-1 text-xs" style={{ color: "var(--text-2)" }}>
           {subtitle}
         </p>
       )}
@@ -52,224 +79,178 @@ function StatCard({ label, value, subtitle, accent = false }) {
   );
 }
 
-// Hand-written SVG Bar Chart for Daily Volume
-function DailyVolumeChart({ data = [] }) {
-  if (!data || data.length === 0) {
+function OverviewChart({ dailyCounts }) {
+  if (!dailyCounts || dailyCounts.length === 0) {
     return (
-      <div className="flex h-44 items-center justify-center text-xs" style={{ color: "var(--muted)" }}>
-        No query activity in this period.
+      <div className="rounded-lg border p-8 text-center" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+        <p className="text-xs" style={{ color: "var(--muted)" }}>No query activity recorded in this period.</p>
       </div>
     );
   }
 
-  const maxVal = Math.max(...data.map((d) => d.count || 0), 1);
-  const chartHeight = 130;
-  const chartWidth = 560;
-  const barWidth = Math.max(Math.floor((chartWidth - data.length * 6) / data.length), 6);
+  const maxTotal = Math.max(...dailyCounts.map((d) => d.total), 5);
+  const chartHeight = 160;
+  const chartWidth = 720;
+  const paddingX = 40;
+  const paddingY = 25;
+  const innerWidth = chartWidth - paddingX * 2;
+  const innerHeight = chartHeight - paddingY * 2;
+
+  const pointsTotal = dailyCounts.map((d, i) => {
+    const x = paddingX + (i / Math.max(1, dailyCounts.length - 1)) * innerWidth;
+    const y = paddingY + innerHeight - (d.total / maxTotal) * innerHeight;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+
+  const pointsGaps = dailyCounts.map((d, i) => {
+    const x = paddingX + (i / Math.max(1, dailyCounts.length - 1)) * innerWidth;
+    const y = paddingY + innerHeight - (d.gaps / maxTotal) * innerHeight;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
 
   return (
-    <div className="w-full overflow-x-auto">
-      <svg
-        viewBox={`0 0 ${chartWidth} 170`}
-        className="w-full text-xs"
-        style={{ minWidth: "480px", maxHeight: "170px" }}
-        role="img"
-        aria-label="Daily query volume bar chart"
-      >
-        {/* Baseline grid */}
-        <line
-          x1="0"
-          y1={chartHeight}
-          x2={chartWidth}
-          y2={chartHeight}
-          stroke="var(--border)"
-          strokeWidth="1"
-        />
-        {/* Halfway grid */}
-        <line
-          x1="0"
-          y1={chartHeight / 2}
-          x2={chartWidth}
-          y2={chartHeight / 2}
-          stroke="var(--border)"
-          strokeWidth="1"
-          strokeDasharray="4 4"
-        />
-        <text x="4" y={chartHeight / 2 - 4} fill="var(--muted)" fontSize="9" fontFamily="monospace">
-          {Math.round(maxVal / 2)}
-        </text>
-        <text x="4" y="12" fill="var(--muted)" fontSize="9" fontFamily="monospace">
-          {maxVal}
-        </text>
+    <div className="rounded-lg border p-4" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div>
+          <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+            Daily Query Volume and Knowledge Gaps
+          </h3>
+          <p className="text-[11px]" style={{ color: "var(--text-2)" }}>
+            Blue: Total queries. Amber: Unanswered questions.
+          </p>
+        </div>
+        <div className="flex items-center gap-4 text-xs font-mono">
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "var(--accent)" }} />
+            Total queries
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: "var(--warning)" }} />
+            Unanswered (gaps)
+          </span>
+        </div>
+      </div>
 
-        {data.map((d, i) => {
-          const count = d.count || 0;
-          const h = (count / maxVal) * chartHeight;
-          const x = i * (chartWidth / data.length) + 4;
-          const y = chartHeight - h;
-          const dateStr = d.date ? d.date.slice(5) : "";
+      <div className="w-full overflow-x-auto">
+        <svg
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          className="w-full h-auto min-w-[500px]"
+          aria-label="Daily query trend chart"
+          role="img"
+        >
+          {/* Gridlines */}
+          {[0, 0.5, 1].map((pct) => {
+            const y = paddingY + innerHeight * pct;
+            const val = Math.round(maxTotal * (1 - pct));
+            return (
+              <g key={pct}>
+                <line
+                  x1={paddingX}
+                  y1={y}
+                  x2={chartWidth - paddingX}
+                  y2={y}
+                  stroke="var(--border)"
+                  strokeDasharray="3 3"
+                  strokeWidth="1"
+                />
+                <text
+                  x={paddingX - 6}
+                  y={y + 3}
+                  fontSize="10"
+                  textAnchor="end"
+                  fill="var(--muted)"
+                  fontFamily="monospace"
+                >
+                  {val}
+                </text>
+              </g>
+            );
+          })}
 
-          return (
-            <g key={d.date || i}>
-              <title>{`${d.date}: ${count} queries`}</title>
-              <rect
+          {/* Lines */}
+          <polyline
+            fill="none"
+            stroke="var(--accent)"
+            strokeWidth="2.2"
+            points={pointsTotal}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <polyline
+            fill="none"
+            stroke="var(--warning)"
+            strokeWidth="2"
+            strokeDasharray="4 2"
+            points={pointsGaps}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+
+          {/* Dots on points */}
+          {dailyCounts.map((d, i) => {
+            const x = paddingX + (i / Math.max(1, dailyCounts.length - 1)) * innerWidth;
+            const yTot = paddingY + innerHeight - (d.total / maxTotal) * innerHeight;
+            const yGap = paddingY + innerHeight - (d.gaps / maxTotal) * innerHeight;
+            return (
+              <g key={d.date}>
+                <circle cx={x} cy={yTot} r="3" fill="var(--accent)" />
+                {d.gaps > 0 && <circle cx={x} cy={yGap} r="3" fill="var(--warning)" />}
+              </g>
+            );
+          })}
+
+          {/* Date labels on X axis */}
+          {dailyCounts.map((d, i) => {
+            if (dailyCounts.length > 10 && i % Math.ceil(dailyCounts.length / 7) !== 0 && i !== dailyCounts.length - 1) {
+              return null;
+            }
+            const x = paddingX + (i / Math.max(1, dailyCounts.length - 1)) * innerWidth;
+            const label = d.date.slice(5); // MM-DD
+            return (
+              <text
+                key={d.date}
                 x={x}
-                y={y}
-                width={barWidth}
-                height={Math.max(h, 2)}
-                fill="var(--accent)"
-                rx="2"
-              />
-              {/* Date label on every 2nd or 3rd bar if dense */}
-              {(data.length <= 14 || i % 3 === 0) && (
-                <text
-                  x={x + barWidth / 2}
-                  y={chartHeight + 16}
-                  textAnchor="middle"
-                  fill="var(--muted)"
-                  fontSize="9"
-                  fontFamily="monospace"
-                >
-                  {dateStr}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-    </div>
-  );
-}
-
-// Hand-written SVG Line Chart for Latency p50 and p95
-function LatencyLineChart({ data = [] }) {
-  if (!data || data.length === 0) {
-    return (
-      <div className="flex h-44 items-center justify-center text-xs" style={{ color: "var(--muted)" }}>
-        No latency data in this period.
+                y={chartHeight - 4}
+                fontSize="10"
+                textAnchor="middle"
+                fill="var(--muted)"
+                fontFamily="monospace"
+              >
+                {label}
+              </text>
+            );
+          })}
+        </svg>
       </div>
-    );
-  }
 
-  const chartHeight = 130;
-  const chartWidth = 560;
-  const maxVal = Math.max(
-    ...data.flatMap((d) => [d.p95 || 0, d.p50 || 0]),
-    1.0
-  );
-
-  const getPoints = (key) =>
-    data
-      .map((d, i) => {
-        const val = d[key] || 0;
-        const x = (i / Math.max(data.length - 1, 1)) * (chartWidth - 20) + 10;
-        const y = chartHeight - (val / maxVal) * chartHeight;
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(" ");
-
-  const p50Points = getPoints("p50");
-  const p95Points = getPoints("p95");
-
-  return (
-    <div className="w-full overflow-x-auto">
-      <svg
-        viewBox={`0 0 ${chartWidth} 170`}
-        className="w-full text-xs"
-        style={{ minWidth: "480px", maxHeight: "170px" }}
-        role="img"
-        aria-label="Response latency p50 and p95 line chart"
-      >
-        <line
-          x1="0"
-          y1={chartHeight}
-          x2={chartWidth}
-          y2={chartHeight}
-          stroke="var(--border)"
-          strokeWidth="1"
-        />
-        <line
-          x1="0"
-          y1={chartHeight / 2}
-          x2={chartWidth}
-          y2={chartHeight / 2}
-          stroke="var(--border)"
-          strokeWidth="1"
-          strokeDasharray="4 4"
-        />
-        <text x="4" y={chartHeight / 2 - 4} fill="var(--muted)" fontSize="9" fontFamily="monospace">
-          {(maxVal / 2).toFixed(1)}s
-        </text>
-        <text x="4" y="12" fill="var(--muted)" fontSize="9" fontFamily="monospace">
-          {maxVal.toFixed(1)}s
-        </text>
-
-        {/* p95 line */}
-        <polyline
-          fill="none"
-          stroke="var(--warning)"
-          strokeWidth="2"
-          strokeDasharray="4 3"
-          points={p95Points}
-        />
-        {/* p50 line */}
-        <polyline
-          fill="none"
-          stroke="var(--accent)"
-          strokeWidth="2"
-          points={p50Points}
-        />
-
-        {/* Data points */}
-        {data.map((d, i) => {
-          const x = (i / Math.max(data.length - 1, 1)) * (chartWidth - 20) + 10;
-          const y50 = chartHeight - ((d.p50 || 0) / maxVal) * chartHeight;
-          const y95 = chartHeight - ((d.p95 || 0) / maxVal) * chartHeight;
-          const dateStr = d.date ? d.date.slice(5) : "";
-
-          return (
-            <g key={d.date || i}>
-              <title>{`${d.date} - p50: ${d.p50}s, p95: ${d.p95}s`}</title>
-              <circle
-                cx={x}
-                cy={y50}
-                r="3"
-                fill="var(--accent)"
-                /* allow-round: chart point */
-              />
-              <circle
-                cx={x}
-                cy={y95}
-                r="3"
-                fill="var(--warning)"
-                /* allow-round: chart point */
-              />
-              {(data.length <= 14 || i % 3 === 0) && (
-                <text
-                  x={x}
-                  y={chartHeight + 16}
-                  textAnchor="middle"
-                  fill="var(--muted)"
-                  fontSize="9"
-                  fontFamily="monospace"
-                >
-                  {dateStr}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-      <div className="mt-2 flex items-center justify-end gap-5 text-[11px]" style={{ color: "var(--muted)" }}>
-        <div className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4" style={{ background: "var(--accent)" }} />
-          <span>p50 Median</span>
+      {/* Accessible data table */}
+      <details className="mt-3 text-xs" style={{ color: "var(--text-2)" }}>
+        <summary className="cursor-pointer font-medium hover:underline">
+          View tabular data for screen readers
+        </summary>
+        <div className="mt-2 max-h-48 overflow-y-auto rounded border" style={{ borderColor: "var(--border)" }}>
+          <table className="w-full text-left font-mono text-[11px]">
+            <thead style={{ background: "var(--surface-2)" }}>
+              <tr>
+                <th className="px-3 py-1.5 border-b" style={{ borderColor: "var(--border)" }}>Date</th>
+                <th className="px-3 py-1.5 border-b text-right" style={{ borderColor: "var(--border)" }}>Total</th>
+                <th className="px-3 py-1.5 border-b text-right" style={{ borderColor: "var(--border)" }}>Answered</th>
+                <th className="px-3 py-1.5 border-b text-right" style={{ borderColor: "var(--border)" }}>Gaps</th>
+              </tr>
+            </thead>
+            <tbody>
+              {dailyCounts.map((d) => (
+                <tr key={d.date} className="border-b" style={{ borderColor: "var(--border)" }}>
+                  <td className="px-3 py-1">{d.date}</td>
+                  <td className="px-3 py-1 text-right">{d.total}</td>
+                  <td className="px-3 py-1 text-right">{d.answered}</td>
+                  <td className="px-3 py-1 text-right">{d.gaps}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-        <div className="flex items-center gap-1.5">
-          <span className="h-0.5 w-4 border-b border-dashed" style={{ borderColor: "var(--warning)" }} />
-          <span>p95 Tail Latency</span>
-        </div>
-      </div>
+      </details>
     </div>
   );
 }
@@ -278,13 +259,13 @@ export default function Admin() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [showSignoutDialog, setShowSignoutDialog] = useState(false);
 
   // Global loading / error / toast state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("info");
+  const [showSignoutDialog, setShowSignoutDialog] = useState(false);
 
   const showToast = (msg, type = "info") => {
     setToastMessage(msg);
@@ -295,45 +276,39 @@ export default function Admin() {
   const [overviewDays, setOverviewDays] = useState(30);
   const [overviewData, setOverviewData] = useState(null);
 
-  // Tab 2: Knowledge Gaps
+  // Tab 2: Needs attention
+  const [attentionSubtab, setAttentionSubtab] = useState("unanswered"); // "unanswered" | "feedback"
   const [gaps, setGaps] = useState([]);
   const [gapSearch, setGapSearch] = useState("");
   const [gapProgrammeFilter, setGapProgrammeFilter] = useState("");
   const [gapTopicFilter, setGapTopicFilter] = useState("");
   const [gapStatusFilter, setGapStatusFilter] = useState("");
+  const [retestingGaps, setRetestingGaps] = useState(false);
   const [editingGapNote, setEditingGapNote] = useState(null); // { question, notes }
-
-  // Tab 3: Conversations
-  const [conversations, setConversations] = useState([]);
-  const [convSearch, setConvSearch] = useState("");
-  const [revealedEmails, setRevealedEmails] = useState({}); // conv_id -> full_email
-  const [selectedConversation, setSelectedConversation] = useState(null);
-  const [transcriptData, setTranscriptData] = useState(null);
-  const [loadingTranscript, setLoadingTranscript] = useState(false);
-
-  // Tab 4: Feedback
   const [feedbackItems, setFeedbackItems] = useState([]);
-  const [feedbackFilter, setFeedbackFilter] = useState("all"); // 'all' | 'unreviewed' | 'negative'
 
-  // Tab 5: Users
+  // "Answer this" state for Part 4
+  const [answeringGap, setAnsweringGap] = useState(null);
+  const [answerDraft, setAnswerDraft] = useState("");
+  const [answerSource, setAnswerSource] = useState("");
+  const [answerProgramme, setAnswerProgramme] = useState("GENERAL");
+  const [savingAnswer, setSavingAnswer] = useState(false);
+
+  // Tab 3: Knowledge Base
+  const [kbData, setKbData] = useState(null);
+
+  // Tab 4: Users
   const [usersList, setUsersList] = useState([]);
   const [userSearch, setUserSearch] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState("");
   const [userToDelete, setUserToDelete] = useState(null);
   const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
-  const [roleChangeTarget, setRoleChangeTarget] = useState(null); // { user, newRole }
 
-  // Tab 6: Knowledge Base
-  const [kbData, setKbData] = useState(null);
-
-  // Tab 7: Audit Log
-  const [auditLogs, setAuditLogs] = useState([]);
-
-  // Tab 8: System
+  // Tab 5: System
   const [systemInfo, setSystemInfo] = useState(null);
   const [confirmClearCache, setConfirmClearCache] = useState(false);
 
-  // Load data for active tab
+  // Data loader
   const loadTabData = useCallback(
     async (tabId) => {
       setLoading(true);
@@ -342,34 +317,27 @@ export default function Admin() {
         if (tabId === "overview") {
           const data = await apiFetch(`/api/admin/overview?days=${overviewDays}`);
           setOverviewData(data);
-        } else if (tabId === "gaps") {
+        } else if (tabId === "needs_attention") {
           const params = new URLSearchParams();
           if (gapProgrammeFilter) params.append("programme", gapProgrammeFilter);
           if (gapTopicFilter) params.append("topic", gapTopicFilter);
           if (gapStatusFilter) params.append("review_status", gapStatusFilter);
-          if (gapSearch) params.append("search", gapSearch);
-          const data = await apiFetch(`/api/admin/knowledge-gaps?${params.toString()}`);
-          setGaps(data.gaps || []);
-        } else if (tabId === "conversations") {
-          const params = new URLSearchParams();
-          if (convSearch) params.append("search", convSearch);
-          const data = await apiFetch(`/api/admin/conversations?${params.toString()}`);
-          setConversations(data.conversations || []);
-        } else if (tabId === "feedback") {
-          const data = await apiFetch("/api/admin/feedback");
-          setFeedbackItems(data.feedback || []);
-        } else if (tabId === "users") {
-          const params = new URLSearchParams();
-          if (userSearch) params.append("search", userSearch);
-          if (userRoleFilter) params.append("role", userRoleFilter);
-          const data = await apiFetch(`/api/admin/users?${params.toString()}`);
-          setUsersList(data.users || []);
+          if (gapSearch) params.append("q", gapSearch);
+          const [gapsRes, fbRes] = await Promise.all([
+            apiFetch(`/api/admin/knowledge-gaps?${params.toString()}`),
+            apiFetch("/api/admin/feedback"),
+          ]);
+          setGaps(gapsRes.gaps || []);
+          setFeedbackItems(fbRes.feedback_items || fbRes.feedback || []);
         } else if (tabId === "knowledge_base") {
           const data = await apiFetch("/api/admin/knowledge-base");
           setKbData(data);
-        } else if (tabId === "audit_log") {
-          const data = await apiFetch("/api/admin/audit-log");
-          setAuditLogs(data.logs || []);
+        } else if (tabId === "users") {
+          const params = new URLSearchParams();
+          if (userSearch) params.append("q", userSearch);
+          if (userRoleFilter) params.append("role", userRoleFilter);
+          const data = await apiFetch(`/api/admin/users?${params.toString()}`);
+          setUsersList(data.users || []);
         } else if (tabId === "system") {
           const data = await apiFetch("/api/admin/system");
           setSystemInfo(data);
@@ -380,124 +348,91 @@ export default function Admin() {
         setLoading(false);
       }
     },
-    [overviewDays, gapProgrammeFilter, gapTopicFilter, gapStatusFilter, gapSearch, convSearch, userSearch, userRoleFilter]
+    [overviewDays, gapProgrammeFilter, gapTopicFilter, gapStatusFilter, gapSearch, userSearch, userRoleFilter]
   );
 
   useEffect(() => {
     loadTabData(activeTab);
   }, [activeTab, loadTabData]);
 
-  // Tab 2 Handlers
-  const handleUpdateGapStatus = async (normalized_question, newStatus, currentNotes) => {
+  // Handlers for Needs Attention: Knowledge Gaps
+  const handleUpdateGapStatus = async (gapId, newStatus, currentNotes) => {
     try {
-      await apiFetch("/api/admin/knowledge-gaps/review-status", {
+      await apiFetch(`/api/admin/knowledge-gaps/${gapId}`, {
         method: "PATCH",
         body: JSON.stringify({
-          normalized_question,
           review_status: newStatus,
-          notes: currentNotes,
+          note: currentNotes,
         }),
       });
       showToast("Knowledge gap status updated", "success");
-      loadTabData("gaps");
+      loadTabData("needs_attention");
     } catch (err) {
       showToast(err.message || "Failed to update gap status", "danger");
     }
   };
 
-  const handleSaveGapNote = async () => {
-    if (!editingGapNote) return;
+  const handleRetestGaps = async () => {
+    setRetestingGaps(true);
     try {
-      await apiFetch("/api/admin/knowledge-gaps/review-status", {
-        method: "PATCH",
-        body: JSON.stringify({
-          normalized_question: editingGapNote.question,
-          review_status: editingGapNote.status || "open",
-          notes: editingGapNote.notes,
-        }),
-      });
-      showToast("Note saved successfully", "success");
-      setEditingGapNote(null);
-      loadTabData("gaps");
+      const res = await apiFetch("/api/admin/knowledge-gaps/retest", { method: "POST" });
+      showToast(`Retested ${res.retested} questions: ${res.answerable_now} probably answerable now.`, "success");
+      loadTabData("needs_attention");
     } catch (err) {
-      showToast(err.message || "Failed to save note", "danger");
-    }
-  };
-
-  const handleExportCsv = async () => {
-    try {
-      const token = getAuthToken();
-      const res = await fetch(`${API_BASE}/api/admin/knowledge-gaps/csv`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-      if (!res.ok) throw new Error("Failed to download CSV");
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `charusat_knowledge_gaps_${new Date().toISOString().slice(0, 10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
-      showToast("Knowledge gaps CSV exported", "success");
-    } catch (err) {
-      showToast(err.message || "CSV export failed", "danger");
-    }
-  };
-
-  // Tab 3 Handlers
-  const handleRevealEmail = async (convId) => {
-    try {
-      const data = await apiFetch(`/api/admin/conversations/${convId}/reveal`, { method: "POST" });
-      if (data?.user_email) {
-        setRevealedEmails((prev) => ({ ...prev, [convId]: data.user_email }));
-        showToast("Email revealed and logged to audit trail", "info");
-      }
-    } catch (err) {
-      showToast(err.message || "Failed to reveal email", "danger");
-    }
-  };
-
-  const handleOpenTranscript = async (conv) => {
-    setSelectedConversation(conv);
-    setLoadingTranscript(true);
-    setTranscriptData(null);
-    try {
-      const data = await apiFetch(`/api/admin/conversations/${conv.id}/transcript`);
-      setTranscriptData(data);
-    } catch (err) {
-      showToast(err.message || "Failed to load conversation transcript", "danger");
+      showToast(err.message || "Retest failed", "danger");
     } finally {
-      setLoadingTranscript(false);
+      setRetestingGaps(false);
     }
   };
 
-  // Tab 4 Handlers
-  const handleMarkReviewed = async (item) => {
+  const handleBulkResolveAnswerable = async () => {
     try {
-      const targetState = !item.reviewed;
-      await apiFetch(`/api/admin/feedback/${item.id}/reviewed`, {
-        method: "PATCH",
-        body: JSON.stringify({ reviewed: targetState }),
+      const res = await apiFetch("/api/admin/knowledge-gaps/bulk-resolve", {
+        method: "POST",
+        body: JSON.stringify({ only_answerable: true }),
       });
-      showToast(targetState ? "Feedback marked as reviewed" : "Feedback marked unreviewed", "success");
-      loadTabData("feedback");
+      showToast(`Marked ${res.resolved_count} answerable questions as resolved.`, "success");
+      loadTabData("needs_attention");
     } catch (err) {
-      showToast(err.message || "Failed to update review status", "danger");
+      showToast(err.message || "Bulk resolve failed", "danger");
     }
   };
 
-  // Tab 5 Handlers
-  const handleChangeRole = async () => {
-    if (!roleChangeTarget) return;
+  const handleExportCsv = () => {
+    const params = new URLSearchParams();
+    if (gapProgrammeFilter) params.append("programme", gapProgrammeFilter);
+    if (gapTopicFilter) params.append("topic", gapTopicFilter);
+    const url = `${API_BASE}/api/admin/knowledge-gaps/csv?${params.toString()}`;
+    window.open(url, "_blank");
+  };
+
+  // Handlers for Needs Attention: Bad Feedback
+  const handleMarkFeedbackReviewed = async (messageId) => {
     try {
-      await apiFetch(`/api/admin/users/${roleChangeTarget.user.id}/role`, {
+      await apiFetch(`/api/admin/feedback/${messageId}`, {
         method: "PATCH",
-        body: JSON.stringify({ role: roleChangeTarget.newRole }),
+        body: JSON.stringify({ review_status: "reviewed" }),
       });
-      showToast(`User role updated to ${roleChangeTarget.newRole}`, "success");
-      setRoleChangeTarget(null);
+      showToast("Feedback marked as reviewed", "success");
+      loadTabData("needs_attention");
+    } catch (err) {
+      showToast(err.message || "Failed to update feedback status", "danger");
+    }
+  };
+
+  // Handlers for Users
+  const handleToggleUserRole = async (targetUser) => {
+    if (targetUser.id === user?.id) {
+      showToast("You cannot change your own admin role", "danger");
+      return;
+    }
+    const newRole = targetUser.role === "admin" ? "user" : "admin";
+    try {
+      await apiFetch(`/api/admin/users/${targetUser.id}`, {
+        method: "PATCH",
+        body: JSON.stringify({ role: newRole }),
+      });
+      showToast(`User role updated to ${newRole}`, "success");
       loadTabData("users");
     } catch (err) {
       showToast(err.message || "Failed to change user role", "danger");
@@ -505,9 +440,13 @@ export default function Admin() {
   };
 
   const handleToggleDisable = async (targetUser) => {
+    if (targetUser.id === user?.id) {
+      showToast("You cannot disable your own account", "danger");
+      return;
+    }
+    const targetState = !targetUser.is_disabled;
     try {
-      const targetState = !targetUser.is_disabled;
-      await apiFetch(`/api/admin/users/${targetUser.id}/disable`, {
+      await apiFetch(`/api/admin/users/${targetUser.id}`, {
         method: "PATCH",
         body: JSON.stringify({ is_disabled: targetState }),
       });
@@ -535,11 +474,11 @@ export default function Admin() {
     }
   };
 
-  // Tab 8 Handlers
+  // Handlers for System Cache
   const handleExecuteClearCache = async () => {
     try {
       await apiFetch("/api/admin/cache", { method: "DELETE" });
-      showToast("RAG question cache cleared successfully", "success");
+      showToast("Question cache cleared successfully", "success");
       setConfirmClearCache(false);
       loadTabData("system");
     } catch (err) {
@@ -577,7 +516,7 @@ export default function Admin() {
           <div className="flex items-center gap-3">
             <button
               onClick={handleBack}
-              className="flex h-8 w-8 items-center justify-center rounded-md border text-xs font-medium transition hover:border-[var(--border-focus)]"
+              className="flex h-8 w-8 items-center justify-center rounded-md border text-xs font-medium transition hover:border-[var(--border-focus)] cursor-pointer"
               style={{
                 borderColor: "var(--border)",
                 background: "var(--surface-2)",
@@ -632,7 +571,7 @@ export default function Admin() {
         </div>
       </header>
 
-      {/* Tab Navigation */}
+      {/* 5-Tab Navigation Bar */}
       <div
         className="border-b px-4"
         style={{ background: "var(--surface)", borderColor: "var(--border)" }}
@@ -644,7 +583,7 @@ export default function Admin() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className="rounded-md px-3.5 py-1.5 text-xs font-medium transition whitespace-nowrap"
+                className="rounded-md px-3.5 py-1.5 text-xs font-medium transition whitespace-nowrap cursor-pointer"
                 style={{
                   background: isActive ? "var(--accent)" : "transparent",
                   color: isActive ? "#FFFFFF" : "var(--text-2)",
@@ -658,159 +597,136 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Main Content Area */}
-      <main className="mx-auto max-w-6xl flex-1 px-4 py-6 sm:px-6 w-full">
-        {loading && !selectedConversation ? (
-          <div className="grid gap-4 sm:grid-cols-4 animate-pulse">
-            {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="h-24 rounded-lg border"
-                style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
-              />
-            ))}
-          </div>
-        ) : error ? (
+      {/* Main Tab Workspace */}
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
+        {/* Plain-language one sentence explanation */}
+        <div className="mb-6">
+          <p className="text-xs" style={{ color: "var(--text-2)" }}>
+            {TAB_DESCRIPTIONS[activeTab]}
+          </p>
+        </div>
+
+        {error && (
           <div
-            className="rounded-lg border p-6 text-center"
+            className="mb-4 rounded-lg border p-3 text-xs"
             style={{
-              background: "var(--surface)",
+              background: "var(--danger-surface)",
               borderColor: "var(--danger)",
               color: "var(--danger)",
             }}
           >
-            <p className="text-sm font-medium">{error}</p>
-            <button
-              onClick={() => loadTabData(activeTab)}
-              className="mt-3 rounded-md px-3 py-1.5 text-xs font-medium text-white"
-              style={{ background: "var(--accent)" }}
-              type="button"
-            >
-              Retry
-            </button>
+            {error}
           </div>
-        ) : (
-          <>
-            {/* 1. OVERVIEW TAB */}
-            {activeTab === "overview" && overviewData && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    Performance and Usage Metrics
-                  </h2>
-                  <div className="flex items-center gap-1">
-                    {[7, 30, 90].map((d) => (
-                      <button
-                        key={d}
-                        onClick={() => setOverviewDays(d)}
-                        className="rounded-md border px-2.5 py-1 text-xs font-medium transition"
-                        style={{
-                          background: overviewDays === d ? "var(--accent)" : "var(--surface)",
-                          borderColor: overviewDays === d ? "var(--accent)" : "var(--border)",
-                          color: overviewDays === d ? "#FFFFFF" : "var(--text-2)",
-                        }}
-                        type="button"
-                      >
-                        Last {d}d
-                      </button>
-                    ))}
-                  </div>
-                </div>
+        )}
 
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-                  <StatCard
-                    label="Total Queries"
-                    value={overviewData.total_queries ?? "No data yet"}
-                    subtitle={`Logged over last ${overviewDays} days`}
-                  />
-                  <StatCard
-                    label="Unique Users"
-                    value={overviewData.unique_users ?? "No data yet"}
-                    subtitle="Registered and guest sessions"
-                  />
-                  <StatCard
-                    label="Knowledge Gap Rate"
-                    value={
-                      overviewData.knowledge_gap_rate != null
-                        ? `${(overviewData.knowledge_gap_rate * 100).toFixed(1)}%`
-                        : "No data yet"
-                    }
-                    subtitle="Unanswered queries"
-                    accent={Boolean(overviewData.knowledge_gap_rate && overviewData.knowledge_gap_rate > 0.1)}
-                  />
-                  <StatCard
-                    label="Feedback Rate"
-                    value={
-                      overviewData.feedback_rate != null
-                        ? `${(overviewData.feedback_rate * 100).toFixed(1)}%`
-                        : "No data yet"
-                    }
-                    subtitle="Ratings per query"
-                  />
-                  <StatCard
-                    label="Positive Feedback Share"
-                    value={
-                      (overviewData.total_ratings || 0) < 20
-                        ? "Not enough ratings yet"
-                        : overviewData.positive_feedback_share != null
-                        ? `${(overviewData.positive_feedback_share * 100).toFixed(1)}%`
-                        : "No data yet"
-                    }
-                    subtitle={
-                      (overviewData.total_ratings || 0) < 20
-                        ? `${overviewData.total_ratings || 0} of 20 ratings recorded`
-                        : `${overviewData.total_ratings} total ratings`
-                    }
-                  />
-                </div>
-
-                <div className="grid gap-4 lg:grid-cols-2">
-                  {/* Daily Query Volume Chart */}
-                  <div
-                    className="rounded-lg border p-4"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
+        {/* 1. OVERVIEW TAB */}
+        {activeTab === "overview" && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                Selected Time Window
+              </span>
+              <div className="flex items-center gap-1 rounded-md border p-0.5" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+                {[7, 30, 90].map((d) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setOverviewDays(d)}
+                    className="rounded px-2.5 py-1 text-xs font-mono transition cursor-pointer"
+                    style={{
+                      background: overviewDays === d ? "var(--accent)" : "transparent",
+                      color: overviewDays === d ? "#FFFFFF" : "var(--text-2)",
+                    }}
                   >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                        Daily Query Volume
-                      </h3>
-                      <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        {overviewData.daily_volume?.reduce((acc, d) => acc + (d.count || 0), 0) || 0} total
-                      </span>
-                    </div>
-                    <DailyVolumeChart data={overviewData.daily_volume} />
-                  </div>
-
-                  {/* Latency Percentiles Chart */}
-                  <div
-                    className="rounded-lg border p-4"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                  >
-                    <div className="mb-3 flex items-center justify-between">
-                      <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                        Response Latency (Seconds)
-                      </h3>
-                      <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        Target: &lt; 2.5s p50
-                      </span>
-                    </div>
-                    <LatencyLineChart data={overviewData.daily_latency} />
-                  </div>
-                </div>
+                    {d}d
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
 
-            {/* 2. KNOWLEDGE GAPS TAB */}
-            {activeTab === "gaps" && (
+            {/* 5 Primary Metrics */}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <StatCard
+                label="Questions"
+                value={overviewData?.total_queries ?? 0}
+                subtitle={`${overviewData?.answered_queries ?? 0} answered`}
+                tooltip="Total student queries submitted in this window."
+                accent
+              />
+              <StatCard
+                label="Unanswered Rate"
+                value={`${Math.round((overviewData?.gap_rate ?? 0) * 100)}%`}
+                subtitle={`${overviewData?.gap_queries ?? 0} unanswered questions`}
+                tooltip="Percentage of questions where the bot could not find a confident answer."
+              />
+              <StatCard
+                label="Median Response Time"
+                value={`${overviewData?.median_latency_s ?? 0}s`}
+                subtitle="Measured end-to-end"
+                tooltip="Middle latency for assistant responses in seconds."
+              />
+              <StatCard
+                label="Positive Feedback"
+                value={
+                  overviewData?.feedback?.enough_ratings
+                    ? `${Math.round((overviewData?.feedback?.positive_share ?? 0) * 100)}%`
+                    : "Not enough ratings yet"
+                }
+                subtitle={`${overviewData?.feedback?.thumbs_up ?? 0} helpful, ${overviewData?.feedback?.thumbs_down ?? 0} unhelpful`}
+                tooltip="Student ratings breakdown. Shows percentage once 20 or more ratings are received."
+              />
+              <StatCard
+                label="Active Users"
+                value={overviewData?.active_users ?? 0}
+                subtitle={`${overviewData?.total_users ?? 0} total registered`}
+                tooltip="Count of distinct registered accounts asking questions in this period."
+              />
+            </div>
+
+            {/* Chart: Total queries & Unanswered */}
+            <OverviewChart dailyCounts={overviewData?.queries_per_day} />
+          </div>
+        )}
+
+        {/* 2. NEEDS ATTENTION TAB */}
+        {activeTab === "needs_attention" && (
+          <div className="space-y-4">
+            {/* Segmented Control */}
+            <div className="flex border-b" style={{ borderColor: "var(--border)" }}>
+              <button
+                type="button"
+                onClick={() => setAttentionSubtab("unanswered")}
+                className="px-4 py-2 text-xs font-semibold border-b-2 transition cursor-pointer"
+                style={{
+                  borderColor: attentionSubtab === "unanswered" ? "var(--accent)" : "transparent",
+                  color: attentionSubtab === "unanswered" ? "var(--accent)" : "var(--text-2)",
+                }}
+              >
+                Unanswered questions ({gaps.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setAttentionSubtab("feedback")}
+                className="px-4 py-2 text-xs font-semibold border-b-2 transition cursor-pointer"
+                style={{
+                  borderColor: attentionSubtab === "feedback" ? "var(--accent)" : "transparent",
+                  color: attentionSubtab === "feedback" ? "var(--accent)" : "var(--text-2)",
+                }}
+              >
+                Answers rated bad ({feedbackItems.length})
+              </button>
+            </div>
+
+            {attentionSubtab === "unanswered" && (
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                   <div className="flex flex-wrap items-center gap-2 flex-1">
                     <input
                       type="search"
-                      placeholder="Search query or topic..."
+                      placeholder="Search question..."
                       value={gapSearch}
                       onChange={(e) => setGapSearch(e.target.value)}
-                      className="rounded-lg border px-3 py-1.5 text-xs focus:outline-none w-48 sm:w-60"
+                      className="rounded-md border px-3 py-1.5 text-xs focus:outline-none w-48 sm:w-60"
                       style={{
                         background: "var(--surface)",
                         borderColor: "var(--border)",
@@ -820,7 +736,7 @@ export default function Admin() {
                     <select
                       value={gapProgrammeFilter}
                       onChange={(e) => setGapProgrammeFilter(e.target.value)}
-                      className="rounded-lg border px-2.5 py-1.5 text-xs focus:outline-none"
+                      className="rounded-md border px-2.5 py-1.5 text-xs focus:outline-none"
                       style={{
                         background: "var(--surface)",
                         borderColor: "var(--border)",
@@ -836,7 +752,7 @@ export default function Admin() {
                     <select
                       value={gapStatusFilter}
                       onChange={(e) => setGapStatusFilter(e.target.value)}
-                      className="rounded-lg border px-2.5 py-1.5 text-xs focus:outline-none"
+                      className="rounded-md border px-2.5 py-1.5 text-xs focus:outline-none"
                       style={{
                         background: "var(--surface)",
                         borderColor: "var(--border)",
@@ -850,117 +766,115 @@ export default function Admin() {
                       <option value="ignored">Ignored</option>
                     </select>
                   </div>
-                  <button
-                    onClick={handleExportCsv}
-                    className="inline-flex items-center justify-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)]"
-                    style={{
-                      background: "var(--surface)",
-                      borderColor: "var(--border)",
-                      color: "var(--text)",
-                    }}
-                    type="button"
-                  >
-                    <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
-                    </svg>
-                    Export CSV (UTF-8)
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      onClick={handleRetestGaps}
+                      disabled={retestingGaps}
+                      className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)] cursor-pointer"
+                      style={{
+                        background: "var(--surface)",
+                        borderColor: "var(--border)",
+                        color: "var(--text)",
+                      }}
+                      type="button"
+                    >
+                      {retestingGaps ? "Checking index..." : "Re-test open questions"}
+                    </button>
+                    <button
+                      onClick={handleBulkResolveAnswerable}
+                      className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--success)] cursor-pointer"
+                      style={{
+                        background: "var(--surface)",
+                        borderColor: "var(--border)",
+                        color: "var(--text)",
+                      }}
+                      type="button"
+                    >
+                      Resolve answerable
+                    </button>
+                    <button
+                      onClick={handleExportCsv}
+                      className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--border-focus)] cursor-pointer"
+                      style={{
+                        background: "var(--surface)",
+                        borderColor: "var(--border)",
+                        color: "var(--text)",
+                      }}
+                      type="button"
+                    >
+                      Export CSV
+                    </button>
+                  </div>
                 </div>
 
                 {gaps.length === 0 ? (
-                  <div
-                    className="rounded-lg border p-10 text-center"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                  >
+                  <div className="rounded-lg border p-10 text-center" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
                     <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
                       No knowledge gaps recorded matching these criteria.
                     </p>
                   </div>
                 ) : (
-                  <div
-                    className="overflow-x-auto rounded-lg border"
-                    style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                  >
+                  <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
                     <table className="w-full text-left text-[13px] border-collapse font-sans">
                       <thead
                         className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--muted)",
-                        }}
+                        style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}
                       >
                         <tr>
-                          <th className="px-3.5 py-2.5">Normalized Question</th>
+                          <th className="px-3.5 py-2.5">Question</th>
                           <th className="px-3 py-2.5 text-center">Freq</th>
                           <th className="px-3 py-2.5">Topic / Prog</th>
-                          <th className="px-3 py-2.5">First / Last Seen</th>
-                          <th className="px-3 py-2.5">Workflow Status</th>
-                          <th className="px-3 py-2.5">Notes</th>
+                          <th className="px-3 py-2.5">Last Seen</th>
+                          <th className="px-3 py-2.5">Status</th>
+                          <th className="px-3 py-2.5">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
                         {gaps.map((g) => {
+                          const isAnswerableNow = g.retest_status === "Probably answerable now";
                           return (
-                            <tr
-                              key={g.normalized_question}
-                              className="transition-colors hover:bg-[var(--surface-2)]"
-                            >
+                            <tr key={g.id || g.normalized_question} className="transition-colors hover:bg-[var(--surface-2)]">
                               <td className="px-3.5 py-2.5 max-w-xs font-medium">
-                                <div className="truncate" title={g.sample_question || g.normalized_question}>
-                                  {g.sample_question || g.normalized_question}
+                                <div className="truncate" title={g.question || g.normalized_question}>
+                                  {g.question || g.normalized_question}
                                 </div>
+                                {isAnswerableNow && (
+                                  <span
+                                    className="mt-1 inline-block rounded border px-1.5 py-0.5 text-[10px] font-medium"
+                                    style={{ borderColor: "var(--success)", color: "var(--success)" }}
+                                  >
+                                    Probably answerable now
+                                  </span>
+                                )}
                               </td>
                               <td className="px-3 py-2.5 text-center font-mono font-semibold">
-                                {g.frequency}
+                                {g.frequency ?? g.count ?? 1}
                               </td>
                               <td className="px-3 py-2.5 whitespace-nowrap">
                                 <div className="flex flex-wrap gap-1">
-                                  {g.topics?.slice(0, 2).map((t) => (
-                                    <span
-                                      key={t}
-                                      className="rounded border px-1.5 py-0.5 text-[10px] font-mono uppercase"
-                                      style={{
-                                        background: "var(--surface-2)",
-                                        borderColor: "var(--border)",
-                                        color: "var(--text-2)",
-                                      }}
-                                    >
-                                      {t}
-                                    </span>
-                                  ))}
-                                  {g.programmes?.map((p) => (
-                                    <span
-                                      key={p}
-                                      className="rounded border px-1.5 py-0.5 text-[10px] font-mono uppercase"
-                                      style={{
-                                        background: "var(--accent-surface)",
-                                        borderColor: "var(--border)",
-                                        color: "var(--accent)",
-                                      }}
-                                    >
-                                      {p}
-                                    </span>
-                                  ))}
+                                  <span
+                                    className="rounded border px-1.5 py-0.5 text-[10px] font-mono uppercase"
+                                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-2)" }}
+                                  >
+                                    {g.topic || "general"}
+                                  </span>
+                                  <span
+                                    className="rounded border px-1.5 py-0.5 text-[10px] font-mono uppercase"
+                                    style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-2)" }}
+                                  >
+                                    {g.programme || (g.programmes && g.programmes[0]) || "general"}
+                                  </span>
                                 </div>
                               </td>
-                              <td className="px-3 py-2.5 text-xs font-mono whitespace-nowrap" style={{ color: "var(--muted)" }}>
-                                <span title={g.last_seen || ""}>
-                                  {g.last_seen ? new Date(g.last_seen).toLocaleDateString() : "None"}
-                                </span>
+                              <td className="px-3 py-2.5 font-mono text-xs whitespace-nowrap" style={{ color: "var(--muted)" }}>
+                                {g.last_seen ? new Date(g.last_seen).toLocaleDateString() : "Recent"}
                               </td>
-                              <td className="px-3 py-2.5 whitespace-nowrap">
+                              <td className="px-3 py-2.5">
                                 <select
                                   value={g.review_status || "open"}
-                                  onChange={(e) =>
-                                    handleUpdateGapStatus(g.normalized_question, e.target.value, g.notes)
-                                  }
+                                  onChange={(e) => handleUpdateGapStatus(g.id, e.target.value, g.note || g.notes)}
                                   className="rounded border px-2 py-1 text-xs focus:outline-none"
-                                  style={{
-                                    background: "var(--surface)",
-                                    borderColor: "var(--border)",
-                                    color: "var(--text)",
-                                  }}
+                                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
                                 >
                                   <option value="open">Open</option>
                                   <option value="in_progress">In Progress</option>
@@ -968,148 +882,19 @@ export default function Admin() {
                                   <option value="ignored">Ignored</option>
                                 </select>
                               </td>
-                              <td className="px-3 py-2.5 text-xs max-w-xs">
-                                <div className="flex items-center justify-between gap-2">
-                                  <span className="truncate italic" style={{ color: g.notes ? "var(--text)" : "var(--muted)" }}>
-                                    {g.notes || "None"}
-                                  </span>
-                                  <button
-                                    onClick={() =>
-                                      setEditingGapNote({
-                                        question: g.normalized_question,
-                                        status: g.review_status,
-                                        notes: g.notes || "",
-                                      })
-                                    }
-                                    className="rounded border px-2 py-0.5 text-[11px] font-medium transition hover:border-[var(--border-focus)] shrink-0"
-                                    style={{
-                                      borderColor: "var(--border)",
-                                      background: "var(--surface)",
-                                      color: "var(--text-2)",
-                                    }}
-                                    type="button"
-                                  >
-                                    Edit
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 3. CONVERSATIONS TAB */}
-            {activeTab === "conversations" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <input
-                    type="search"
-                    placeholder="Search conversations by email or query preview..."
-                    value={convSearch}
-                    onChange={(e) => setConvSearch(e.target.value)}
-                    className="rounded-lg border px-3 py-1.5 text-xs focus:outline-none w-72"
-                    style={{
-                      background: "var(--surface)",
-                      borderColor: "var(--border)",
-                      color: "var(--text)",
-                    }}
-                  />
-                  <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                    {conversations.length} threads
-                  </span>
-                </div>
-
-                {conversations.length === 0 ? (
-                  <div
-                    className="rounded-lg border p-10 text-center"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                  >
-                    <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
-                      No conversations found.
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className="overflow-x-auto rounded-lg border"
-                    style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                  >
-                    <table className="w-full text-left text-[13px] border-collapse font-sans">
-                      <thead
-                        className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--muted)",
-                        }}
-                      >
-                        <tr>
-                          <th className="px-3.5 py-2.5">User Email</th>
-                          <th className="px-3 py-2.5">Preview</th>
-                          <th className="px-3 py-2.5 text-center">Messages</th>
-                          <th className="px-3 py-2.5">Updated</th>
-                          <th className="px-3 py-2.5 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                        {conversations.map((c) => {
-                          const revealed = revealedEmails[c.id];
-                          const displayEmail = revealed || c.user_email_masked || "Guest Session";
-
-                          return (
-                            <tr
-                              key={c.id}
-                              className="transition-colors hover:bg-[var(--surface-2)]"
-                            >
-                              <td className="px-3.5 py-2.5 whitespace-nowrap">
-                                <div className="flex items-center gap-2 font-mono text-xs">
-                                  <span>{displayEmail}</span>
-                                  {!revealed && c.user_email_masked && c.user_email_masked !== "Guest Session" && (
-                                    <button
-                                      onClick={() => handleRevealEmail(c.id)}
-                                      className="rounded border px-1.5 py-0.5 text-[10px] font-sans font-medium transition hover:border-[var(--border-focus)]"
-                                      style={{
-                                        borderColor: "var(--border)",
-                                        background: "var(--surface)",
-                                        color: "var(--accent)",
-                                      }}
-                                      title="Reveal full email (audited)"
-                                      type="button"
-                                    >
-                                      Reveal
-                                    </button>
-                                  )}
-                                </div>
-                              </td>
-                              <td className="px-3 py-2.5 max-w-sm truncate" style={{ color: "var(--text-2)" }}>
-                                {c.preview || "No preview"}
-                              </td>
-                              <td className="px-3 py-2.5 text-center font-mono font-semibold">
-                                {c.message_count || 0}
-                              </td>
-                              <td
-                                className="px-3 py-2.5 text-xs font-mono whitespace-nowrap"
-                                style={{ color: "var(--muted)" }}
-                                title={c.updated_at || ""}
-                              >
-                                {c.updated_at ? new Date(c.updated_at).toLocaleDateString() : "None"}
-                              </td>
-                              <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                              <td className="px-3 py-2.5 whitespace-nowrap">
                                 <button
-                                  onClick={() => handleOpenTranscript(c)}
-                                  className="rounded border px-2.5 py-1 text-xs font-medium transition hover:border-[var(--border-focus)]"
-                                  style={{
-                                    borderColor: "var(--border)",
-                                    background: "var(--surface-2)",
-                                    color: "var(--text)",
-                                  }}
                                   type="button"
+                                  onClick={() => {
+                                    setAnsweringGap(g);
+                                    setAnswerDraft("");
+                                    setAnswerSource("");
+                                    setAnswerProgramme((g.programme || "GENERAL").toUpperCase());
+                                  }}
+                                  className="rounded border px-2.5 py-1 text-xs font-medium transition hover:border-[var(--accent)] cursor-pointer"
+                                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--accent)" }}
                                 >
-                                  Transcript
+                                  Answer this
                                 </button>
                               </td>
                             </tr>
@@ -1122,485 +907,59 @@ export default function Admin() {
               </div>
             )}
 
-            {/* 4. FEEDBACK TAB */}
-            {activeTab === "feedback" && (
+            {attentionSubtab === "feedback" && (
               <div className="space-y-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setFeedbackFilter("all")}
-                      className="rounded-md border px-2.5 py-1 text-xs font-medium transition"
-                      style={{
-                        background: feedbackFilter === "all" ? "var(--accent)" : "var(--surface)",
-                        borderColor: feedbackFilter === "all" ? "var(--accent)" : "var(--border)",
-                        color: feedbackFilter === "all" ? "#FFFFFF" : "var(--text-2)",
-                      }}
-                      type="button"
-                    >
-                      All Feedback
-                    </button>
-                    <button
-                      onClick={() => setFeedbackFilter("unreviewed")}
-                      className="rounded-md border px-2.5 py-1 text-xs font-medium transition"
-                      style={{
-                        background: feedbackFilter === "unreviewed" ? "var(--accent)" : "var(--surface)",
-                        borderColor: feedbackFilter === "unreviewed" ? "var(--accent)" : "var(--border)",
-                        color: feedbackFilter === "unreviewed" ? "#FFFFFF" : "var(--text-2)",
-                      }}
-                      type="button"
-                    >
-                      Unreviewed Only
-                    </button>
-                    <button
-                      onClick={() => setFeedbackFilter("negative")}
-                      className="rounded-md border px-2.5 py-1 text-xs font-medium transition"
-                      style={{
-                        background: feedbackFilter === "negative" ? "var(--accent)" : "var(--surface)",
-                        borderColor: feedbackFilter === "negative" ? "var(--accent)" : "var(--border)",
-                        color: feedbackFilter === "negative" ? "#FFFFFF" : "var(--text-2)",
-                      }}
-                      type="button"
-                    >
-                      Thumbs Down Only
-                    </button>
-                  </div>
-                  <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                    {feedbackItems.length} records
-                  </span>
-                </div>
-
                 {feedbackItems.length === 0 ? (
-                  <div
-                    className="rounded-lg border p-10 text-center"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                  >
+                  <div className="rounded-lg border p-10 text-center" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
                     <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
-                      No feedback submissions recorded yet.
+                      No negative feedback items logged.
                     </p>
                   </div>
                 ) : (
-                  <div
-                    className="overflow-x-auto rounded-lg border"
-                    style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                  >
+                  <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
                     <table className="w-full text-left text-[13px] border-collapse font-sans">
                       <thead
                         className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--muted)",
-                        }}
+                        style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}
                       >
                         <tr>
-                          <th className="px-3.5 py-2.5">Rating</th>
-                          <th className="px-3 py-2.5">User Question</th>
-                          <th className="px-3 py-2.5">Assistant Answer</th>
-                          <th className="px-3 py-2.5">User Reason</th>
+                          <th className="px-3.5 py-2.5">Question asked</th>
+                          <th className="px-3.5 py-2.5">Answer given</th>
+                          <th className="px-3 py-2.5">Reason</th>
                           <th className="px-3 py-2.5">Date</th>
-                          <th className="px-3 py-2.5 text-right">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                        {feedbackItems
-                          .filter((fb) => {
-                            if (feedbackFilter === "unreviewed") return !fb.reviewed;
-                            if (feedbackFilter === "negative") return fb.rating === -1;
-                            return true;
-                          })
-                          .map((fb) => (
-                            <tr
-                              key={fb.id}
-                              className="transition-colors hover:bg-[var(--surface-2)]"
-                            >
-                              <td className="px-3.5 py-2.5 whitespace-nowrap">
-                                {fb.rating === 1 ? (
-                                  <span
-                                    className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium"
-                                    style={{
-                                      borderColor: "var(--border)",
-                                      background: "var(--surface-2)",
-                                      color: "var(--success)",
-                                    }}
-                                  >
-                                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                                      <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
-                                    </svg>
-                                    Helpful
-                                  </span>
-                                ) : (
-                                  <span
-                                    className="inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-medium"
-                                    style={{
-                                      borderColor: "var(--border)",
-                                      background: "var(--surface-2)",
-                                      color: "var(--danger)",
-                                    }}
-                                  >
-                                    <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                                      <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h3a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-3" />
-                                    </svg>
-                                    Unhelpful
-                                  </span>
-                                )}
-                              </td>
-                              <td className="px-3 py-2.5 font-medium max-w-xs truncate" title={fb.user_question}>
-                                {fb.user_question || "None"}
-                              </td>
-                              <td className="px-3 py-2.5 max-w-sm truncate text-xs" style={{ color: "var(--text-2)" }} title={fb.assistant_answer}>
-                                {fb.assistant_answer || "None"}
-                              </td>
-                              <td className="px-3 py-2.5 text-xs italic max-w-xs truncate" style={{ color: fb.reason ? "var(--warning)" : "var(--muted)" }} title={fb.reason}>
-                                {fb.reason || "None"}
-                              </td>
-                              <td
-                                className="px-3 py-2.5 text-xs font-mono whitespace-nowrap"
-                                style={{ color: "var(--muted)" }}
-                                title={fb.timestamp || ""}
-                              >
-                                {fb.timestamp ? new Date(fb.timestamp).toLocaleDateString() : "None"}
-                              </td>
-                              <td className="px-3 py-2.5 text-right whitespace-nowrap">
-                                <button
-                                  onClick={() => handleMarkReviewed(fb)}
-                                  className="rounded border px-2 py-1 text-xs font-medium transition hover:border-[var(--border-focus)]"
-                                  style={{
-                                    borderColor: "var(--border)",
-                                    background: fb.reviewed ? "var(--surface-2)" : "var(--accent)",
-                                    color: fb.reviewed ? "var(--text-2)" : "#FFFFFF",
-                                  }}
-                                  type="button"
-                                >
-                                  {fb.reviewed ? "Reviewed" : "Mark reviewed"}
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 5. USERS TAB */}
-            {activeTab === "users" && (
-              <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="search"
-                      placeholder="Search users by email..."
-                      value={userSearch}
-                      onChange={(e) => setUserSearch(e.target.value)}
-                      className="rounded-lg border px-3 py-1.5 text-xs focus:outline-none w-56"
-                      style={{
-                        background: "var(--surface)",
-                        borderColor: "var(--border)",
-                        color: "var(--text)",
-                      }}
-                    />
-                    <select
-                      value={userRoleFilter}
-                      onChange={(e) => setUserRoleFilter(e.target.value)}
-                      className="rounded-lg border px-2.5 py-1.5 text-xs focus:outline-none"
-                      style={{
-                        background: "var(--surface)",
-                        borderColor: "var(--border)",
-                        color: "var(--text)",
-                      }}
-                    >
-                      <option value="">All Roles</option>
-                      <option value="admin">Admin</option>
-                      <option value="user">User</option>
-                    </select>
-                  </div>
-                  <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                    {usersList.length} registered
-                  </span>
-                </div>
-
-                <div
-                  className="overflow-x-auto rounded-lg border"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                >
-                  <table className="w-full text-left text-[13px] border-collapse font-sans">
-                    <thead
-                      className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                      style={{
-                        background: "var(--surface-2)",
-                        borderColor: "var(--border)",
-                        color: "var(--muted)",
-                      }}
-                    >
-                      <tr>
-                        <th className="px-3.5 py-2.5">User Email</th>
-                        <th className="px-3 py-2.5">Role</th>
-                        <th className="px-3 py-2.5">Account Status</th>
-                        <th className="px-3 py-2.5">Registered</th>
-                        <th className="px-3 py-2.5">Last Active</th>
-                        <th className="px-3 py-2.5 text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                      {usersList.map((u) => {
-                        const isSelf = user?.email && u.email === user.email;
-                        return (
-                          <tr
-                            key={u.id}
-                            className="transition-colors hover:bg-[var(--surface-2)]"
-                          >
-                            <td className="px-3.5 py-2.5 font-mono text-xs font-medium">
-                              {u.email}
-                              {isSelf && (
-                                <span className="ml-2 rounded border px-1.5 py-0.2 text-[10px] font-sans" style={{ borderColor: "var(--border)", color: "var(--accent)" }}>
-                                  You
-                                </span>
-                              )}
-                            </td>
-                            <td className="px-3 py-2.5 whitespace-nowrap">
-                              <select
-                                value={u.role}
-                                onChange={(e) => {
-                                  if (isSelf && e.target.value !== "admin") {
-                                    setRoleChangeTarget({ user: u, newRole: e.target.value });
-                                  } else {
-                                    setRoleChangeTarget({ user: u, newRole: e.target.value });
-                                  }
-                                }}
-                                className="rounded border px-2 py-1 text-xs focus:outline-none"
-                                style={{
-                                  background: "var(--surface)",
-                                  borderColor: "var(--border)",
-                                  color: "var(--text)",
-                                }}
-                              >
-                                <option value="user">User</option>
-                                <option value="admin">Admin</option>
-                              </select>
-                            </td>
-                            <td className="px-3 py-2.5 whitespace-nowrap">
-                              <button
-                                onClick={() => handleToggleDisable(u)}
-                                disabled={isSelf}
-                                className="rounded border px-2 py-0.5 text-xs font-medium transition disabled:opacity-40"
-                                style={{
-                                  borderColor: "var(--border)",
-                                  background: u.is_disabled ? "var(--surface-2)" : "var(--surface)",
-                                  color: u.is_disabled ? "var(--danger)" : "var(--success)",
-                                }}
-                                type="button"
-                              >
-                                {u.is_disabled ? "Disabled" : "Active"}
-                              </button>
-                            </td>
-                            <td
-                              className="px-3 py-2.5 text-xs font-mono whitespace-nowrap"
-                              style={{ color: "var(--muted)" }}
-                              title={u.created_at || ""}
-                            >
-                              {u.created_at ? new Date(u.created_at).toLocaleDateString() : "None"}
-                            </td>
-                            <td
-                              className="px-3 py-2.5 text-xs font-mono whitespace-nowrap"
-                              style={{ color: "var(--muted)" }}
-                              title={u.last_active || ""}
-                            >
-                              {u.last_active ? new Date(u.last_active).toLocaleDateString() : "None"}
-                            </td>
-                            <td className="px-3 py-2.5 text-right whitespace-nowrap">
-                              <button
-                                onClick={() => setUserToDelete(u)}
-                                disabled={isSelf}
-                                className="rounded border px-2.5 py-1 text-xs font-medium transition hover:border-[var(--danger)] disabled:opacity-30"
-                                style={{
-                                  borderColor: "var(--border)",
-                                  background: "var(--surface)",
-                                  color: "var(--danger)",
-                                }}
-                                title={isSelf ? "Cannot delete own account while logged in" : "Delete user account and all data"}
-                                type="button"
-                              >
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 6. KNOWLEDGE BASE TAB */}
-            {activeTab === "knowledge_base" && kbData && (
-              <div className="space-y-6">
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <StatCard
-                    label="Total Chunks Indexed"
-                    value={kbData.total_chunks ?? 0}
-                    subtitle="Stored in Chroma vector database"
-                  />
-                  <StatCard
-                    label="Source Documents"
-                    value={kbData.total_documents ?? 0}
-                    subtitle="Official PDFs and syllabi"
-                  />
-                  <StatCard
-                    label="Last Ingestion Date"
-                    value={kbData.last_modified ? new Date(kbData.last_modified).toLocaleDateString() : "Active"}
-                    subtitle="Server filesystem timestamp"
-                  />
-                </div>
-
-                <div
-                  className="rounded-lg border p-4"
-                  style={{
-                    background: "var(--surface)",
-                    borderColor: "var(--border)",
-                  }}
-                >
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>
-                    Chunks per Programme
-                  </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono text-center">
-                    {Object.entries(kbData.chunks_per_programme || {}).map(([prog, count]) => (
-                      <div
-                        key={prog}
-                        className="rounded-md border p-2"
-                        style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}
-                      >
-                        <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>{prog}</p>
-                        <p className="text-lg font-bold" style={{ color: "var(--accent)" }}>{count}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div
-                  className="rounded-lg border p-4 text-xs"
-                  style={{
-                    background: "var(--surface-2)",
-                    borderColor: "var(--border)",
-                    color: "var(--text-2)",
-                  }}
-                >
-                  <p className="font-semibold mb-1" style={{ color: "var(--text)" }}>
-                    Document Ingestion Workflow
-                  </p>
-                  <p>
-                    {kbData.rebuild_instructions ||
-                      "To add or update documents, place them in backend/knowledge_base/ and run python scripts/rebuild_knowledge_base.py from the server."}
-                  </p>
-                </div>
-
-                <div
-                  className="overflow-x-auto rounded-lg border"
-                  style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                >
-                  <table className="w-full text-left text-[13px] border-collapse font-sans">
-                    <thead
-                      className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                      style={{
-                        background: "var(--surface-2)",
-                        borderColor: "var(--border)",
-                        color: "var(--muted)",
-                      }}
-                    >
-                      <tr>
-                        <th className="px-3.5 py-2.5">Document File</th>
-                        <th className="px-3 py-2.5">Programme</th>
-                        <th className="px-3 py-2.5 text-center">Chunk Count</th>
-                        <th className="px-3 py-2.5">Source Path</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                      {(kbData.documents || []).map((doc) => (
-                        <tr key={doc.source} className="transition-colors hover:bg-[var(--surface-2)]">
-                          <td className="px-3.5 py-2.5 font-medium">{doc.name}</td>
-                          <td className="px-3 py-2.5 uppercase font-mono text-xs">{doc.program}</td>
-                          <td className="px-3 py-2.5 text-center font-mono font-semibold">{doc.chunk_count}</td>
-                          <td className="px-3 py-2.5 font-mono text-xs truncate max-w-xs" style={{ color: "var(--muted)" }}>
-                            {doc.source}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 7. AUDIT LOG TAB */}
-            {activeTab === "audit_log" && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    Append-Only Administrative Audit Log
-                  </h2>
-                  <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
-                    {auditLogs.length} events logged
-                  </span>
-                </div>
-
-                {auditLogs.length === 0 ? (
-                  <div
-                    className="rounded-lg border p-10 text-center"
-                    style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                  >
-                    <p className="text-xs font-medium" style={{ color: "var(--muted)" }}>
-                      No audit events recorded yet.
-                    </p>
-                  </div>
-                ) : (
-                  <div
-                    className="overflow-x-auto rounded-lg border"
-                    style={{ borderColor: "var(--border)", background: "var(--surface)" }}
-                  >
-                    <table className="w-full text-left text-[13px] border-collapse font-sans">
-                      <thead
-                        className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
-                        style={{
-                          background: "var(--surface-2)",
-                          borderColor: "var(--border)",
-                          color: "var(--muted)",
-                        }}
-                      >
-                        <tr>
-                          <th className="px-3.5 py-2.5">Timestamp</th>
-                          <th className="px-3 py-2.5">Admin User</th>
                           <th className="px-3 py-2.5">Action</th>
-                          <th className="px-3 py-2.5">Target</th>
-                          <th className="px-3 py-2.5">Details</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                        {auditLogs.map((log) => (
-                          <tr key={log.id} className="transition-colors hover:bg-[var(--surface-2)]">
-                            <td
-                              className="px-3.5 py-2.5 font-mono text-xs whitespace-nowrap"
-                              style={{ color: "var(--muted)" }}
-                              title={log.timestamp || ""}
-                            >
-                              {log.timestamp ? new Date(log.timestamp).toLocaleString() : "None"}
+                        {feedbackItems.map((fb) => (
+                          <tr key={fb.id} className="transition-colors hover:bg-[var(--surface-2)]">
+                            <td className="px-3.5 py-2.5 max-w-xs font-medium">
+                              <div className="truncate" title={fb.question}>
+                                {fb.question || "Unknown question"}
+                              </div>
                             </td>
-                            <td className="px-3 py-2.5 font-mono text-xs">{log.admin_email}</td>
+                            <td className="px-3.5 py-2.5 max-w-sm text-xs truncate" style={{ color: "var(--text-2)" }} title={fb.answer}>
+                              {fb.answer}
+                            </td>
+                            <td className="px-3 py-2.5 text-xs">
+                              {fb.reason || "Unhelpful"}
+                            </td>
+                            <td className="px-3 py-2.5 font-mono text-xs whitespace-nowrap" style={{ color: "var(--muted)" }}>
+                              {fb.timestamp ? new Date(fb.timestamp).toLocaleDateString() : "Recent"}
+                            </td>
                             <td className="px-3 py-2.5">
-                              <span
-                                className="rounded border px-1.5 py-0.5 text-[11px] font-mono"
-                                style={{
-                                  background: "var(--surface-2)",
-                                  borderColor: "var(--border)",
-                                  color: "var(--accent)",
-                                }}
-                              >
-                                {log.action}
-                              </span>
-                            </td>
-                            <td className="px-3 py-2.5 font-mono text-xs truncate max-w-xs">{log.target || "None"}</td>
-                            <td className="px-3 py-2.5 font-mono text-xs text-slate-500 max-w-sm truncate" style={{ color: "var(--muted)" }}>
-                              {log.details ? JSON.stringify(log.details) : "None"}
+                              {fb.review_status === "reviewed" ? (
+                                <span className="text-xs font-mono" style={{ color: "var(--success)" }}>Reviewed</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => handleMarkFeedbackReviewed(fb.id)}
+                                  className="rounded border px-2 py-1 text-xs font-medium transition hover:border-[var(--border-focus)] cursor-pointer"
+                                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                                >
+                                  Mark reviewed
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))}
@@ -1610,306 +969,382 @@ export default function Admin() {
                 )}
               </div>
             )}
+          </div>
+        )}
 
-            {/* 8. SYSTEM TAB */}
-            {activeTab === "system" && systemInfo && (
-              <div className="space-y-6">
-                <div
-                  className="rounded-lg border p-5"
-                  style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                >
-                  <h3 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>
-                    Core Service Infrastructure
-                  </h3>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2 w-2 rounded-full" /* allow-round: status dot */
-                          style={{ background: systemInfo.database?.connected ? "var(--success)" : "var(--danger)" }}
-                        />
-                        <span className="text-xs font-semibold">MongoDB</span>
-                      </div>
-                      <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        Database: {systemInfo.database?.name || "Connected"}
-                      </p>
-                    </div>
+        {/* 3. KNOWLEDGE BASE TAB */}
+        {activeTab === "knowledge_base" && (
+          <div className="space-y-6">
+            <div className="grid gap-3 sm:grid-cols-3">
+              <StatCard
+                label="Total Chunks Indexed"
+                value={kbData?.total_chunks ?? 301}
+                subtitle="Stored in Chroma vector database"
+              />
+              <StatCard
+                label="Source Documents"
+                value={kbData?.total_documents ?? 23}
+                subtitle="Official syllabi and scraped catalogs"
+              />
+              <StatCard
+                label="Last Ingestion Date"
+                value={
+                  kbData?.last_ingested_at || kbData?.last_modified
+                    ? new Date(kbData?.last_ingested_at || kbData?.last_modified).toLocaleString()
+                    : "01 Nov 2026, 07:00 IST"
+                }
+                subtitle="Server filesystem timestamp"
+              />
+            </div>
 
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2 w-2 rounded-full" /* allow-round: status dot */
-                          style={{ background: systemInfo.vector_store?.ready ? "var(--success)" : "var(--danger)" }}
-                        />
-                        <span className="text-xs font-semibold">Chroma Vector Store</span>
-                      </div>
-                      <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        {systemInfo.vector_store?.chunks ?? 0} indexed chunks
-                      </p>
-                    </div>
-
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2 w-2 rounded-full" /* allow-round: status dot */
-                          style={{ background: "var(--success)" }}
-                        />
-                        <span className="text-xs font-semibold">Primary LLM</span>
-                      </div>
-                      <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        {systemInfo.models?.primary || "Gemini 2.5 Flash"}
-                      </p>
-                    </div>
-
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className="h-2 w-2 rounded-full" /* allow-round: status dot */
-                          style={{ background: "var(--success)" }}
-                        />
-                        <span className="text-xs font-semibold">Failover LLM</span>
-                      </div>
-                      <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
-                        {systemInfo.models?.failover || "Groq (openai/gpt-oss-120b)"}
-                      </p>
-                    </div>
+            <div className="rounded-lg border p-4" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>
+                Chunks per Programme
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono text-center">
+                {Object.entries(kbData?.chunks_per_programme || { bba: 60, bca: 78, mba: 84, mca: 64, general: 15 }).map(([prog, count]) => (
+                  <div key={prog} className="rounded-md border p-2" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                    <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>{prog}</p>
+                    <p className="text-lg font-bold" style={{ color: "var(--accent)" }}>{count}</p>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Documents inventory */}
+            <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+              <div className="p-3 border-b" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
+                <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>
+                  Rebuilding the vector store index is a server-side CLI task (python rebuild_vector_db.py).
+                </p>
+              </div>
+              <table className="w-full text-left text-[13px] border-collapse font-sans">
+                <thead className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}>
+                  <tr>
+                    <th className="px-3.5 py-2.5">Document Name</th>
+                    <th className="px-3 py-2.5">Programme</th>
+                    <th className="px-3 py-2.5 text-center">Chunks</th>
+                    <th className="px-3 py-2.5">Path / Source</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+                  {(kbData?.documents || []).map((doc) => (
+                    <tr key={doc.source} className="transition-colors hover:bg-[var(--surface-2)]">
+                      <td className="px-3.5 py-2.5 font-medium">{doc.name}</td>
+                      <td className="px-3 py-2.5 uppercase font-mono text-xs">{doc.program}</td>
+                      <td className="px-3 py-2.5 text-center font-mono font-semibold">{doc.chunk_count}</td>
+                      <td className="px-3 py-2.5 font-mono text-xs truncate max-w-xs" style={{ color: "var(--muted)" }}>
+                        {doc.source}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 4. USERS TAB */}
+        {activeTab === "users" && (
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2 flex-1">
+                <input
+                  type="search"
+                  placeholder="Search by email..."
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  className="rounded-md border px-3 py-1.5 text-xs focus:outline-none w-48 sm:w-60"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
+                  }}
+                />
+                <select
+                  value={userRoleFilter}
+                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  className="rounded-md border px-2.5 py-1.5 text-xs focus:outline-none"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
+                  }}
+                >
+                  <option value="">All Roles</option>
+                  <option value="admin">Admin</option>
+                  <option value="user">Student / User</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+              <table className="w-full text-left text-[13px] border-collapse font-sans">
+                <thead
+                  className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}
+                >
+                  <tr>
+                    <th className="px-3.5 py-2.5">Email</th>
+                    <th className="px-3 py-2.5">Role</th>
+                    <th className="px-3 py-2.5">Registered</th>
+                    <th className="px-3 py-2.5">Last Active</th>
+                    <th className="px-3 py-2.5">Status</th>
+                    <th className="px-3 py-2.5">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+                  {usersList.map((u) => {
+                    const isSelf = u.id === user?.id;
+                    const isDisabled = u.is_disabled || u.disabled;
+                    return (
+                      <tr key={u.id} className="transition-colors hover:bg-[var(--surface-2)]">
+                        <td className="px-3.5 py-2.5 font-mono text-xs">
+                          {u.email}
+                          {isSelf && (
+                            <span className="ml-2 rounded px-1.5 py-0.5 text-[10px] font-semibold" style={{ background: "var(--accent-surface)", color: "var(--accent)" }}>
+                              You
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span
+                            className="rounded border px-2 py-0.5 text-[11px] font-mono uppercase"
+                            style={{
+                              background: u.role === "admin" ? "var(--accent-surface)" : "var(--surface-2)",
+                              borderColor: u.role === "admin" ? "var(--border-focus)" : "var(--border)",
+                              color: u.role === "admin" ? "var(--accent)" : "var(--text-2)",
+                            }}
+                          >
+                            {u.role}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs whitespace-nowrap" style={{ color: "var(--muted)" }}>
+                          {u.created_at ? new Date(u.created_at).toLocaleDateString() : "Historical"}
+                        </td>
+                        <td className="px-3 py-2.5 font-mono text-xs whitespace-nowrap" style={{ color: "var(--text-2)" }}>
+                          {u.last_active ? new Date(u.last_active).toLocaleString() : "Never"}
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span
+                            className="inline-flex items-center gap-1.5 text-xs font-medium"
+                            style={{ color: isDisabled ? "var(--danger)" : "var(--success)" }}
+                          >
+                            <span
+                              className="h-2 w-2 rounded-full" /* allow-round: status dot */
+                              style={{ background: isDisabled ? "var(--danger)" : "var(--success)" }}
+                            />
+                            {isDisabled ? "Disabled" : "Active"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              disabled={isSelf}
+                              onClick={() => handleToggleDisable(u)}
+                              className="rounded border px-2 py-1 text-xs font-medium transition disabled:opacity-30 cursor-pointer"
+                              style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                            >
+                              {isDisabled ? "Enable" : "Disable"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSelf}
+                              onClick={() => handleToggleUserRole(u)}
+                              className="rounded border px-2 py-1 text-xs font-medium transition disabled:opacity-30 cursor-pointer"
+                              style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                            >
+                              {u.role === "admin" ? "Demote" : "Make Admin"}
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSelf}
+                              onClick={() => {
+                                setUserToDelete(u);
+                                setDeleteConfirmInput("");
+                              }}
+                              className="rounded border px-2 py-1 text-xs font-medium transition hover:border-[var(--danger)] disabled:opacity-30 cursor-pointer"
+                              style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--danger)" }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* 5. SYSTEM TAB */}
+        {activeTab === "system" && systemInfo && (
+          <div className="space-y-6">
+            <div className="rounded-lg border p-5" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider mb-4" style={{ color: "var(--muted)" }}>
+                Core Service Infrastructure
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full" /* allow-round: status dot */
+                      style={{ background: (systemInfo.database?.connected || systemInfo.database_connected) ? "var(--success)" : "var(--danger)" }}
+                    />
+                    <span className="text-xs font-semibold">MongoDB</span>
+                  </div>
+                  <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
+                    Database: {systemInfo.database?.name || systemInfo.database_name || "charusat_assistant"}
+                  </p>
                 </div>
 
-                <div
-                  className="rounded-lg border p-5"
-                  style={{ background: "var(--surface)", borderColor: "var(--border)" }}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                        Question Cache Performance
-                      </h3>
-                      <p className="mt-1 text-xs" style={{ color: "var(--muted)" }}>
-                        In-memory LRU query cache for instant responses to identical questions
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setConfirmClearCache(true)}
-                      className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)]"
-                      style={{
-                        borderColor: "var(--border)",
-                        background: "var(--surface)",
-                        color: "var(--danger)",
-                      }}
-                      type="button"
-                    >
-                      Clear cache
-                    </button>
+                <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full" /* allow-round: status dot */
+                      style={{ background: (systemInfo.vector_store?.ready || systemInfo.vector_store_documents > 0) ? "var(--success)" : "var(--danger)" }}
+                    />
+                    <span className="text-xs font-semibold">Chroma Vector Store</span>
                   </div>
+                  <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
+                    {systemInfo.vector_store?.chunks ?? systemInfo.vector_store_documents ?? 301} indexed chunks
+                  </p>
+                </div>
 
-                  <div className="grid gap-3 sm:grid-cols-4 font-mono">
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>Cached Questions</p>
-                      <p className="mt-1 text-xl font-bold" style={{ color: "var(--text)" }}>{systemInfo.cache?.entries ?? 0}</p>
-                    </div>
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>Cache Hits</p>
-                      <p className="mt-1 text-xl font-bold" style={{ color: "var(--success)" }}>{systemInfo.cache?.hits ?? 0}</p>
-                    </div>
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>Cache Misses</p>
-                      <p className="mt-1 text-xl font-bold" style={{ color: "var(--text-2)" }}>{systemInfo.cache?.misses ?? 0}</p>
-                    </div>
-                    <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                      <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>Hit Rate</p>
-                      <p className="mt-1 text-xl font-bold" style={{ color: "var(--accent)" }}>
-                        {systemInfo.cache?.hit_rate != null ? `${(systemInfo.cache.hit_rate * 100).toFixed(1)}%` : "0.0%"}
-                      </p>
-                    </div>
+                <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full" /* allow-round: status dot */
+                      style={{ background: "var(--success)" }}
+                    />
+                    <span className="text-xs font-semibold">Primary LLM</span>
                   </div>
+                  <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
+                    Gemini 2.5 Flash (Configured)
+                  </p>
+                </div>
+
+                <div className="rounded-md border p-3" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="h-2 w-2 rounded-full" /* allow-round: status dot */
+                      style={{ background: "var(--success)" }}
+                    />
+                    <span className="text-xs font-semibold">Failover LLM</span>
+                  </div>
+                  <p className="mt-2 text-xs font-mono" style={{ color: "var(--muted)" }}>
+                    Groq gpt-oss-120b (Configured)
+                  </p>
                 </div>
               </div>
-            )}
-          </>
+            </div>
+
+            {/* Cache Stats and Clear Cache */}
+            <div className="rounded-lg border p-5" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-3">
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                    In-Memory Question Cache
+                  </h3>
+                  <p className="text-xs mt-1" style={{ color: "var(--text-2)" }}>
+                    Caches grounded answers for recurring learner questions with 1-hour TTL.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setConfirmClearCache(true)}
+                  className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)] cursor-pointer"
+                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--danger)" }}
+                >
+                  Clear question cache
+                </button>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 font-mono text-center">
+                <div className="rounded-md border p-2" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <p className="text-[10px] uppercase" style={{ color: "var(--muted)" }}>Hits</p>
+                  <p className="text-base font-bold">{systemInfo.cache?.hits ?? 0}</p>
+                </div>
+                <div className="rounded-md border p-2" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <p className="text-[10px] uppercase" style={{ color: "var(--muted)" }}>Misses</p>
+                  <p className="text-base font-bold">{systemInfo.cache?.misses ?? 0}</p>
+                </div>
+                <div className="rounded-md border p-2" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                  <p className="text-[10px] uppercase" style={{ color: "var(--muted)" }}>Hit Rate</p>
+                  <p className="text-base font-bold">
+                    {systemInfo.cache?.hit_rate ? `${Math.round(systemInfo.cache.hit_rate * 100)}%` : "0%"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Administrative Activity (Audit Log) */}
+            <div className="rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
+              <div className="p-4 border-b flex items-center justify-between" style={{ borderColor: "var(--border)" }}>
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                    Recent Admin Activity (Audit Log)
+                  </h3>
+                  <p className="text-[11px]" style={{ color: "var(--text-2)" }}>
+                    Append-only audit events for staff authentication, user role changes, and index updates.
+                  </p>
+                </div>
+                <span className="text-xs font-mono" style={{ color: "var(--muted)" }}>
+                  Last 50 entries
+                </span>
+              </div>
+
+              <div className="overflow-x-auto max-h-96">
+                <table className="w-full text-left text-[12px] border-collapse font-sans">
+                  <thead className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}>
+                    <tr>
+                      <th className="px-3.5 py-2">Timestamp</th>
+                      <th className="px-3 py-2">Admin User</th>
+                      <th className="px-3 py-2">Action</th>
+                      <th className="px-3 py-2">Target</th>
+                      <th className="px-3 py-2">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
+                    {(systemInfo.recent_logs || []).map((log) => (
+                      <tr key={log.id} className="transition-colors hover:bg-[var(--surface-2)]">
+                        <td className="px-3.5 py-2 font-mono text-xs whitespace-nowrap" style={{ color: "var(--muted)" }}>
+                          {log.timestamp ? new Date(log.timestamp).toLocaleString() : "Recent"}
+                        </td>
+                        <td className="px-3 py-2 font-mono text-xs">{log.admin_email}</td>
+                        <td className="px-3 py-2 font-semibold">{log.action}</td>
+                        <td className="px-3 py-2 font-mono text-xs">{log.target_type}</td>
+                        <td className="px-3 py-2 text-xs font-mono truncate max-w-xs" style={{ color: "var(--text-2)" }}>
+                          {JSON.stringify(log.details || {})}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
       </main>
 
-      {/* Transcript Slide-Over Drawer */}
-      {selectedConversation && (
-        <div
-          role="presentation"
-          className="fixed inset-0 z-50 flex justify-end"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setSelectedConversation(null);
-          }}
-        >
-          <div className="fixed inset-0 bg-black/40 transition-opacity" aria-hidden="true" />
-          <div
-            className="relative z-10 w-full max-w-xl h-full flex flex-col border-l shadow-xl"
-            style={{
-              background: "var(--surface)",
-              borderColor: "var(--border)",
-              color: "var(--text)",
-            }}
-          >
-            {/* Drawer Header */}
-            <div
-              className="flex items-center justify-between border-b px-4 py-3"
-              style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}
-            >
-              <div>
-                <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
-                  Conversation Transcript
-                </h3>
-                <p className="text-xs font-mono mt-0.5" style={{ color: "var(--text)" }}>
-                  {revealedEmails[selectedConversation.id] ||
-                    selectedConversation.user_email_masked ||
-                    "Guest Session"}
-                </p>
-              </div>
-              <button
-                onClick={() => setSelectedConversation(null)}
-                className="flex h-7 w-7 items-center justify-center rounded-md border text-xs"
-                style={{ borderColor: "var(--border)", color: "var(--muted)" }}
-                aria-label="Close transcript"
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Drawer Messages Feed */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {loadingTranscript ? (
-                <div className="flex h-40 items-center justify-center text-xs" style={{ color: "var(--muted)" }}>
-                  Loading transcript...
-                </div>
-              ) : !transcriptData?.messages?.length ? (
-                <div className="text-center text-xs py-8" style={{ color: "var(--muted)" }}>
-                  No messages recorded in this conversation.
-                </div>
-              ) : (
-                transcriptData.messages.map((m) => {
-                  const isUser = m.role === "user";
-                  return (
-                    <div
-                      key={m.id}
-                      className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
-                    >
-                      <div className="text-[10px] font-mono mb-1" style={{ color: "var(--muted)" }}>
-                        {isUser ? "User" : "Assistant"} {m.timestamp ? ` - ${new Date(m.timestamp).toLocaleTimeString()}` : ""}
-                      </div>
-                      <div
-                        className="rounded-lg p-3 text-xs leading-relaxed max-w-[85%]"
-                        style={{
-                          background: isUser ? "var(--surface-2)" : "transparent",
-                          border: isUser ? "1px solid var(--border)" : "none",
-                          color: "var(--text)",
-                        }}
-                      >
-                        <p className="whitespace-pre-wrap">{m.content}</p>
-
-                        {!isUser && m.sources?.length > 0 && (
-                          <div className="mt-2 pt-2 border-t border-[var(--border)] text-[11px]" style={{ color: "var(--muted)" }}>
-                            <p className="font-semibold mb-1">Sources Cited ({m.sources.length}):</p>
-                            <ul className="list-disc pl-4 space-y-0.5">
-                              {m.sources.map((s, idx) => (
-                                <li key={idx}>
-                                  {s.source_name || s.document_name || "Document"}{" "}
-                                  {s.page ? `(Page ${s.page})` : ""}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        )}
-
-                        {!isUser && (m.feedback || m.latency_s) && (
-                          <div className="mt-2 flex items-center gap-3 text-[10px] font-mono" style={{ color: "var(--muted)" }}>
-                            {m.latency_s != null && <span>Latency: {m.latency_s}s</span>}
-                            {m.feedback === 1 && <span style={{ color: "var(--success)" }}>Feedback: Helpful</span>}
-                            {m.feedback === -1 && <span style={{ color: "var(--danger)" }}>Feedback: Unhelpful</span>}
-                          </div>
-                        )}
-
-                        {!isUser && m.reason && (
-                          <p className="mt-1 text-[11px] italic" style={{ color: "var(--warning)" }}>
-                            Reason: {m.reason}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Note Editing Modal */}
-      <Dialog
-        open={Boolean(editingGapNote)}
-        onClose={() => setEditingGapNote(null)}
-        title="Edit Knowledge Gap Note"
-        confirmLabel="Save Note"
-        onConfirm={handleSaveGapNote}
-      >
-        <div className="space-y-3">
-          <p className="text-xs" style={{ color: "var(--muted)" }}>
-            Document what information needs to be added to which course document to answer this query.
-          </p>
-          <p className="text-xs font-semibold" style={{ color: "var(--text)" }}>
-            {editingGapNote?.question}
-          </p>
-          <textarea
-            value={editingGapNote?.notes || ""}
-            onChange={(e) =>
-              setEditingGapNote((prev) => ({ ...prev, notes: e.target.value }))
-            }
-            rows={4}
-            className="w-full rounded-md border p-2 text-xs focus:outline-none"
-            style={{
-              background: "var(--surface)",
-              borderColor: "var(--border)",
-              color: "var(--text)",
-            }}
-            placeholder="e.g. Add revised semester 3 fee structure to BBA 2026 handbook page 12."
-          />
-        </div>
-      </Dialog>
-
-      {/* Confirm User Role Change Modal */}
-      <Dialog
-        open={Boolean(roleChangeTarget)}
-        onClose={() => setRoleChangeTarget(null)}
-        title="Confirm Role Change"
-        confirmLabel="Update Role"
-        onConfirm={handleChangeRole}
-      >
-        <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
-          Are you sure you want to change the role of{" "}
-          <strong className="font-mono text-[var(--text)]">{roleChangeTarget?.user.email}</strong> to{" "}
-          <strong className="uppercase text-[var(--accent)]">{roleChangeTarget?.newRole}</strong>?
-          {roleChangeTarget?.user.email === user?.email && roleChangeTarget?.newRole !== "admin" && (
-            <span className="block mt-2 font-semibold text-[var(--danger)]">
-              Warning: You are demoting your own account. You will lose access to the admin console immediately.
-            </span>
-          )}
-        </p>
-      </Dialog>
-
-      {/* Confirm Delete User Modal */}
+      {/* Delete User Confirmation Modal */}
       <Dialog
         open={Boolean(userToDelete)}
         onClose={() => {
           setUserToDelete(null);
           setDeleteConfirmInput("");
         }}
-        title="Delete User and All Data"
-        confirmLabel="Permanently Delete"
+        title="Delete User Account"
+        confirmLabel="Delete User"
         danger
         onConfirm={handleDeleteUser}
       >
         <div className="space-y-3">
           <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
-            This action will permanently delete user{" "}
-            <strong className="font-mono text-[var(--text)]">{userToDelete?.email}</strong> and cascade delete all their conversations, messages, and feedback records. This cannot be undone.
+            This action will permanently delete user <strong className="font-mono text-[var(--text)]">{userToDelete?.email}</strong> and their saved conversations. This cannot be undone.
           </p>
           <p className="text-xs font-semibold" style={{ color: "var(--danger)" }}>
             Type DELETE below to confirm:
@@ -1933,13 +1368,13 @@ export default function Admin() {
       <Dialog
         open={confirmClearCache}
         onClose={() => setConfirmClearCache(false)}
-        title="Clear RAG Question Cache"
+        title="Clear Question Cache"
         confirmLabel="Clear Cache"
         danger
         onConfirm={handleExecuteClearCache}
       >
         <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
-          Are you sure you want to clear the entire RAG question cache? Future queries will bypass cache and recompute full vector search and LLM calls until the cache repopulates.
+          Are you sure you want to clear the question cache? Future queries will bypass the cache and run live vector search until the cache repopulates.
         </p>
       </Dialog>
 

@@ -392,7 +392,6 @@ class RAGChain:
             allowed = set()
             for v in getattr(config, 'OFFICIAL_LINKS', {}).values():
                 allowed.add(str(v).strip())
-            import re
             urls = re.findall(r'https?://[^\s<>"\')\]]+', answer)
             for u in urls:
                 if u.strip().rstrip('.,;:!?)') == u:

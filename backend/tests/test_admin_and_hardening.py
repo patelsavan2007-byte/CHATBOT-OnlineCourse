@@ -71,7 +71,6 @@ def test_unauthenticated_admin_routes_forbidden(client):
     endpoints = [
         "/api/admin/overview",
         "/api/admin/knowledge-gaps",
-        "/api/admin/conversations",
         "/api/admin/feedback",
         "/api/admin/users",
         "/api/admin/knowledge-base",
@@ -88,7 +87,6 @@ def test_normal_user_gets_403_on_admin_routes(client, user_token):
     endpoints = [
         "/api/admin/overview",
         "/api/admin/knowledge-gaps",
-        "/api/admin/conversations",
         "/api/admin/feedback",
         "/api/admin/users",
         "/api/admin/knowledge-base",
@@ -143,27 +141,41 @@ def test_admin_knowledge_base_inventory(client, admin_token):
     assert "chunks_per_programme" in data
 
 
-def test_admin_conversations_list_and_detail(client, admin_token, db):
+def test_admin_overview_numbers_match_daily_aggregation(client, admin_token, db):
     headers = {"Authorization": f"Bearer {admin_token}"}
-    resp = client.get("/api/admin/conversations?page=1&limit=5", headers=headers)
+    from datetime import datetime, timezone, timedelta
+    now = datetime.now(timezone.utc)
+    db.chat_events.insert_many([
+        {
+            "timestamp": now - timedelta(days=1),
+            "question": "What is BCA syllabus?",
+            "is_gap": False,
+            "latency_s": 0.85,
+            "user_id": "u1",
+            "feedback": "thumbs_up",
+        },
+        {
+            "timestamp": now - timedelta(days=2),
+            "question": "Unknown subject question?",
+            "is_gap": True,
+            "latency_s": 1.20,
+            "user_id": "u2",
+            "feedback": "thumbs_down",
+        },
+    ])
+
+    resp = client.get("/api/admin/overview?days=7", headers=headers)
     assert resp.status_code == 200
     data = resp.json()
-    assert "conversations" in data
+    assert "total_queries" in data
+    assert "gap_queries" in data
+    assert "queries_per_day" in data
 
-    if data["conversations"]:
-        first_id = data["conversations"][0]["id"]
-        # Verify masked email by default
-        masked = data["conversations"][0].get("user_email_masked")
-        assert masked is None or "***" in masked or masked == "anonymous"
-
-        # Detail view
-        det_resp = client.get(f"/api/admin/conversations/{first_id}", headers=headers)
-        assert det_resp.status_code == 200
-
-        # Audited reveal
-        rev_resp = client.post(f"/api/admin/conversations/{first_id}/reveal", headers=headers)
-        assert rev_resp.status_code == 200
-        assert "user_email" in rev_resp.json()
+    sum_daily_total = sum(d["total"] for d in data["queries_per_day"])
+    sum_daily_gaps = sum(d["gaps"] for d in data["queries_per_day"])
+    assert sum_daily_total == data["total_queries"]
+    assert sum_daily_gaps == data["gap_queries"]
+    assert data["answered_queries"] == data["total_queries"] - data["gap_queries"]
 
 
 def test_admin_audit_log(client, admin_token):

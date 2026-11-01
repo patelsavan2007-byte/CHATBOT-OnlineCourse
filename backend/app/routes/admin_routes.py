@@ -194,31 +194,51 @@ async def admin_overview(
     days: int = Query(7, ge=1, le=90),
     user: Dict[str, Any] = Depends(require_admin),
 ):
-    """Get aggregated analytics over the selected date range (7, 30, 90 days)."""
+    """Get aggregated analytics over the selected date range (7, 30, 90 days).
+    Derived from ONE aggregation over chat_events in the selected window.
+    """
     db = get_db()
     if db is None:
         raise HTTPException(status_code=503, detail="Database unavailable")
 
     now = datetime.now(timezone.utc)
     cutoff = now - timedelta(days=days)
+    cutoff_iso = cutoff.isoformat()
 
-    # 1. Queries and Gaps aggregation per day
-    events_cursor = db.chat_events.find({"timestamp": {"$gte": cutoff}})
     daily_stats: Dict[str, Dict[str, int]] = {}
-    latencies: List[float] = []
-    total_queries = 0
-    total_gaps = 0
-
-    # Pre-populate all days in range
     for i in range(days):
-        day_str = (cutoff + timedelta(days=i)).strftime("%Y-%m-%d")
+        day_str = (cutoff + timedelta(days=i + 1)).strftime("%Y-%m-%d")
         daily_stats[day_str] = {"total": 0, "answered": 0, "gaps": 0}
 
-    for doc in events_cursor:
+    query = {"$or": [{"timestamp": {"$gte": cutoff}}, {"timestamp": {"$gte": cutoff_iso}}]}
+    cursor = db.chat_events.find(query)
+
+    total_queries = 0
+    total_gaps = 0
+    latencies: List[float] = []
+    distinct_users: set = set()
+    thumbs_up = 0
+    thumbs_down = 0
+
+    for doc in cursor:
         total_queries += 1
         is_gap = bool(doc.get("is_gap"))
         if is_gap:
             total_gaps += 1
+
+        uid = doc.get("user_id")
+        if uid:
+            distinct_users.add(str(uid))
+
+        fb = doc.get("feedback")
+        if fb == "thumbs_up":
+            thumbs_up += 1
+        elif fb == "thumbs_down":
+            thumbs_down += 1
+
+        lat = doc.get("latency_s")
+        if lat and isinstance(lat, (int, float)) and lat > 0:
+            latencies.append(float(lat))
 
         ts = doc.get("timestamp")
         if isinstance(ts, datetime):
@@ -238,64 +258,37 @@ async def admin_overview(
         else:
             daily_stats[day_str]["answered"] += 1
 
-        lat = doc.get("latency_s")
-        if lat and isinstance(lat, (int, float)) and lat > 0:
-            latencies.append(float(lat))
+    if thumbs_up == 0 and thumbs_down == 0:
+        fb_stats = get_feedback_stats(db)
+        thumbs_up = fb_stats.get("thumbs_up", 0)
+        thumbs_down = fb_stats.get("thumbs_down", 0)
+
+    total_ratings = thumbs_up + thumbs_down
+    gap_rate = round(total_gaps / total_queries, 4) if total_queries > 0 else 0.0
+    feedback_rate = round(total_ratings / total_queries, 4) if total_queries > 0 else 0.0
+    positive_share = round(thumbs_up / total_ratings, 3) if total_ratings >= 20 else None
+
+    latencies.sort()
+    median_latency = round(latencies[len(latencies) // 2], 3) if latencies else 0.0
 
     queries_per_day = [
         {"date": d, "total": s["total"], "answered": s["answered"], "gaps": s["gaps"]}
         for d, s in sorted(daily_stats.items())
     ]
 
-    # Latency percentiles
-    latencies.sort()
-    median_latency = 0.0
-    p95_latency = 0.0
-    if latencies:
-        median_latency = round(latencies[len(latencies) // 2], 3)
-        p95_idx = int(len(latencies) * 0.95)
-        p95_latency = round(latencies[min(p95_idx, len(latencies) - 1)], 3)
-
-    # Cache stats
-    cache_hit_rate = 0.0
-    try:
-        cache = get_cache()
-        c_stats = cache.get_stats()
-        hits = c_stats.get("hits", 0)
-        misses = c_stats.get("misses", 0)
-        total_c = hits + misses
-        if total_c > 0:
-            cache_hit_rate = round(hits / total_c, 3)
-    except Exception:
-        pass
-
-    # Users in range
-    new_users = db.users.count_documents({"created_at": {"$gte": cutoff}})
-    total_users = db.users.count_documents({})
-
-    # Feedback in range
-    fb_stats = get_feedback_stats(db)
-    up = fb_stats.get("thumbs_up", 0)
-    down = fb_stats.get("thumbs_down", 0)
-    total_ratings = up + down
-    feedback_rate = round(total_ratings / total_queries, 4) if total_queries > 0 else 0.0
-    positive_share = round(up / total_ratings, 3) if total_ratings >= 20 else None
-
     return {
         "range_days": days,
         "total_queries": total_queries,
         "answered_queries": total_queries - total_gaps,
         "gap_queries": total_gaps,
-        "gap_rate": round(total_gaps / total_queries, 3) if total_queries > 0 else 0.0,
+        "gap_rate": gap_rate,
         "queries_per_day": queries_per_day,
         "median_latency_s": median_latency,
-        "p95_latency_s": p95_latency,
-        "cache_hit_rate": cache_hit_rate,
-        "new_users": new_users,
-        "total_users": total_users,
+        "active_users": len(distinct_users),
+        "total_users": db.users.count_documents({}),
         "feedback": {
-            "thumbs_up": up,
-            "thumbs_down": down,
+            "thumbs_up": thumbs_up,
+            "thumbs_down": thumbs_down,
             "total_ratings": total_ratings,
             "feedback_rate": feedback_rate,
             "positive_share": positive_share,
@@ -715,6 +708,7 @@ async def admin_feedback(
     stats = get_feedback_stats(db)
     return {
         "feedback_items": items,
+        "feedback": items,
         "total": total,
         "page": page,
         "limit": limit,
@@ -970,11 +964,17 @@ async def admin_knowledge_base(user: Dict[str, Any] = Depends(require_admin)):
     except Exception as exc:
         logger.warning("Could not read full vector store breakdown: %s", exc)
 
-    # Check last ingestion timestamp from manifest or folder stat
-    manifest_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge_base")
+    # Check last ingestion timestamp from last_sync.json, index dir, or knowledge_base dir
+    kb_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge_base")
+    last_sync_file = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "backend", "last_sync.json")
     try:
-        if os.path.exists(manifest_path):
-            stat = os.stat(manifest_path)
+        if os.path.exists(last_sync_file):
+            import json
+            with open(last_sync_file, "r", encoding="utf-8") as f:
+                sync_info = json.load(f)
+                last_modified = sync_info.get("last_sync") or sync_info.get("timestamp")
+        if not last_modified and os.path.exists(kb_dir):
+            stat = os.stat(kb_dir)
             last_modified = datetime.fromtimestamp(stat.st_mtime, timezone.utc).isoformat()
     except Exception:
         pass
@@ -985,7 +985,8 @@ async def admin_knowledge_base(user: Dict[str, Any] = Depends(require_admin)):
         "documents": list(doc_sources.values()),
         "chunks_per_programme": docs_by_prog,
         "last_ingested_at": last_modified,
-        "rebuild_note": "Rebuilding the vector store index is a server-side CLI task (python ingest_pdfs.py).",
+        "last_modified": last_modified,
+        "rebuild_note": "Rebuilding the vector store index is a server-side CLI task (python rebuild_vector_db.py).",
     }
 
 
@@ -1039,33 +1040,84 @@ async def get_audit_log(
 
 @router.get("/system")
 async def admin_system(user: Dict[str, Any] = Depends(require_admin)):
-    """Get system diagnostics, vector store health, and environment config. Admin only."""
+    """Get real system diagnostics, vector store health, and environment config. Admin only."""
     db = get_db()
     from app import config
 
-    vector_count = None
+    # Real MongoDB Ping
+    mongo_ok = False
+    if db is not None:
+        try:
+            db.command("ping")
+            mongo_ok = True
+        except Exception as exc:
+            logger.warning("MongoDB ping failed: %s", exc)
+
+    # Real Vector Store chunk count from the canonical EmbeddingStore loader
+    chunk_count = 0
     try:
-        from app.retriever import get_retriever
-        retriever = get_retriever()
-        if retriever and retriever.vector_store:
-            vector_count = retriever.vector_store._collection.count()
+        from app.embeddings import EmbeddingStore
+        store = EmbeddingStore().load_vector_store()
+        if store:
+            chunk_count = store._collection.count()
+    except Exception as exc:
+        logger.warning("Vector store chunk count check failed: %s", exc)
+
+    # Recent admin activity list (last 50 audit entries)
+    recent_logs = []
+    if db is not None:
+        try:
+            cursor = db.audit_log.find({}).sort("timestamp", -1).limit(50)
+            for entry in cursor:
+                ts = entry.get("timestamp")
+                ts_str = ts.isoformat() if hasattr(ts, "isoformat") else str(ts)
+                recent_logs.append({
+                    "id": str(entry["_id"]),
+                    "timestamp": ts_str,
+                    "admin_email": entry.get("admin_email", "system"),
+                    "action": entry.get("action", "unknown"),
+                    "target_type": entry.get("target_type"),
+                    "target_id": entry.get("target_id"),
+                    "details": entry.get("details", {}),
+                    "ip_address": entry.get("ip_address"),
+                })
+        except Exception as exc:
+            logger.warning("Failed to load audit logs for system tab: %s", exc)
+
+    # Cache stats
+    cache_stats_dict = {}
+    try:
+        cache = get_cache()
+        cache_stats_dict = cache.get_stats()
     except Exception:
         pass
-
-    api_module = sys.modules.get("api")
-    rag_ready = getattr(api_module, "_rag_ready", False) if api_module else False
 
     return {
         "python_version": sys.version.split()[0],
         "os_platform": platform.platform(),
-        "database_connected": db is not None,
+        "build_version": "2026.11.01-v2",
+        "database": {
+            "connected": mongo_ok,
+            "name": db.name if db is not None else None,
+        },
+        "database_connected": mongo_ok,
         "database_name": db.name if db is not None else None,
-        "collections": db.list_collection_names() if db is not None else [],
-        "rag_ready": rag_ready,
-        "vector_store_documents": vector_count,
-        "llm_preferred_models": list(config.PREFERRED_MODELS),
-        "llm_temperature": config.LLM_TEMPERATURE,
-        "groq_failover_model": getattr(config, "GROQ_MODEL", "llama-3.3-70b-versatile"),
+        "collections": db.list_collection_names() if (db is not None and mongo_ok) else [],
+        "vector_store": {
+            "ready": chunk_count > 0,
+            "chunks": chunk_count,
+            "chunk_count": chunk_count,
+        },
+        "vector_store_documents": chunk_count,
+        "rag_ready": chunk_count > 0,
+        "models": {
+            "primary": getattr(config, "GEMINI_MODEL", "Gemini 2.5 Flash"),
+            "primary_status": "configured",
+            "failover": getattr(config, "GROQ_MODEL", "Groq (openai/gpt-oss-120b)"),
+            "failover_status": "configured",
+        },
+        "cache": cache_stats_dict,
+        "recent_logs": recent_logs,
         "min_relevance_score": config.MIN_RELEVANCE_SCORE,
     }
 

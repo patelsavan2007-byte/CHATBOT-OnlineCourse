@@ -100,6 +100,36 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
 _bearer_scheme = HTTPBearer(auto_error=False)
 
 
+def _touch_last_active(db: Any, user: Dict[str, Any]) -> None:
+    """Update user last_active timestamp at most once every 10 minutes."""
+    if not db or not user or not user.get("id"):
+        return
+    now_utc = datetime.now(timezone.utc)
+    last_act = user.get("last_active")
+    should_update = False
+    if not last_act:
+        should_update = True
+    else:
+        if isinstance(last_act, str):
+            try:
+                last_act = datetime.fromisoformat(last_act)
+            except Exception:
+                should_update = True
+        if isinstance(last_act, datetime):
+            # Check elapsed seconds (10 minutes = 600 seconds)
+            tz_act = last_act if last_act.tzinfo else last_act.replace(tzinfo=timezone.utc)
+            if (now_utc - tz_act).total_seconds() >= 600:
+                should_update = True
+
+    if should_update:
+        try:
+            from bson import ObjectId
+            oid = ObjectId(user["id"]) if isinstance(user["id"], str) and len(user["id"]) == 24 else user["id"]
+            db.users.update_one({"_id": oid}, {"$set": {"last_active": now_utc}})
+            user["last_active"] = now_utc
+        except Exception as exc:
+            logger.debug("Failed to update last_active: %s", exc)
+
 async def get_current_user(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(_bearer_scheme),
 ) -> Dict[str, Any]:
@@ -136,6 +166,7 @@ async def get_current_user(
             detail="Account has been disabled",
         )
 
+    _touch_last_active(db, user)
     return user
 
 
