@@ -1,3 +1,4 @@
+import RichText from "../components/RichText.jsx";
 import ThemedLogo from "../components/ui/ThemedLogo.jsx";
 /**
  * Admin Console - 5-tab operations portal for university staff.
@@ -296,6 +297,20 @@ export default function Admin() {
 
   // Tab 3: Knowledge Base
   const [kbData, setKbData] = useState(null);
+  const [kbStatus, setKbStatus] = useState(null);
+  const [kbUploading, setKbUploading] = useState(false);
+  const [kbSyncing, setKbSyncing] = useState(false);
+  const [activeDraft, setActiveDraft] = useState(null);
+  const [showPublishConfirm, setShowPublishConfirm] = useState(false);
+  const [publishingDraft, setPublishingDraft] = useState(false);
+  const [viewingDoc, setViewingDoc] = useState(null);
+  const [viewingDocContent, setViewingDocContent] = useState("");
+  const [loadingDocContent, setLoadingDocContent] = useState(false);
+  const [deletingDoc, setDeletingDoc] = useState(null);
+  const [deleteDocConfirmInput, setDeleteDocConfirmInput] = useState("");
+  const [testQuestionInput, setTestQuestionInput] = useState("");
+  const [testQuestionResult, setTestQuestionResult] = useState(null);
+  const [testingQuestion, setTestingQuestion] = useState(false);
 
   // Tab 4: Users
   const [usersList, setUsersList] = useState([]);
@@ -330,8 +345,12 @@ export default function Admin() {
           setGaps(gapsRes.gaps || []);
           setFeedbackItems(fbRes.feedback_items || fbRes.feedback || []);
         } else if (tabId === "knowledge_base") {
-          const data = await apiFetch("/api/admin/knowledge-base");
+          const [data, statusData] = await Promise.all([
+            apiFetch("/api/admin/knowledge-base").catch(() => null),
+            apiFetch("/api/admin/kb/status").catch(() => null),
+          ]);
           setKbData(data);
+          setKbStatus(statusData);
         } else if (tabId === "users") {
           const params = new URLSearchParams();
           if (userSearch) params.append("q", userSearch);
@@ -354,6 +373,181 @@ export default function Admin() {
   useEffect(() => {
     loadTabData(activeTab);
   }, [activeTab, loadTabData]);
+
+  // Handlers for Part 3 & 4: Knowledge Base Manager & Answer This
+  const handleUploadFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      showToast("File exceeds 10 MB limit", "danger");
+      return;
+    }
+    setKbUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const token = localStorage.getItem("auth_token");
+      const res = await fetch(`${API_BASE}/api/admin/kb/convert`, {
+        method: "POST",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: formData,
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.detail || `Conversion failed (${res.status})`);
+      }
+      const draft = await res.json();
+      setActiveDraft(draft);
+      showToast("Document converted. Review draft before publishing.", "success");
+    } catch (err) {
+      showToast(err.message || "Upload conversion failed", "danger");
+    } finally {
+      setKbUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const handlePublishDraft = async () => {
+    if (!activeDraft) return;
+    setPublishingDraft(true);
+    try {
+      const token = localStorage.getItem("auth_token");
+      const res = await apiFetch(`/api/admin/kb/drafts/${activeDraft.draft_id}/publish`, {
+        method: "POST",
+        body: JSON.stringify({
+          title: activeDraft.title,
+          programme: activeDraft.programme,
+          source_note: activeDraft.source_note,
+        }),
+      });
+      showToast(res.message || "Document published successfully.", "success");
+      setActiveDraft(null);
+      setShowPublishConfirm(false);
+      loadTabData("knowledge_base");
+    } catch (err) {
+      showToast(err.message || "Failed to publish document", "danger");
+    } finally {
+      setPublishingDraft(false);
+    }
+  };
+
+  const handleDeleteDoc = async () => {
+    if (!deletingDoc) return;
+    try {
+      await apiFetch(`/api/admin/kb/documents/${deletingDoc.slug}`, {
+        method: "DELETE",
+      });
+      showToast(`Document ${deletingDoc.filename} removed successfully`, "success");
+      setDeletingDoc(null);
+      setDeleteDocConfirmInput("");
+      loadTabData("knowledge_base");
+    } catch (err) {
+      showToast(err.message || "Failed to remove document", "danger");
+    }
+  };
+
+  const handleRunSync = async (forceRebuild = false) => {
+    setKbSyncing(true);
+    try {
+      await apiFetch(`/api/admin/kb/sync?force_rebuild=${forceRebuild}`, {
+        method: "POST",
+      });
+      showToast("Sync workflow dispatched on GitHub Actions", "success");
+      loadTabData("knowledge_base");
+    } catch (err) {
+      showToast(err.message || "Failed to run sync workflow", "danger");
+    } finally {
+      setKbSyncing(false);
+    }
+  };
+
+  const handleTestQuestion = async (e) => {
+    e?.preventDefault();
+    if (!testQuestionInput.trim()) return;
+    setTestingQuestion(true);
+    try {
+      const res = await apiFetch("/api/admin/kb/test-question", {
+        method: "POST",
+        body: JSON.stringify({ question: testQuestionInput.trim() }),
+      });
+      setTestQuestionResult(res);
+    } catch (err) {
+      showToast(err.message || "Test question failed", "danger");
+    } finally {
+      setTestingQuestion(false);
+    }
+  };
+
+  const handleDownloadMarkdown = (filename, mdContent) => {
+    const blob = new Blob([mdContent], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${filename.replace(/\.[^/.]+$/, "")}.md`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleSubmitFaq = async (e) => {
+    e?.preventDefault();
+    if (!answeringGap) return;
+    if (answerDraft.trim().length < 20) {
+      showToast("Answer must be at least 20 characters long", "danger");
+      return;
+    }
+    if (!answerSource.trim()) {
+      showToast("Official source is required", "danger");
+      return;
+    }
+    setSavingAnswer(true);
+    try {
+      const qText = answeringGap.question || answeringGap.normalized_question;
+      const res = await apiFetch("/api/admin/kb/faq", {
+        method: "POST",
+        body: JSON.stringify({
+          question: qText,
+          answer: answerDraft.trim(),
+          source: answerSource.trim(),
+          programme: answerProgramme,
+          gap_id: answeringGap.id || null,
+        }),
+      });
+      showToast("FAQ document saved and knowledge gap resolved.", "success");
+      // Update gap status in local state
+      setGaps((prev) =>
+        prev.map((item) =>
+          (item.id === answeringGap.id || item.normalized_question === answeringGap.normalized_question)
+            ? { ...item, review_status: "resolved", note: `Answered via ${res.rel_path}` }
+            : item
+        )
+      );
+      setAnsweringGap(null);
+      setAnswerDraft("");
+      setAnswerSource("");
+    } catch (err) {
+      showToast(err.message || "Failed to save FAQ answer", "danger");
+    } finally {
+      setSavingAnswer(false);
+    }
+  };
+
+  // Poll knowledge base status every 15s if rebuilding
+  useEffect(() => {
+    if (activeTab !== "knowledge_base") return;
+    const hasRebuilding = (kbStatus?.documents || []).some((d) => d.status === "Rebuilding") ||
+      kbStatus?.automation?.status === "in_progress" ||
+      kbStatus?.automation?.status === "queued";
+    if (!hasRebuilding) return;
+
+    const timer = setInterval(() => {
+      apiFetch("/api/admin/kb/status")
+        .then((data) => setKbStatus(data))
+        .catch(() => {});
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [activeTab, kbStatus]);
 
   // Handlers for Needs Attention: Knowledge Gaps
   const handleUpdateGapStatus = async (gapId, newStatus, currentNotes) => {
@@ -975,71 +1169,261 @@ export default function Admin() {
         {/* 3. KNOWLEDGE BASE TAB */}
         {activeTab === "knowledge_base" && (
           <div className="space-y-6">
-            <div className="grid gap-3 sm:grid-cols-3">
-              <StatCard
-                label="Total Chunks Indexed"
-                value={kbData?.total_chunks ?? 301}
-                subtitle="Stored in Chroma vector database"
-              />
-              <StatCard
-                label="Source Documents"
-                value={kbData?.total_documents ?? 23}
-                subtitle="Official syllabi and scraped catalogs"
-              />
-              <StatCard
-                label="Last Ingestion Date"
-                value={
-                  kbData?.last_ingested_at || kbData?.last_modified
-                    ? new Date(kbData?.last_ingested_at || kbData?.last_modified).toLocaleString()
-                    : "01 Nov 2026, 07:00 IST"
-                }
-                subtitle="Server filesystem timestamp"
-              />
-            </div>
-
-            <div className="rounded-lg border p-4" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
-              <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--muted)" }}>
-                Chunks per Programme
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 font-mono text-center">
-                {Object.entries(kbData?.chunks_per_programme || { bba: 60, bca: 78, mba: 84, mca: 64, general: 15 }).map(([prog, count]) => (
-                  <div key={prog} className="rounded-md border p-2" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
-                    <p className="text-[11px] uppercase" style={{ color: "var(--muted)" }}>{prog}</p>
-                    <p className="text-lg font-bold" style={{ color: "var(--accent)" }}>{count}</p>
+            {/* Automation & Index Card */}
+            <div className="rounded-lg border p-4 space-y-3" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                      Automation
+                    </span>
+                    <span
+                      className="inline-flex items-center rounded border px-2 py-0.5 text-[11px] font-mono font-medium"
+                      style={{
+                        borderColor: kbStatus?.automation?.status === "in_progress" || kbStatus?.automation?.status === "queued"
+                          ? "var(--accent)"
+                          : kbStatus?.automation?.result === "failure"
+                          ? "var(--danger)"
+                          : "var(--success)",
+                        color: kbStatus?.automation?.status === "in_progress" || kbStatus?.automation?.status === "queued"
+                          ? "var(--accent)"
+                          : kbStatus?.automation?.result === "failure"
+                          ? "var(--danger)"
+                          : "var(--success)",
+                      }}
+                    >
+                      {kbStatus?.automation?.status === "in_progress" || kbStatus?.automation?.status === "queued"
+                        ? "Rebuilding"
+                        : kbStatus?.automation?.result === "failure"
+                        ? "Failed"
+                        : "OK"}
+                    </span>
                   </div>
-                ))}
+                  <p className="mt-1 text-xs" style={{ color: "var(--text-2)" }}>
+                    Last sync: {kbStatus?.automation?.last_run ? new Date(kbStatus.automation.last_run).toLocaleString() : "01 Nov 07:00 IST"}
+                    {kbStatus?.automation?.trigger && ` (${kbStatus.automation.trigger})`}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    disabled={kbSyncing || !kbStatus?.automation?.configured}
+                    onClick={() => handleRunSync(false)}
+                    className="rounded-md border px-3 py-1.5 text-xs font-medium transition cursor-pointer disabled:opacity-50"
+                    style={{
+                      background: "var(--surface-2)",
+                      borderColor: "var(--border)",
+                      color: "var(--text)",
+                    }}
+                    title={!kbStatus?.automation?.configured ? "Configure GITHUB_REPO and GITHUB_TOKEN in backend environment to enable" : "Trigger website scrape and sync workflow"}
+                  >
+                    {kbSyncing ? "Triggering..." : "Run sync now"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={kbSyncing || !kbStatus?.automation?.configured}
+                    onClick={() => handleRunSync(true)}
+                    className="rounded-md border px-3 py-1.5 text-xs font-medium transition cursor-pointer disabled:opacity-50"
+                    style={{
+                      background: "var(--surface-2)",
+                      borderColor: "var(--border)",
+                      color: "var(--text-2)",
+                    }}
+                    title="Force rebuild vector database chunks"
+                  >
+                    Force rebuild
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-xs" style={{ borderColor: "var(--border)" }}>
+                <p style={{ color: "var(--text-2)" }}>
+                  <strong>Index:</strong> {kbStatus?.index?.total_chunks ?? kbData?.total_chunks ?? 301} chunks, {kbStatus?.index?.total_documents ?? kbData?.total_documents ?? 23} documents
+                </p>
+                {!kbStatus?.automation?.configured && (
+                  <p className="text-[11px] font-mono" style={{ color: "var(--muted)" }}>
+                    GitHub sync not configured (local storage active)
+                  </p>
+                )}
               </div>
             </div>
 
-            {/* Documents inventory */}
+            {/* Upload Document Strip */}
+            <div className="rounded-lg border p-4 flex flex-col sm:flex-row items-center justify-between gap-3" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <div>
+                <h3 className="text-sm font-semibold" style={{ color: "var(--text)" }}>Upload Document</h3>
+                <p className="text-xs" style={{ color: "var(--muted)" }}>PDF, DOCX, MD or TXT, up to 10 MB</p>
+              </div>
+              <label
+                className="rounded-md border px-4 py-2 text-xs font-semibold cursor-pointer transition inline-flex items-center"
+                style={{
+                  background: "var(--accent)",
+                  borderColor: "var(--accent)",
+                  color: "var(--text-inverse, #fff)",
+                }}
+              >
+                {kbUploading ? "Converting..." : "Upload document"}
+                <input
+                  type="file"
+                  accept=".pdf,.docx,.md,.txt"
+                  disabled={kbUploading}
+                  onChange={handleUploadFile}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Documents Inventory Table */}
             <div className="overflow-x-auto rounded-lg border" style={{ borderColor: "var(--border)", background: "var(--surface)" }}>
-              <div className="p-3 border-b" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
+              <div className="p-3 border-b flex items-center justify-between" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
                 <p className="text-xs font-medium" style={{ color: "var(--text-2)" }}>
-                  Rebuilding the vector store index is a server-side CLI task (python rebuild_vector_db.py).
+                  Knowledge base inventory powering the CHARUSAT chatbot answers
                 </p>
+                <span className="text-[11px] font-mono" style={{ color: "var(--muted)" }}>
+                  {(kbStatus?.documents || []).length} items
+                </span>
               </div>
               <table className="w-full text-left text-[13px] border-collapse font-sans">
-                <thead className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider" style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}>
+                <thead
+                  className="sticky top-0 z-10 border-b text-[11px] font-semibold uppercase tracking-wider"
+                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--muted)" }}
+                >
                   <tr>
-                    <th className="px-3.5 py-2.5">Document Name</th>
+                    <th className="px-3.5 py-2.5">Document</th>
+                    <th className="px-3 py-2.5">Source</th>
                     <th className="px-3 py-2.5">Programme</th>
                     <th className="px-3 py-2.5 text-center">Chunks</th>
-                    <th className="px-3 py-2.5">Path / Source</th>
+                    <th className="px-3 py-2.5">Status</th>
+                    <th className="px-3 py-2.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y" style={{ borderColor: "var(--border)" }}>
-                  {(kbData?.documents || []).map((doc) => (
-                    <tr key={doc.source} className="transition-colors hover:bg-[var(--surface-2)]">
-                      <td className="px-3.5 py-2.5 font-medium">{doc.name}</td>
-                      <td className="px-3 py-2.5 uppercase font-mono text-xs">{doc.program}</td>
-                      <td className="px-3 py-2.5 text-center font-mono font-semibold">{doc.chunk_count}</td>
-                      <td className="px-3 py-2.5 font-mono text-xs truncate max-w-xs" style={{ color: "var(--muted)" }}>
-                        {doc.source}
-                      </td>
-                    </tr>
-                  ))}
+                  {(kbStatus?.documents || []).map((doc) => {
+                    const isLive = doc.status === "Live";
+                    const isRebuilding = doc.status === "Rebuilding";
+                    const isFailed = doc.status === "Failed";
+                    return (
+                      <tr key={doc.rel_path} className="transition-colors hover:bg-[var(--surface-2)]">
+                        <td className="px-3.5 py-2.5 font-medium max-w-xs truncate" title={doc.title}>
+                          <div>{doc.title}</div>
+                          <div className="font-mono text-[10px]" style={{ color: "var(--muted)" }}>{doc.rel_path}</div>
+                        </td>
+                        <td className="px-3 py-2.5">
+                          <span
+                            className="rounded border px-1.5 py-0.5 text-[10px] font-mono uppercase"
+                            style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text-2)" }}
+                          >
+                            {doc.source_type}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 uppercase font-mono text-xs">{doc.programme}</td>
+                        <td className="px-3 py-2.5 text-center font-mono font-semibold">{doc.chunks}</td>
+                        <td className="px-3 py-2.5 whitespace-nowrap">
+                          <span
+                            className="inline-block rounded border px-2 py-0.5 text-[10px] font-mono font-medium"
+                            style={{
+                              borderColor: isLive ? "var(--success)" : isRebuilding ? "var(--accent)" : isFailed ? "var(--danger)" : "var(--border)",
+                              color: isLive ? "var(--success)" : isRebuilding ? "var(--accent)" : isFailed ? "var(--danger)" : "var(--muted)",
+                            }}
+                          >
+                            {doc.status}
+                          </span>
+                        </td>
+                        <td className="px-3 py-2.5 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setViewingDoc(doc);
+                              setViewingDocContent(doc.markdown || `# ${doc.title}\n\nSource: ${doc.rel_path}`);
+                            }}
+                            className="rounded border px-2 py-1 text-xs font-medium transition cursor-pointer hover:border-[var(--border-focus)]"
+                            style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text-2)" }}
+                          >
+                            View
+                          </button>
+                          {doc.can_delete && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setDeletingDoc(doc);
+                                setDeleteDocConfirmInput("");
+                              }}
+                              className="rounded border px-2 py-1 text-xs font-medium transition cursor-pointer hover:border-[var(--danger)]"
+                              style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--danger)" }}
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
+            </div>
+
+            {/* Test a Question Panel */}
+            <div className="rounded-lg border p-4 space-y-3" style={{ background: "var(--surface)", borderColor: "var(--border)" }}>
+              <h3 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--muted)" }}>
+                Test a question against index
+              </h3>
+              <form onSubmit={handleTestQuestion} className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Type a test question (e.g. What is the fee refund policy?)..."
+                  value={testQuestionInput}
+                  onChange={(e) => setTestQuestionInput(e.target.value)}
+                  className="flex-1 rounded-md border px-3 py-2 text-xs focus:outline-none font-sans"
+                  style={{
+                    background: "var(--surface)",
+                    borderColor: "var(--border)",
+                    color: "var(--text)",
+                  }}
+                />
+                <button
+                  type="submit"
+                  disabled={testingQuestion || !testQuestionInput.trim()}
+                  className="rounded-md border px-4 py-2 text-xs font-semibold transition cursor-pointer disabled:opacity-50"
+                  style={{
+                    background: "var(--accent)",
+                    borderColor: "var(--accent)",
+                    color: "var(--text-inverse, #fff)",
+                  }}
+                >
+                  {testingQuestion ? "Testing..." : "Ask"}
+                </button>
+              </form>
+
+              {testQuestionResult && (
+                <div className="mt-3 pt-3 border-t space-y-2 text-xs" style={{ borderColor: "var(--border)" }}>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium" style={{ color: "var(--text)" }}>
+                      Relevance score: <strong className="font-mono">{testQuestionResult.relevance_score}</strong>
+                    </span>
+                    <span
+                      className="rounded border px-2 py-0.5 text-[10px] font-mono font-medium"
+                      style={{
+                        borderColor: testQuestionResult.answerable ? "var(--success)" : "var(--danger)",
+                        color: testQuestionResult.answerable ? "var(--success)" : "var(--danger)",
+                      }}
+                    >
+                      {testQuestionResult.answerable ? "Probably answerable now" : "Low relevance (unanswered)"}
+                    </span>
+                  </div>
+                  <div className="space-y-2 mt-2">
+                    {(testQuestionResult.chunks || []).map((ch, idx) => (
+                      <div key={idx} className="rounded border p-2 text-xs" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+                        <div className="flex items-center justify-between font-mono text-[10px]" style={{ color: "var(--muted)" }}>
+                          <span>{ch.source} ({ch.programme})</span>
+                          <span>score: {ch.score}</span>
+                        </div>
+                        <p className="mt-1 line-clamp-2" style={{ color: "var(--text-2)" }}>{ch.content_snippet}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1329,6 +1713,225 @@ export default function Admin() {
           </div>
         )}
       </main>
+
+      {/* Answer This FAQ Modal (Part 4) */}
+      <Dialog
+        open={Boolean(answeringGap)}
+        onClose={() => {
+          setAnsweringGap(null);
+          setAnswerDraft("");
+          setAnswerSource("");
+        }}
+        title="Answer Unanswered Question"
+        confirmLabel={savingAnswer ? "Publishing FAQ..." : "Publish FAQ"}
+        onConfirm={handleSubmitFaq}
+        disabled={savingAnswer || answerDraft.trim().length < 20 || !answerSource.trim()}
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>
+              Question
+            </label>
+            <p className="rounded border p-2 text-xs font-medium" style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}>
+              {answeringGap?.question || answeringGap?.normalized_question}
+            </p>
+          </div>
+
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-semibold" style={{ color: "var(--muted)" }}>
+                Official Answer (min 20 characters)
+              </label>
+              <span className="text-[11px] font-mono" style={{ color: answerDraft.trim().length >= 20 ? "var(--success)" : "var(--muted)" }}>
+                {answerDraft.trim().length} chars
+              </span>
+            </div>
+            <textarea
+              rows={5}
+              value={answerDraft}
+              onChange={(e) => setAnswerDraft(e.target.value)}
+              placeholder="Write the clear, accurate answer based on official university information..."
+              className="w-full rounded-md border p-2 text-xs focus:outline-none"
+              style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>
+                Programme
+              </label>
+              <select
+                value={answerProgramme}
+                onChange={(e) => setAnswerProgramme(e.target.value)}
+                className="w-full rounded-md border p-2 text-xs focus:outline-none"
+                style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+              >
+                <option value="GENERAL">GENERAL</option>
+                <option value="BBA">BBA</option>
+                <option value="BCA">BCA</option>
+                <option value="MBA">MBA</option>
+                <option value="MCA">MCA</option>
+              </select>
+            </div>
+            <div>
+              <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>
+                Official Source (URL or document)
+              </label>
+              <input
+                type="text"
+                value={answerSource}
+                onChange={(e) => setAnswerSource(e.target.value)}
+                placeholder="https://charusat.online/... or Syllabus"
+                className="w-full rounded-md border p-2 text-xs focus:outline-none"
+                style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+              />
+            </div>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Document Review Modal (Part 3) */}
+      <Dialog
+        open={Boolean(activeDraft)}
+        onClose={() => setActiveDraft(null)}
+        title={`Review Document Draft - ${activeDraft?.filename || ""}`}
+        confirmLabel="Publish to Knowledge Base"
+        cancelLabel="Close"
+        disabled={!activeDraft?.can_publish}
+        onConfirm={() => setShowPublishConfirm(true)}
+      >
+        {activeDraft && (
+          <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+            {activeDraft.warnings?.length > 0 && (
+              <div className="rounded-md border p-3 text-xs" style={{ borderColor: "var(--danger)", background: "var(--surface-2)", color: "var(--danger)" }}>
+                {activeDraft.warnings.map((w, idx) => (
+                  <p key={idx}>Warning: {w}</p>
+                ))}
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Document Title</label>
+                <input
+                  type="text"
+                  value={activeDraft.title}
+                  onChange={(e) => setActiveDraft({ ...activeDraft, title: e.target.value })}
+                  className="w-full rounded-md border p-2 text-xs focus:outline-none"
+                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Programme</label>
+                <select
+                  value={activeDraft.programme}
+                  onChange={(e) => setActiveDraft({ ...activeDraft, programme: e.target.value })}
+                  className="w-full rounded-md border p-2 text-xs focus:outline-none"
+                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                >
+                  <option value="GENERAL">GENERAL</option>
+                  <option value="BBA">BBA</option>
+                  <option value="BCA">BCA</option>
+                  <option value="MBA">MBA</option>
+                  <option value="MCA">MCA</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between text-xs" style={{ color: "var(--muted)" }}>
+              <span>Pages: <strong>{activeDraft.page_count}</strong> | Estimated Chunks: <strong>{activeDraft.chunk_estimate}</strong></span>
+              <button
+                type="button"
+                onClick={() => handleDownloadMarkdown(activeDraft.filename, activeDraft.markdown)}
+                className="underline hover:text-[var(--accent)] cursor-pointer"
+              >
+                Download Markdown (.md)
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Editable Markdown</label>
+                <textarea
+                  rows={14}
+                  value={activeDraft.markdown}
+                  onChange={(e) => setActiveDraft({ ...activeDraft, markdown: e.target.value })}
+                  className="w-full rounded-md border p-2 text-xs font-mono focus:outline-none"
+                  style={{ background: "var(--surface)", borderColor: "var(--border)", color: "var(--text)" }}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-semibold block mb-1" style={{ color: "var(--muted)" }}>Rendered Preview</label>
+                <div
+                  className="w-full rounded-md border p-3 text-xs overflow-y-auto max-h-[280px]"
+                  style={{ background: "var(--surface-2)", borderColor: "var(--border)", color: "var(--text)" }}
+                >
+                  <RichText content={activeDraft.markdown} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Dialog>
+
+      {/* Publish Confirm Dialog */}
+      <Dialog
+        open={showPublishConfirm}
+        onClose={() => setShowPublishConfirm(false)}
+        title="Publish Document to Knowledge Base?"
+        description="This document will be committed to the repository and a vector database rebuild will be dispatched on GitHub Actions. Continue?"
+        confirmLabel={publishingDraft ? "Publishing..." : "Confirm Publish"}
+        disabled={publishingDraft}
+        onConfirm={handlePublishDraft}
+      />
+
+      {/* View Document Modal */}
+      <Dialog
+        open={Boolean(viewingDoc)}
+        onClose={() => setViewingDoc(null)}
+        title={viewingDoc?.title || "Document Preview"}
+        cancelLabel="Close"
+      >
+        <div className="max-h-[60vh] overflow-y-auto p-2 rounded border" style={{ background: "var(--surface-2)", borderColor: "var(--border)" }}>
+          <RichText content={viewingDocContent} />
+        </div>
+      </Dialog>
+
+      {/* Delete Document Confirmation Modal */}
+      <Dialog
+        open={Boolean(deletingDoc)}
+        onClose={() => {
+          setDeletingDoc(null);
+          setDeleteDocConfirmInput("");
+        }}
+        title="Delete Uploaded Document"
+        confirmLabel="Delete Document"
+        danger
+        disabled={deleteDocConfirmInput.trim().toUpperCase() !== "DELETE"}
+        onConfirm={handleDeleteDoc}
+      >
+        <div className="space-y-3">
+          <p className="text-xs leading-relaxed" style={{ color: "var(--text-2)" }}>
+            Are you sure you want to permanently delete <strong className="font-mono text-[var(--text)]">{deletingDoc?.filename}</strong>? This will remove the document and dispatch an index update.
+          </p>
+          <p className="text-xs font-semibold" style={{ color: "var(--danger)" }}>
+            Type DELETE below to confirm:
+          </p>
+          <input
+            type="text"
+            value={deleteDocConfirmInput}
+            onChange={(e) => setDeleteDocConfirmInput(e.target.value)}
+            placeholder="DELETE"
+            className="w-full rounded-md border p-2 text-xs font-mono uppercase focus:outline-none"
+            style={{
+              background: "var(--surface)",
+              borderColor: "var(--border)",
+              color: "var(--text)",
+            }}
+          />
+        </div>
+      </Dialog>
 
       {/* Delete User Confirmation Modal */}
       <Dialog

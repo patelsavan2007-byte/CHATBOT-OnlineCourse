@@ -10,6 +10,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 KNOWLEDGE_BASE_DIR = BASE_DIR / "knowledge_base"
 VECTOR_DB_DIR = Path(os.getenv("VECTOR_DB_DIR", str(BASE_DIR / "vector_db")))
 PDF_DIR = KNOWLEDGE_BASE_DIR / "pdfs"
+UPLOADS_DIR = KNOWLEDGE_BASE_DIR / "uploads"
+UPLOADS_ORIGINALS_DIR = UPLOADS_DIR / "originals"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 FALLBACK_EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 CHUNK_SIZE = 1000
@@ -60,6 +62,8 @@ def ensure_directories() -> None:
     KNOWLEDGE_BASE_DIR.mkdir(parents=True, exist_ok=True)
     VECTOR_DB_DIR.mkdir(parents=True, exist_ok=True)
     PDF_DIR.mkdir(parents=True, exist_ok=True)
+    UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+    UPLOADS_ORIGINALS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 # ===========================================================================

@@ -11,6 +11,7 @@ All endpoints except login require the 'admin' role.
 from __future__ import annotations
 
 import csv
+from pathlib import Path
 import io
 import math
 import os
@@ -23,7 +24,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from bson import ObjectId
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response, UploadFile, File, status
 from pydantic import BaseModel, Field
 
 from app.auth import create_token, get_current_user, require_admin, verify_password
@@ -1143,3 +1144,448 @@ async def clear_cache(user: Dict[str, Any] = Depends(require_admin)):
         return {"status": "success", "message": "Cache cleared successfully"}
     except Exception as exc:
         return {"error": str(exc)}
+
+
+# ---------------------------------------------------------------------------
+# Part 3 & 4: Knowledge Base Manager Endpoints
+# ---------------------------------------------------------------------------
+
+class UpdateDraftRequest(BaseModel):
+    title: Optional[str] = None
+    markdown: Optional[str] = None
+    programme: Optional[str] = None
+    source_note: Optional[str] = None
+    replaces_file: Optional[str] = None
+
+
+class PublishDraftRequest(BaseModel):
+    title: Optional[str] = None
+    programme: Optional[str] = None
+    source_note: Optional[str] = None
+
+
+class TestQuestionRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=500)
+
+
+class FaqAnswerRequest(BaseModel):
+    question: str = Field(..., min_length=2, max_length=500)
+    answer: str = Field(..., min_length=20, max_length=5000)
+    source: str = Field(..., min_length=3, max_length=500)
+    programme: str = Field(default="GENERAL")
+    gap_id: Optional[str] = None
+
+
+_KB_TEST_RATE_LIMITS: Dict[str, List[float]] = {}
+
+
+def _check_kb_test_rate_limit(key: str) -> None:
+    now = time.time()
+    times = _KB_TEST_RATE_LIMITS.get(key, [])
+    times = [t for t in times if now - t < 60]
+    if len(times) >= 10:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded: 10 test questions per minute")
+    times.append(now)
+    _KB_TEST_RATE_LIMITS[key] = times
+
+
+@router.post("/kb/convert")
+async def kb_convert_file(
+    file: UploadFile = File(...),
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Convert uploaded document (PDF, DOCX, MD, TXT) to clean Markdown draft."""
+    file_bytes = await file.read()
+    filename = file.filename or "uploaded_document.txt"
+
+    from app.kb_manager import convert_file_to_markdown, create_draft
+    markdown, warnings, page_count, can_publish = await convert_file_to_markdown(filename, file_bytes)
+
+    draft = create_draft(
+        title=Path(filename).stem,
+        filename=filename,
+        markdown=markdown,
+        warnings=warnings,
+        page_count=page_count,
+        can_publish=can_publish,
+        file_bytes=file_bytes,
+    )
+
+    db = get_db()
+    log_audit_event(
+        db,
+        user,
+        "kb_upload",
+        "kb_draft",
+        draft["draft_id"],
+        {"filename": filename, "page_count": page_count},
+    )
+
+    return {
+        "draft_id": draft["draft_id"],
+        "title": draft["title"],
+        "filename": draft["filename"],
+        "markdown": draft["markdown"],
+        "warnings": draft["warnings"],
+        "page_count": draft["page_count"],
+        "chunk_estimate": draft["chunk_estimate"],
+        "can_publish": draft["can_publish"],
+        "programme": draft["programme"],
+    }
+
+
+@router.put("/kb/drafts/{draft_id}")
+async def kb_update_draft(
+    draft_id: str,
+    body: UpdateDraftRequest,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Update draft title, markdown, programme or source notes."""
+    from app.kb_manager import update_draft
+    updated = update_draft(draft_id, body.dict(exclude_unset=True))
+    return updated
+
+
+@router.post("/kb/drafts/{draft_id}/publish")
+async def kb_publish_draft(
+    draft_id: str,
+    body: Optional[PublishDraftRequest] = None,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Publish draft markdown document to knowledge base and GitHub repository."""
+    from app.kb_manager import (
+        get_draft,
+        validate_safe_slug,
+        generate_safe_slug,
+        GitHubClient,
+        UPLOADS_DIR,
+        UPLOADS_ORIGINALS_DIR,
+        ensure_upload_dirs,
+    )
+
+    draft = get_draft(draft_id)
+    if not draft:
+        raise HTTPException(status_code=404, detail="Draft not found or expired")
+    if not draft.get("can_publish", True):
+        raise HTTPException(status_code=400, detail="Document cannot be published (check warnings)")
+
+    ensure_upload_dirs()
+    title = (body.title if body and body.title else draft["title"]).strip()
+    programme = (body.programme if body and body.programme else draft["programme"]).strip().upper()
+    source_note = (body.source_note if body and body.source_note else draft["source_note"]).strip()
+
+    slug = generate_safe_slug(title)
+    validate_safe_slug(slug)
+
+    iso_now = datetime.now(timezone.utc).isoformat()
+    admin_email = user.get("email", "admin@charusat.ac.in")
+
+    front_matter = (
+        f"---\n"
+        f"title: \"{title}\"\n"
+        f"source_file: \"{draft['filename']}\"\n"
+        f"uploaded_by: \"{admin_email}\"\n"
+        f"uploaded_at: \"{iso_now}\"\n"
+        f"programme: \"{programme}\"\n"
+        f"source_note: \"{source_note}\"\n"
+        f"kind: upload\n"
+        f"---\n\n"
+    )
+
+    full_content = front_matter + draft["markdown"].strip() + "\n"
+    target_local_path = UPLOADS_DIR / f"{slug}.md"
+    target_local_path.write_text(full_content, encoding="utf-8")
+
+    orig_ext = draft.get("extension", "bin")
+    if draft.get("original_bytes"):
+        orig_target = UPLOADS_ORIGINALS_DIR / f"{slug}.{orig_ext}"
+        orig_target.write_bytes(draft["original_bytes"])
+
+    gh = GitHubClient()
+    is_gh_configured, missing = gh.is_configured()
+    github_committed = False
+    workflow_triggered = False
+    message = "Saved to local knowledge base repository."
+
+    if is_gh_configured:
+        repo_rel_path = f"backend/knowledge_base/uploads/{slug}.md"
+        commit_msg = f"kb: add {title} (via admin)"
+        gh.commit_file(repo_rel_path, full_content.encode("utf-8"), commit_msg)
+        github_committed = True
+
+        if draft.get("original_bytes"):
+            orig_repo_path = f"backend/knowledge_base/uploads/originals/{slug}.{orig_ext}"
+            try:
+                gh.commit_file(orig_repo_path, draft["original_bytes"], f"kb: add original for {title}")
+            except Exception as e:
+                logger.warning("Could not commit original file to GitHub: %s", e)
+
+        try:
+            gh.trigger_workflow(force_rebuild=True)
+            workflow_triggered = True
+            message = "Document published to repository. Rebuild workflow dispatched."
+        except Exception as exc:
+            logger.warning("Workflow dispatch failed: %s", exc)
+            message = "Document published to repository. Could not trigger automatic rebuild."
+    else:
+        message = "Saved to local knowledge base only. GitHub integration not configured (missing: " + ", ".join(missing) + "). Rebuild vector database manually to index."
+
+    db = get_db()
+    log_audit_event(
+        db,
+        user,
+        "kb_publish",
+        "document",
+        slug,
+        {"title": title, "slug": slug, "github": github_committed},
+    )
+
+    return {
+        "status": "success",
+        "slug": slug,
+        "title": title,
+        "rel_path": f"uploads/{slug}.md",
+        "github_committed": github_committed,
+        "workflow_triggered": workflow_triggered,
+        "message": message,
+    }
+
+
+@router.get("/kb/status")
+async def kb_status(user: Dict[str, Any] = Depends(require_admin)):
+    """Return knowledge base inventory, document statuses and sync automation info."""
+    from app.kb_manager import get_kb_inventory, GitHubClient
+    from app.embeddings import EmbeddingStore
+
+    vector_store = None
+    try:
+        vector_store = EmbeddingStore().load_vector_store()
+    except Exception:
+        pass
+
+    return get_kb_inventory(vector_store, GitHubClient())
+
+
+@router.post("/kb/sync")
+async def kb_sync(
+    force_rebuild: bool = Query(False),
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Trigger the knowledge base sync and rebuild GitHub Actions workflow."""
+    from app.kb_manager import GitHubClient
+
+    gh = GitHubClient()
+    is_gh_configured, missing = gh.is_configured()
+    if not is_gh_configured:
+        raise HTTPException(
+            status_code=400,
+            detail=f"GitHub integration not configured. Missing variables: {', '.join(missing)}",
+        )
+
+    gh.trigger_workflow(force_rebuild=force_rebuild)
+    db = get_db()
+    log_audit_event(
+        db,
+        user,
+        "kb_sync",
+        "workflow",
+        "sync-knowledge-base.yml",
+        {"force_rebuild": force_rebuild},
+    )
+    return {"status": "success", "message": "Knowledge base sync workflow triggered successfully"}
+
+
+@router.post("/kb/test-question")
+async def kb_test_question(
+    body: TestQuestionRequest,
+    request: Request,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Dry run test question against RAG retriever without logging or caching."""
+    client_ip = request.client.host if request.client else "unknown"
+    rate_key = f"{user.get('email', 'admin')}_{client_ip}"
+    _check_kb_test_rate_limit(rate_key)
+
+    from app.embeddings import EmbeddingStore
+    from app.retriever import RAGRetriever
+    from app import config
+
+    try:
+        vector_store = EmbeddingStore().load_vector_store()
+        retriever = RAGRetriever(vector_store)
+        try:
+            from app.conversation import analyze_turn
+            plan = analyze_turn(body.question, history=[])
+            standalone = getattr(plan, "standalone_question", body.question)
+            chunks = retriever.retrieve(standalone, plan=plan)
+        except Exception:
+            standalone = body.question
+            chunks = retriever.retrieve(body.question)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Retrieval dry-run failed: {exc}")
+
+    results = []
+    max_score = 0.0
+    for doc, score in chunks:
+        meta = doc.metadata or {}
+        max_score = max(max_score, score)
+        results.append({
+            "source": meta.get("source", "unknown"),
+            "title": meta.get("page_title", Path(meta.get("source", "")).stem),
+            "programme": meta.get("program_name", "General"),
+            "content_snippet": doc.page_content.strip()[:260],
+            "score": round(score, 3),
+        })
+
+    answerable = max_score >= config.MIN_RELEVANCE_SCORE
+    return {
+        "question": body.question,
+        "standalone_question": standalone,
+        "answerable": answerable,
+        "relevance_score": round(max_score, 3),
+        "min_relevance_score": config.MIN_RELEVANCE_SCORE,
+        "chunks": results,
+    }
+
+
+@router.delete("/kb/documents/{slug}")
+async def kb_delete_document(
+    slug: str,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Delete an uploaded document. Rejects website or manual core documents."""
+    from app.kb_manager import (
+        validate_safe_slug,
+        GitHubClient,
+        UPLOADS_DIR,
+        UPLOADS_ORIGINALS_DIR,
+    )
+
+    clean_slug = validate_safe_slug(slug)
+
+    local_md = UPLOADS_DIR / f"{clean_slug}.md"
+    if not local_md.exists():
+        raise HTTPException(status_code=404, detail=f"Uploaded document '{clean_slug}' not found")
+
+    try:
+        local_md.unlink(missing_ok=True)
+        for orig in UPLOADS_ORIGINALS_DIR.glob(f"{clean_slug}.*"):
+            orig.unlink(missing_ok=True)
+    except Exception as exc:
+        logger.warning("Failed to remove local file: %s", exc)
+
+    gh = GitHubClient()
+    if gh.is_configured()[0]:
+        try:
+            gh.delete_file(f"backend/knowledge_base/uploads/{clean_slug}.md", f"kb: delete {clean_slug} (via admin)")
+            for ext in ("pdf", "docx", "md", "txt"):
+                gh.delete_file(f"backend/knowledge_base/uploads/originals/{clean_slug}.{ext}", f"kb: delete original for {clean_slug}")
+        except Exception as exc:
+            logger.warning("GitHub deletion failed: %s", exc)
+
+    db = get_db()
+    log_audit_event(db, user, "kb_delete", "document", clean_slug, {"slug": clean_slug})
+    return {"status": "success", "message": f"Document '{clean_slug}' deleted successfully"}
+
+
+@router.post("/kb/faq")
+async def kb_create_faq(
+    body: FaqAnswerRequest,
+    user: Dict[str, Any] = Depends(require_admin),
+):
+    """Save an answered knowledge gap as an FAQ document in uploads/ and resolve the gap."""
+    from app.kb_manager import (
+        generate_safe_slug,
+        validate_safe_slug,
+        GitHubClient,
+        UPLOADS_DIR,
+        ensure_upload_dirs,
+    )
+
+    ensure_upload_dirs()
+
+    if len(body.answer.strip()) < 20:
+        raise HTTPException(status_code=400, detail="Answer must be at least 20 characters long")
+    if not body.source.strip():
+        raise HTTPException(status_code=400, detail="Official source URL or document name is required")
+
+    question_clean = body.question.strip()
+    slug_base = generate_safe_slug(question_clean)
+    slug = f"faq-{slug_base}"
+    validate_safe_slug(slug)
+
+    iso_now = datetime.now(timezone.utc).isoformat()
+    admin_email = user.get("email", "admin@charusat.ac.in")
+    programme = (body.programme or "GENERAL").strip().upper()
+
+    faq_md = (
+        f"---\n"
+        f"title: \"FAQ: {question_clean}\"\n"
+        f"kind: faq\n"
+        f"question: \"{question_clean}\"\n"
+        f"source: \"{body.source.strip()}\"\n"
+        f"programme: \"{programme}\"\n"
+        f"uploaded_by: \"{admin_email}\"\n"
+        f"uploaded_at: \"{iso_now}\"\n"
+        f"---\n\n"
+        f"## Question\n\n"
+        f"{question_clean}\n\n"
+        f"## Answer\n\n"
+        f"{body.answer.strip()}\n\n"
+        f"## Source\n\n"
+        f"{body.source.strip()}\n"
+    )
+
+    local_path = UPLOADS_DIR / f"{slug}.md"
+    local_path.write_text(faq_md, encoding="utf-8")
+
+    gh = GitHubClient()
+    if gh.is_configured()[0]:
+        try:
+            gh.commit_file(
+                f"backend/knowledge_base/uploads/{slug}.md",
+                faq_md.encode("utf-8"),
+                f"kb: add FAQ {slug} (via admin)",
+            )
+            gh.trigger_workflow(force_rebuild=True)
+        except Exception as exc:
+            logger.warning("GitHub sync failed for FAQ: %s", exc)
+
+    db = get_db()
+    if db is not None:
+        try:
+            gaps_coll = db["knowledge_gaps"]
+            if body.gap_id:
+                try:
+                    gaps_coll.update_one(
+                        {"_id": ObjectId(body.gap_id)},
+                        {"$set": {"status": "resolved", "notes": f"Answered via FAQ uploads/{slug}.md", "updated_at": iso_now}},
+                    )
+                except Exception:
+                    gaps_coll.update_one(
+                        {"id": body.gap_id},
+                        {"$set": {"status": "resolved", "notes": f"Answered via FAQ uploads/{slug}.md", "updated_at": iso_now}},
+                    )
+            else:
+                gaps_coll.update_many(
+                    {"normalized_question": question_clean.lower().strip()},
+                    {"$set": {"status": "resolved", "notes": f"Answered via FAQ uploads/{slug}.md", "updated_at": iso_now}},
+                )
+        except Exception as exc:
+            logger.warning("Failed to resolve knowledge gap: %s", exc)
+
+    log_audit_event(
+        db,
+        user,
+        "kb_publish",
+        "faq",
+        slug,
+        {"question": question_clean, "slug": slug},
+    )
+
+    return {
+        "status": "success",
+        "slug": slug,
+        "rel_path": f"uploads/{slug}.md",
+        "message": "FAQ document created and knowledge gap resolved.",
+    }

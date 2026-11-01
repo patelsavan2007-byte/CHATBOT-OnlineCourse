@@ -26,8 +26,11 @@ This guide explains how to monitor, maintain, and update the Center for Online E
 
 ### Knowledge Base
 - **Purpose:** Catalog of official syllabi, admission criteria, and fee disclosures powering the chatbot.
-- **Metrics:** Total vector chunks (target: 301+), source documents, and last ingestion date.
-- **Document Table:** Lists each official file with programme breakdown (BBA, BCA, MBA, MCA, General) and chunk count.
+- **Automation & Sync:** Displays last automated scrape timestamp and outcome. Click **Run sync now** to trigger the GitHub Actions sync workflow, or **Force rebuild** to rebuild vector embeddings.
+- **Upload Document:** Upload official PDF, DOCX, MD, or TXT files (up to 10 MB). Text is automatically extracted, cleaned of odd Unicode spaces and em dashes, stripped of repetitive page headers/footers, and formatted into clean Markdown.
+- **Review & Publish Modal:** Side-by-side editable Markdown and rendered preview with page count, estimated chunks, and programme selector before committing to the repository.
+- **Documents Table:** Lists all website-scraped, manual, and uploaded documents with their programme, chunk count, and live indexing status (Live, Rebuilding, Saved to repository, or Failed).
+- **Test a Question:** Perform a zero-impact dry run to test question retrieval and preview relevance scores and matching text chunks without writing to query logs or cache.
 
 ### Users
 - **Purpose:** Account management and access control for university students and administrators.

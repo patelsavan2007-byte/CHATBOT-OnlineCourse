@@ -37,4 +37,12 @@ services:
         sync: false
       - key: PYTHON_VERSION
         value: "3.11.9"
+      - key: GITHUB_REPO
+        sync: false
+      - key: GITHUB_BRANCH
+        value: "main"
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_WORKFLOW_FILE
+        value: "sync-knowledge-base.yml"
     plan: free
