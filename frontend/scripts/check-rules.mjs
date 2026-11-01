@@ -163,6 +163,11 @@ function checkFile(filePath) {
       }
     }
 
+    // Rule 12: Banned vite.svg icon
+    if (/vite\.svg/i.test(line)) {
+      check(filePath, content, n, line, /vite\.svg/i, "Rule 12 -- vite.svg is banned. Use official brand icons.");
+    }
+
     // Rule 11: CONFIRM placeholders must not reach build
     if (/["'`]CONFIRM["'`]/.test(line) && !/allow-confirm/i.test(line)) {
       // Allow in site.js itself (the definition)
@@ -176,7 +181,7 @@ function checkFile(filePath) {
 // ── Run ──────────────────────────────────────────────────────────────────────
 
 const sourceFiles = walk(SRC, [".jsx", ".js", ".css", ".html"]);
-const publicFiles = walk(PUBLIC, [".html", ".js"]);
+const publicFiles = walk(PUBLIC, [".html", ".js", ".svg", ".webmanifest", ".json"]);
 const htmlFile    = [join(ROOT, "index.html")];
 
 [...sourceFiles, ...publicFiles, ...htmlFile].forEach(checkFile);
