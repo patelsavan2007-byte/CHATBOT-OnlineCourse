@@ -11,6 +11,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { API_BASE, apiFetch, getAuthToken } from "../services/api.js";
 import Dialog from "../components/ui/Dialog.jsx";
+import ThemeToggle from "../components/ui/ThemeToggle.jsx";
 import Toast from "../components/ui/Toast.jsx";
 
 const TABS = [
@@ -614,6 +615,7 @@ export default function Admin() {
               />
               <span className="font-mono">{user?.email}</span>
             </div>
+            <ThemeToggle />
             <button
               onClick={() => setShowSignoutDialog(true)}
               className="rounded-md border px-3 py-1.5 text-xs font-medium transition hover:border-[var(--danger)] cursor-pointer"
