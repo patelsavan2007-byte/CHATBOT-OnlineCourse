@@ -987,7 +987,7 @@ async def admin_knowledge_base(user: Dict[str, Any] = Depends(require_admin)):
         "chunks_per_programme": docs_by_prog,
         "last_ingested_at": last_modified,
         "last_modified": last_modified,
-        "rebuild_note": "Rebuilding the vector store index is a server-side CLI task (python rebuild_vector_db.py).",
+        "rebuild_note": "Rebuilding the vector store index is a server-side CLI task (python rebuild_vectordb.py).",
     }
 
 
