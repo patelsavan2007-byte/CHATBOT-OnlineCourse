@@ -126,6 +126,9 @@ export function useChat() {
     setIsLoading(false);
     setShowColdStart(false);
     setThinkingStatus(DEFAULT_THINKING_MESSAGE);
+    setMessages((prev) =>
+      prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
+    );
   }, []);
 
   // ----------------------------------------------------------------
@@ -159,15 +162,39 @@ export function useChat() {
       // Track whether we ever received content so the non-stream fallback knows
       // whether to throw (F1 fix: receivedAnswer replaces undeclared receivedChunk).
       let receivedAnswer = false;
+      const assistantMsgId = localId();
+      let streamStarted = false;
 
-      const appendChunk = () => {
+      const appendChunk = (chunk) => {
+        if (chunk == null || chunk === "") return;
         if (coldTimer) {
           clearTimeout(coldTimer);
           coldTimer = null;
           setShowColdStart(false);
         }
         receivedAnswer = true;
-        setIsLoading(false);
+
+        if (!streamStarted) {
+          streamStarted = true;
+          setMessages((prev) => [
+            ...prev,
+            {
+              id: assistantMsgId,
+              role: "assistant",
+              content: chunk,
+              timestamp: nowIso(),
+              isStreaming: true,
+            },
+          ]);
+        } else {
+          setMessages((prev) =>
+            prev.map((m) =>
+              m.id === assistantMsgId
+                ? { ...m, content: m.content + chunk }
+                : m
+            )
+          );
+        }
       };
 
       try {
@@ -189,11 +216,19 @@ export function useChat() {
             clearTimeout(coldTimer);
             setIsLoading(false);
             setShowColdStart(false);
+            setMessages((prev) =>
+              prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
+            );
             return;
           }
           // Fall back to the non-streaming endpoint only if we have not yet
           // rendered any incremental content (F1 fix: was undeclared receivedChunk).
-          if (receivedAnswer) throw streamErr;
+          if (receivedAnswer) {
+            setMessages((prev) =>
+              prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m))
+            );
+            throw streamErr;
+          }
           response = await chatService.sendMessage(
             question,
             isGuest ? null : activeConversationId,
@@ -213,7 +248,7 @@ export function useChat() {
 
         const finalContent = response.answer ?? "";
         const assistantMsg = {
-          id: response.message_id || localId(),
+          id: response.message_id || assistantMsgId,
           role: "assistant",
           content: finalContent,
           timestamp: nowIso(),
@@ -222,7 +257,13 @@ export function useChat() {
           quickReplies: response.quick_replies || [],
           isStreaming: false,
         };
-        setMessages((prev) => [...prev, assistantMsg]);
+        setMessages((prev) => {
+          const exists = prev.some((m) => m.id === assistantMsgId);
+          if (exists) {
+            return prev.map((m) => (m.id === assistantMsgId ? assistantMsg : m));
+          }
+          return [...prev, assistantMsg];
+        });
 
         if (isGuest) {
           incrementGuestCount();
@@ -243,15 +284,21 @@ export function useChat() {
         clearTimeout(coldTimer);
         setShowColdStart(false);
         setIsLoading(false);
-        const errMsg = {
-          id:      localId(),
-          role:    "assistant",
-          isError: true,
-          content: err.isNetworkError
-            ? "Unable to reach the assistant. Please check your internet connection or try again in a moment."
-            : `Something went wrong. (${err.message})`,
-        };
-        setMessages((prev) => [...prev, errMsg]);
+        setMessages((prev) => {
+          const hasStreaming = prev.some((m) => m.isStreaming);
+          if (hasStreaming) {
+            return prev.map((m) => (m.isStreaming ? { ...m, isStreaming: false } : m));
+          }
+          const errMsg = {
+            id: localId(),
+            role: "assistant",
+            isError: true,
+            content: err.isNetworkError
+              ? "Unable to reach the assistant. Please check your internet connection or try again in a moment."
+              : `Something went wrong. (${err.message})`,
+          };
+          return [...prev, errMsg];
+        });
       } finally {
         if (abortRef.current === controller) abortRef.current = null;
         clearTimeout(coldTimer);

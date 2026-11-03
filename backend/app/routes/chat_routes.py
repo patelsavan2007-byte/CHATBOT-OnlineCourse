@@ -622,11 +622,12 @@ async def chat_message_stream(
                 _llm_calls = llm_call_counter.get_calls(qid)
             except Exception:
                 _llm_calls = 0
-            # smalltalk/cached-like: can chunk quickly
-            chunk_size = 18
-            for i in range(0, len(answer_text), chunk_size):
-                chunk = answer_text[i:i + chunk_size]
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+            # smalltalk/cached-like: stream word by word naturally
+            tokens = re.findall(r'\S+|\s+', answer_text)
+            delay = max(0.008, min(0.02, 2.5 / max(1, len(tokens))))
+            for token in tokens:
+                yield f"data: {json.dumps({'type': 'chunk', 'content': token})}\n\n"
+                await asyncio.sleep(delay)
             db = get_db()
             assistant_msg, conv_id = _persist_turn(
                 db,
@@ -683,11 +684,12 @@ async def chat_message_stream(
         suggested: List[str] = []
         quick_replies = _quick_replies(outcome)
 
-        # Use single grounded answer only (no second LLM call)
-        chunk_size = 18
-        for i in range(0, len(answer_text), chunk_size):
-            chunk = answer_text[i:i + chunk_size]
-            yield f"data: {json.dumps({'type': 'chunk', 'content': chunk})}\n\n"
+        # Stream answer word by word naturally
+        tokens = re.findall(r'\S+|\s+', answer_text)
+        delay = max(0.008, min(0.02, 2.5 / max(1, len(tokens))))
+        for token in tokens:
+            yield f"data: {json.dumps({'type': 'chunk', 'content': token})}\n\n"
+            await asyncio.sleep(delay)
 
         db = get_db()
         assistant_msg, conv_id = _persist_turn(

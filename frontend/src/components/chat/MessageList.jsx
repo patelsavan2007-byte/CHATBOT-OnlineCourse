@@ -100,7 +100,9 @@ export default function MessageList({
             );
           })}
 
-          {isLoading && <TypingIndicator status={thinkingStatus} />}
+          {isLoading && !messages.some((m) => m.isStreaming) && (
+            <TypingIndicator status={thinkingStatus} />
+          )}
 
           <div ref={bottomRef} className="h-1" aria-hidden="true" />
         </div>

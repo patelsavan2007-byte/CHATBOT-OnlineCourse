@@ -93,7 +93,7 @@ export async function streamMessage(
       return;
     }
 
-    if (event.type === "chunk" && event.content) {
+    if (event.type === "chunk" && event.content != null) {
       onChunk?.(event.content);
     } else if (event.type === "typing") {
       onThinking?.(event.message || "Thinking…");

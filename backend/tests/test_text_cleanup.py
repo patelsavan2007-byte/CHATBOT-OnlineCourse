@@ -109,3 +109,15 @@ def test_word_gluing_root_cause_diagnosis():
     glued_input = "CHARUSAT\u200b Online the\u00a0home\u202fpage Section\u20072(f)"
     fixed = clean_answer_text(glued_input)
     assert fixed == "CHARUSAT Online the home page Section 2(f)"
+
+
+def test_word_token_streaming_reassembles_exactly():
+    """Natural word-token chunks reassemble byte-for-byte to the full answer without mid-word splits."""
+    import re
+    raw_answer = "CHARUSAT offers Online MCA with \u20b91,50,000 fees.\n\nMore details: https://charusat.online"
+    tokens = re.findall(r'\S+|\s+', raw_answer)
+    assert len(tokens) > 5
+    assert "".join(tokens) == raw_answer
+    for token in tokens:
+        if token.strip():
+            assert not token.startswith(" ") and not token.endswith(" ")

@@ -346,12 +346,19 @@ export default function AssistantMessage({
           <>
             <div className="prose-chat">
               <RichText text={content} />
+              {isStreaming && (
+                <span
+                  className="inline-block h-3.5 w-1.5 ml-1 translate-y-0.5 rounded-[1px] animate-pulse"
+                  style={{ background: "var(--accent)" }}
+                  aria-hidden="true"
+                />
+              )}
             </div>
-
-            <SourcesDisclosure sources={sources} />
 
             {!isStreaming && (
               <>
+                <SourcesDisclosure sources={sources} />
+
                 {/* Actions: copy + feedback + regenerate + timestamp */}
                 <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">
                   <CopyButton text={content} />
