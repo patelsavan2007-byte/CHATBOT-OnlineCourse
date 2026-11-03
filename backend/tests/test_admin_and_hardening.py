@@ -227,3 +227,22 @@ def test_cors_restriction():
     assert "http://127.0.0.1:5173" in origins
     # Ensure wildcard is NOT in allowed origins
     assert "*" not in origins
+
+def test_touch_last_active_handles_pymongo_database():
+    from app.auth import _touch_last_active
+
+    class PymongoDatabaseSimulator:
+        def __init__(self):
+            self.updated = False
+            class Users:
+                def update_one(s, filter, update):
+                    self.updated = True
+            self.users = Users()
+
+        def __bool__(self):
+            raise NotImplementedError("Database objects do not implement truth value testing")
+
+    db = PymongoDatabaseSimulator()
+    user = {"id": "6ab0f3c6ffd09b1863eb493d", "last_active": None}
+    _touch_last_active(db, user)
+    assert db.updated is True

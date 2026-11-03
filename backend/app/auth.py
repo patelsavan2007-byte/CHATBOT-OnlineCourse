@@ -102,7 +102,7 @@ _bearer_scheme = HTTPBearer(auto_error=False)
 
 def _touch_last_active(db: Any, user: Dict[str, Any]) -> None:
     """Update user last_active timestamp at most once every 10 minutes."""
-    if not db or not user or not user.get("id"):
+    if db is None or not user or not user.get("id"):
         return
     now_utc = datetime.now(timezone.utc)
     last_act = user.get("last_active")
