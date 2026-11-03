@@ -9,16 +9,16 @@ const ThemeContext = createContext(null);
 const STORAGE_KEY = "theme";
 
 function getSystemTheme() {
-  if (typeof window === "undefined") return "dark";
+  if (typeof window === "undefined") return "light";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
 export function ThemeProvider({ children }) {
   const [mode, setMode] = useState(() => {
     try {
-      return localStorage.getItem(STORAGE_KEY) || "system";
+      return localStorage.getItem(STORAGE_KEY) || "light";
     } catch {
-      return "system";
+      return "light";
     }
   });
 
@@ -32,6 +32,11 @@ export function ThemeProvider({ children }) {
 
     // Also set a data attribute for CSS selectors
     root.setAttribute("data-theme", resolvedTheme);
+
+    const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (metaThemeColor) {
+      metaThemeColor.setAttribute("content", resolvedTheme === "dark" ? "#121211" : "#FAFAF9");
+    }
   }, [resolvedTheme]);
 
   // Listen for system preference changes
@@ -57,7 +62,7 @@ export function ThemeProvider({ children }) {
   }, []);
 
   const cycleTheme = useCallback(() => {
-    setTheme(mode === "dark" ? "light" : mode === "light" ? "system" : "dark");
+    setTheme(mode === "light" ? "dark" : mode === "dark" ? "system" : "light");
   }, [mode, setTheme]);
 
   const value = useMemo(

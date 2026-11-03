@@ -4,16 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Theme applied before first paint: no flash -->
+    <!-- Theme applied before first paint: white (light) theme by default, no flash -->
     <script>
       (function () {
         try {
           var stored = localStorage.getItem("theme");
-          var pref = window.matchMedia("(prefers-color-scheme: dark)").matches
+          var theme = stored === "dark"
             ? "dark"
+            : stored === "system"
+            ? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
             : "light";
-          var theme = stored === "dark" || stored === "light" ? stored : pref;
-          if (theme === "dark") document.documentElement.classList.add("dark");
+          if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+            document.documentElement.classList.remove("light");
+          } else {
+            document.documentElement.classList.remove("dark");
+            document.documentElement.classList.add("light");
+          }
+          document.documentElement.setAttribute("data-theme", theme);
         } catch (e) {/* localStorage blocked */}
       })();
     </script>
@@ -32,8 +40,7 @@
     <link rel="icon" href="/favicon-32x32.png?v=2" type="image/png" sizes="32x32" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=2" />
     <link rel="manifest" href="/site.webmanifest?v=2" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FAFAF9" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#121211" />
+    <meta name="theme-color" content="#FAFAF9" />
 
     <!-- Open Graph (social sharing) -->
     <meta property="og:type"        content="website" />

@@ -454,9 +454,9 @@ export default function Settings() {
               </h2>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: "system", label: "System" },
                   { id: "light", label: "Light" },
                   { id: "dark", label: "Dark" },
+                  { id: "system", label: "System" },
                 ].map((item) => {
                   const isSelected = theme === item.id;
                   return (
