@@ -235,8 +235,26 @@ function RegenerateButton({ onRegenerate }) {
   );
 }
 
-function SourcesDisclosure({ sources }) {
+function SourcesDisclosure({ sources, isInsufficient, content }) {
   if (!sources || !Array.isArray(sources) || sources.length === 0) return null;
+
+  // Only show sources when the database answer is insufficient or partial
+  const contentLower = (content || "").toLowerCase();
+  const showsInsufficient =
+    Boolean(isInsufficient) ||
+    contentLower.includes("don't have that specific information") ||
+    contentLower.includes("dont have that specific information") ||
+    contentLower.includes("don't have the exact details") ||
+    contentLower.includes("dont have the exact details") ||
+    contentLower.includes("not available in the official") ||
+    contentLower.includes("not mentioned in the official") ||
+    contentLower.includes("insufficient") ||
+    contentLower.includes("could not find") ||
+    contentLower.includes("couldn't find") ||
+    contentLower.includes("check with the admissions") ||
+    contentLower.includes("check with the examination");
+
+  if (!showsInsufficient) return null;
 
   return (
     <details className="mt-2.5 rounded-lg border px-3 py-2 text-xs" style={{ borderColor: "var(--border)", background: "var(--surface-2)" }}>
@@ -307,6 +325,7 @@ export default function AssistantMessage({
   isStreaming,
   quickReplies,
   onSuggestedQuestion,
+  isInsufficient,
 }) {
   return (
     <div className="group w-full">
@@ -357,7 +376,7 @@ export default function AssistantMessage({
 
             {!isStreaming && (
               <>
-                <SourcesDisclosure sources={sources} />
+                <SourcesDisclosure sources={sources} isInsufficient={isInsufficient} content={content} />
 
                 {/* Actions: copy + feedback + regenerate + timestamp */}
                 <div className="mt-2 flex items-center gap-1 opacity-90 transition sm:opacity-0 sm:group-hover:opacity-100 focus-within:opacity-100">

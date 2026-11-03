@@ -73,6 +73,7 @@ class ChatMessageResponse(BaseModel):
     suggested_questions: Optional[List[str]] = None
     quick_replies: Optional[List[str]] = None
     clarification: Optional[Dict[str, Any]] = None
+    is_insufficient: Optional[bool] = False
 
 
 class StreamChatRequest(BaseModel):
@@ -356,6 +357,43 @@ def _quick_replies(outcome: _TurnOutcome) -> List[str]:
     return []
 
 
+def _is_answer_insufficient(outcome: _TurnOutcome, answer_text: str) -> bool:
+    """Return True if the answer indicates missing/insufficient database knowledge."""
+    rag_res = getattr(outcome, "rag_result", None)
+    status = str(getattr(rag_res, "status", "") or "").lower()
+    for marker in ("not_found", "missing", "fallback", "empty", "no_chunks", "unverified"):
+        if marker in status:
+            return True
+
+    ans_lower = (answer_text or "").lower()
+    insufficient_phrases = (
+        "don't have that specific information",
+        "dont have that specific information",
+        "don't have the exact details",
+        "dont have the exact details",
+        "not available in the official",
+        "not mentioned in the official",
+        "could not find",
+        "couldn't find",
+        "no specific information",
+        "limited information",
+        "not sufficient",
+        "insufficient details",
+        "check with the admissions",
+        "check with the examination",
+        "for accurate numbers, please check",
+        "contact the university directly",
+    )
+    if any(p in ans_lower for p in insufficient_phrases):
+        return True
+
+    conflicts = getattr(rag_res, "conflicts", None)
+    if conflicts and len(conflicts) > 0:
+        return True
+
+    return False
+
+
 def _clarification_metadata(outcome: _TurnOutcome) -> Optional[Dict[str, Any]]:
     rag_res = getattr(outcome, "rag_result", None)
     if rag_res and getattr(rag_res, "clarification", None):
@@ -492,12 +530,14 @@ async def chat_message(
             user_id=None,
         )
         clarification = _clarification_metadata(outcome)
+        is_insufficient = _is_answer_insufficient(outcome, answer_text)
         return ChatMessageResponse(
             answer=answer_text,
             sources=sources,
             suggested_questions=suggested,
             quick_replies=quick_replies,
             clarification=clarification,
+            is_insufficient=is_insufficient,
         )
 
     # For authenticated users, persist to MongoDB
@@ -551,6 +591,7 @@ async def chat_message(
     )
 
     clarification = _clarification_metadata(outcome)
+    is_insufficient = _is_answer_insufficient(outcome, answer_text)
     return ChatMessageResponse(
         answer=answer_text,
         conversation_id=conversation_id,
@@ -559,6 +600,7 @@ async def chat_message(
         suggested_questions=suggested,
         quick_replies=quick_replies,
         clarification=clarification,
+        is_insufficient=is_insufficient,
     )
 
 
@@ -656,6 +698,7 @@ async def chat_message_stream(
                 "suggested_questions": suggested,
                 "quick_replies": quick_replies,
                 "clarification": _clarification_metadata(outcome),
+                "is_insufficient": _is_answer_insufficient(outcome, answer_text),
                 "llm_calls": _llm_calls,
             }
             yield f"data: {json.dumps(final_data)}\n\n"
@@ -724,6 +767,7 @@ async def chat_message_stream(
             "suggested_questions": suggested,
             "quick_replies": quick_replies,
             "clarification": _clarification_metadata(outcome),
+            "is_insufficient": _is_answer_insufficient(outcome, answer_text),
             "llm_calls": _llm_calls,
         }
         yield f"data: {json.dumps(final_data)}\n\n"

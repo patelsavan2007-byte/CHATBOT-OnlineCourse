@@ -96,6 +96,7 @@ export default function MessageList({
                 isStreaming={msg.isStreaming}
                 quickReplies={isLastAssistant ? (msg.quickReplies || []) : []}
                 onSuggestedQuestion={onSuggestedQuestion}
+                isInsufficient={msg.isInsufficient}
               />
             );
           })}

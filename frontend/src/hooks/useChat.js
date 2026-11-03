@@ -56,6 +56,7 @@ export function useChat() {
               content: m.content,
               timestamp: m.created_at,
               sources: m.sources || [],
+              isInsufficient: m.is_insufficient || false,
             }))
           );
         }
@@ -256,6 +257,7 @@ export function useChat() {
           suggestedQuestions: response.suggested_questions || [],
           quickReplies: response.quick_replies || [],
           isStreaming: false,
+          isInsufficient: Boolean(response.is_insufficient),
         };
         setMessages((prev) => {
           const exists = prev.some((m) => m.id === assistantMsgId);
