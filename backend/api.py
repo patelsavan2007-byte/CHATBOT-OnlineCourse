@@ -135,6 +135,8 @@ def get_allowed_origins() -> List[str]:
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000",
+        "https://chatbot-online-course.vercel.app",
+        "http://chatbot-online-course.vercel.app",
     ]
     prod_domain = (os.getenv("PRODUCTION_DOMAIN") or "").strip()
     if prod_domain:

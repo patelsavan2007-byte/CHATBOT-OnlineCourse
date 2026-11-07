@@ -10,6 +10,7 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
 
 export default function GoogleButton({ onCredential, disabled, label = "Continue with Google" }) {
   const divRef = useRef(null);
+  const initializedRef = useRef(false);
   const { resolvedTheme } = useTheme();
 
   const handleCredentialResponse = useCallback(
@@ -27,10 +28,13 @@ export default function GoogleButton({ onCredential, disabled, label = "Continue
     const setupGoogle = () => {
       if (!window.google?.accounts?.id || !divRef.current) return;
       try {
-        window.google.accounts.id.initialize({
-          client_id: GOOGLE_CLIENT_ID,
-          callback: handleCredentialResponse,
-        });
+        if (!initializedRef.current) {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse,
+          });
+          initializedRef.current = true;
+        }
         divRef.current.innerHTML = "";
         window.google.accounts.id.renderButton(divRef.current, {
           theme: resolvedTheme === "light" ? "outline" : "filled_black",
