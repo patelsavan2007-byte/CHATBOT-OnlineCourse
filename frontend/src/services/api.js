@@ -5,7 +5,7 @@
  * and base URL configuration are centralized in one place.
  */
 
-export const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+export const API_BASE = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 
 // ---------------------------------------------------------------------------
 // Token management
@@ -50,7 +50,8 @@ export async function apiFetch(path, options = {}) {
     headers["Authorization"] = `Bearer ${_token}`;
   }
 
-  const url = path.startsWith("/api") ? `${API_BASE}${path}` : `${API_BASE}${path}`;
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+  const url = `${API_BASE}${cleanPath}`;
 
   let res;
   try {

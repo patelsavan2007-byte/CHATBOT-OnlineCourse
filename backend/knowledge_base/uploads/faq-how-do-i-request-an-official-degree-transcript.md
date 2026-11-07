@@ -5,7 +5,7 @@ question: "How do I request an official degree transcript?"
 source: "https://charusat.online/mandatory-disclosures.html"
 programme: "GENERAL"
 uploaded_by: "admin_test@charusat.ac.in"
-uploaded_at: "2026-11-03T09:15:39.895062+00:00"
+uploaded_at: "2026-11-03T09:30:20.458059+00:00"
 ---
 
 ## Question

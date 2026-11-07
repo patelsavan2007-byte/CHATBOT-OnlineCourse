@@ -149,10 +149,11 @@ def get_allowed_origins() -> List[str]:
     return list(dict.fromkeys(origins))
 
 
-# Restrict CORS to localhost and production domain(s)
+# Restrict CORS to localhost and production domain(s) + any *.vercel.app deployment
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
+    allow_origin_regex=os.getenv("ALLOWED_ORIGIN_REGEX", r"^https:\/\/.*\.vercel\.app$"),
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
