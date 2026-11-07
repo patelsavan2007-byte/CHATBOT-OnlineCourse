@@ -7,6 +7,8 @@
  *  - getRandomStarterQuestions(questionBank, count): diverse starter cards
  */
 
+import { apiFetch } from "../services/api.js";
+
 let cachedBank = null;
 const CACHE_KEY = "charusat_qb_cache";
 
@@ -22,16 +24,13 @@ export async function loadQuestionBank() {
   } catch {/* ignore */}
 
   try {
-    const res = await fetch("/api/question-bank");
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        cachedBank = data;
-        try {
-          localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        } catch {/* ignore */}
-        return cachedBank;
-      }
+    const data = await apiFetch("/api/question-bank");
+    if (Array.isArray(data) && data.length > 0) {
+      cachedBank = data;
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+      } catch {/* ignore */}
+      return cachedBank;
     }
   } catch (err) {
     console.warn("Failed to fetch /api/question-bank, using fallback cache:", err);
